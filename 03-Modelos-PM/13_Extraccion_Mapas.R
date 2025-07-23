@@ -1,10 +1,25 @@
 ##############################################################################
 ##otra forma de extraer los datos
-estacion <- "MD"
-modelo <- "01-ET-CV-M1-260525-MD"
-modelo <- "01-ET-CV-M1-270525-sAOD-MD"
-modelo <- "01-ET-CV-M1-260525-Combinado-MD"
-#year<-2015
+estacion <- "MX"
+#modelo <- "01-XGB-CV-M1-200525-SP"
+# modelo <- "02-XGB-CV-1-210525-sAOD-SP" 
+#modelo <- "01-XGB-CV-M1-200525-MERRA-Combinado-SP"
+
+#modelo <- "01-XGB-CV-M1-190625-CH"
+#modelo <- "02-XGB-CV-M1-230625-sAOD-CH"
+#modelo <- "01-XGB-CV-M1-190625-MERRA-Combinado-CH"
+
+#modelo <- "01-ET-CV-M1-170625-BA"
+#modelo <- "02-ET-CV-M1-230625-sAOD-BA"
+#modelo <- "01-ET-CV-M1-170625-Combinado-BA"
+
+#modelo <- "01-ET-CV-M1-260525-MD"
+#modelo <- "01-ET-CV-M1-270525-sAOD-MD"
+# modelo <- "01-ET-CV-M1-260525-Combinado-MD"
+# 
+#modelo <- "01-XGB-CV-M1-290525-MX"
+#modelo <- "02-XGB-CV-M1-230625-sAOD-MX"
+modelo <- "01-XGB-CV-M1-290525-combinado-MX"
 
 #dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/Salidas/SalidasDiarias/",modelo,"/",year,"/",sep="")
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/Salidas/SalidasDiarias/",modelo,"/",sep="")
@@ -17,7 +32,7 @@ id <- list.files(path = dir,
 data_estacciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
 data_estacciones <- data_estacciones[data_estacciones$Considerado=="SI",]
 #data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
-
+nrow(data_estacciones)
 puntos <- data_estacciones
 
 
@@ -46,7 +61,7 @@ for (i in 1:length(id)){
 
 data_sensores <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
 data_sensores <- data_sensores[complete.cases(data_sensores$date),]
-data_sensores$date <- as.Date(as.POSIXct(data_sensores$date, format = "%d/%m/%Y"))#"%Y-%m-%d")#
+data_sensores$date <- as.Date(as.POSIXct(data_sensores$date, format = "%Y-%m-%d"))#"%d/%m/%Y"))#
 df_rbind$date <- as.Date(as.POSIXct(df_rbind$date, format = "%Y-%m-%d"))#
 # vemos las variabñes
 names(data_sensores)
@@ -56,12 +71,16 @@ unique(data_sensores$ID)
 # merge
 merged_df <- merge(df_rbind,data_sensores, by = c("ID", "date"), all.x = TRUE)
 merged_df_subt <- merged_df[complete.cases(merged_df$mean),]
+#merged_df_subt <- merged_df[complete.cases(merged_df$Registros.completos),]
+
 merged_df_subt <- merged_df_subt[complete.cases(merged_df_subt$valor_raster),]
 
-merged_df_subt2 <- merged_df_subt[year(merged_df_subt$date) !=2024,]
+# merged_df_subt2 <- merged_df_subt[year(merged_df_subt$date) !=2024,]
+merged_df_subt2 <- merged_df_subt[year(merged_df_subt$date) ==2024,]
+#merged_df_subt2$mean <-merged_df_subt2$Registros.completos
+nrow(merged_df_subt2)
+model <- lm(mean~valor_raster , data = merged_df_subt2)
 
-
-model <- lm( mean~valor_raster , data = merged_df_subt2)
 # Calculo de métricas de desempeño
 R2 <- summary(model)$r.squared
 RMSE <- sqrt(mean(residuals(model)^2))
@@ -70,7 +89,7 @@ n <- nrow(merged_df_subt2)
 df_metrica <- data.frame(R2,RMSE,Bias,n)
 df_metrica
 #write.csv(merged_df_subt,paste("D:/Josefina/Proyectos/Tesis/",estacion,"/resultados/merge_Prediccion_Real/",estacion,"_merge_01-ET-CV-M1-260525-MD.csv",sep=""))
-write.csv(merged_df_subt,paste("D:/Josefina/Proyectos/Tesis/",estacion,"/resultados/merge_Prediccion_Real/",estacion,"_merge_",modelo,".csv",sep=""))
+#write.csv(merged_df_subt,paste("D:/Josefina/Proyectos/Tesis/",estacion,"/resultados/merge_Prediccion_Real/",estacion,"_merge_",modelo,".csv",sep=""))
 
 merged_df_subt2$date <- as.Date(merged_df_subt2$date)
 df_diario <- merged_df_subt2 %>%

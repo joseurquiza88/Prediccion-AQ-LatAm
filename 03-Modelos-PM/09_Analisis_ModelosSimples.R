@@ -43,7 +43,7 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
 ##############################################################################
 ##01. --- RLS
 # Cargar los datos
-estacion <- "MX"
+estacion <- "MD"
 modelo <- "1"
 
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
@@ -99,7 +99,7 @@ plot_RLS
 ##############################################################################
 ## --- Corregir AOD por la PBL
 # Cargar los datos
-estacion <- "MX"
+estacion <- "SP"
 modelo <- "1"
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
 setwd(dir)
@@ -1018,7 +1018,8 @@ modelo_lme <- lmer(PM25 ~ AOD_055 + (1 | fecha), data = train_data)
 
 # Hacer predicciones sobre test_data
 test_data$pred <- predict(modelo_lme, newdata = test_data, allow.new.levels = TRUE)
-
+test_data$pred <- predict(modelo_final, newdata = test_data, allow.new.levels = TRUE)
+predicciones_test
 # Graficar predicciones vs valores reales
 plot_LME <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_pointdensity(adjust = 1.5) +
@@ -1410,3 +1411,81 @@ ggplot(r2_data, aes(x = Centro, y = RMSE, fill = Tipo)) +
  theme_classic()+scale_fill_manual(values = c( "RMSE BLH"= "#feb24c",
                                                "RMSE RH" ="#fb6a4a", 
                                                "RMSE RH+BLH" = "#cb181d"))
+
+
+
+
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+##01. --- RLS ventanas
+# Cargar los datos
+estacion <- "CH"
+modelo <- "1"
+
+dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/modelo_ventanas/")
+setwd(dir)
+
+train_data <- read.csv(paste0(dir, "M", modelo, "_train_", estacion, ".csv"))
+test_data <- read.csv(paste0(dir, "M", modelo, "_test_", estacion, ".csv"))
+
+# Ajustar el modelo de regresión lineal simple
+modelo_lm_3km <- lm(PM25 ~ aod_550_3km, data = train_data)
+modelo_lm_5km <- lm(PM25 ~ aod_550_5km, data = train_data)
+modelo_lm_3km_aod <- lm(AOD_055 ~ aod_550_3km, data = train_data)
+modelo_lm_5km_aod <- lm(AOD_055 ~ aod_550_5km, data = train_data)
+# Evaluar el desempeño con tu función personalizada
+resultados_lm_3km <- evaluar_modelo(modelo = modelo_lm_3km,
+                                datos_test = test_data,
+                                variable_real = "PM25",
+                                tipoModelo = "LM",  # o cualquier texto distinto de "XGB"
+                                y_test = NULL)
+resultados_lm_5km <- evaluar_modelo(modelo = modelo_lm_5km,
+                                    datos_test = test_data,
+                                    variable_real = "PM25",
+                                    tipoModelo = "LM",  # o cualquier texto distinto de "XGB"
+                                    y_test = NULL)
+resultados_lm_3km_aod <- evaluar_modelo(modelo = modelo_lm_3km_aod,
+                                    datos_test = test_data,
+                                    variable_real = "AOD_055",
+                                    tipoModelo = "LM",  # o cualquier texto distinto de "XGB"
+                                    y_test = NULL)
+
+resultados_lm_5km_aod <- evaluar_modelo(modelo = modelo_lm_5km_aod,
+                                    datos_test = test_data,
+                                    variable_real = "AOD_055",
+                                    tipoModelo = "LM",  # o cualquier texto distinto de "XGB"
+                                    y_test = NULL)
+print(resultados_lm_3km)
+print(resultados_lm_5km)
+# Para hacer el plot
+library(ggplot2)
+
+# Predicciones sobre los datos de entrenamiento
+test_data$pred <- predict(modelo_lm, newdata = test_data)
+plot_RLS<- ggplot(test_data, aes(x = PM25, y = pred)) +
+  geom_point(color = "steelblue", alpha = 0.6) +     # puntos reales vs predicción
+  geom_abline(slope = 1, intercept = 0, color = "black", ) +  # línea ideal
+  geom_smooth(method = "lm", se = FALSE, color = "red",linetype = "dashed") +  # ajuste de regresión
+  scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
+  scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
+  
+  theme_classic()
+plot_RLS
+
+
+library(ggplot2)
+library(ggpointdensity)  # si no lo tenés: install.packages("ggpointdensity")
+
+plot_RLS <- ggplot(test_data, aes(x = PM25, y = pred)) +
+  geom_pointdensity(adjust = 1.5) +
+  scale_color_viridis_c() +
+  geom_abline(slope = 1, intercept = 0, color = "black") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+  scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
+  scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
+  theme_classic()+ theme(legend.position="none")
+
+plot_RLS

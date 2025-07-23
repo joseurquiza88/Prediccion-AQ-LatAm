@@ -1,16 +1,21 @@
-
+rm(list = setdiff(ls(), "df_rbind"))
 # Definir el directorio donde están tus archivos raster
-year<-2020
+year<-2015
 #year <- c(2016,2017)#,2018,2019,2020,2021,2022,2023)
 i<-1
 #modelo <- "01-ET-CV-M1-270525-sAOD-MD"
 #modelo <- "01-ET-CV-M1-260525-MD"
-modelo <- "01-ET-CV-M1-260525-Combinado-MD"
-estacion <- "MD"
+#modelo <- "01-ET-CV-M1-260525-Combinado-MD"
+#modelo <- "02-XGB-CV-1-210525-sAOD-SP"
+#modelo <- "01-XGB-CV-M1-190625-CH"
+# modelo <- "02-XGB-CV-M1-230625-sAOD-CH"
+#modelo <- "01-XGB-CV-M1-290525-MX"
+# modelo <- "02-XGB-CV-M1-230625-sAOD-MX"
+# modelo <- "01-XGB-CV-M1-290525-combinado-MX"
+# modelo <- "01-ET-CV-M1-170625-MERRA-BA"
+modelo <- "01-ET-CV-M1-170625-BA"
+estacion <- "BA"
 for (i in 1:length(year)){
-  #dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/modelos/Salidas/SalidasDiarias/Salida_03-XGB_cv_M1-041024/",year[i],"/",sep="")
-  
-  #dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion"/modelos/salidas/SalidasDiarias/",modelo,"/",year[i],"/",sep="")
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",modelo,"/",year,"/",sep="")
   
   setwd(dir_salida)

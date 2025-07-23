@@ -1,9 +1,52 @@
 
+### Numero de datos entrnamiento-testeo
+library(ggplot2)
+library(dplyr)
+
+# Datos
+datos <- data.frame(
+  Sitio = rep(c("SP", "ST", "BA", "MD", "MX"), each = 2),
+  Tipo = rep(c("Entrenamiento", "Testeo"), times = 5),
+  Observaciones = c(8867, 3799, 15800, 6768, 2421, 1035, 4695, 2009, 16077, 6887)
+)
+
+# Ordenar sitios
+orden_sitios <- datos %>%
+  group_by(Sitio) %>%
+  summarise(total = sum(Observaciones)) %>%
+  arrange(total) %>%
+  pull(Sitio)
+
+datos$Sitio <- factor(datos$Sitio, levels = orden_sitios)
+
+# Calcular proporciones
+datos_prop <- datos %>%
+  group_by(Sitio) %>%
+  mutate(prop = Observaciones / sum(Observaciones))
+
+ggplot(datos_prop, aes(x = Sitio, y = prop, fill = Tipo)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = Observaciones),
+            position = position_stack(vjust = 0.5), 
+            size = 3.5, color = "white") +  # texto blanco para más contraste
+  labs(y = "Proporción", x = "", fill = "Tipo de dato") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c("Entrenamiento" = "#4292c6", "Testeo" = "#08519c")) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(size = 13),
+    axis.text.y = element_text(size = 13),
+    legend.title = element_text(size = 13),
+    legend.text = element_text(size = 12),
+    legend.key.size = unit(0.8, "cm"),
+    legend.position = "right"
+  )
+
 
 estacion <- "MX"
 data<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
-data$date <- as.POSIXct(as.character(data$date), format = "%d/%m/%Y")#"%Y-%m-%d")#
-#data$mean<-data$Registros.completos
+data$date <- as.POSIXct(as.character(data$date), format ="%Y-%m-%d")# "%d/%m/%Y")#
+data$mean<-data$Registros.completos
 data <- data[complete.cases(data$mean),]
 data <- data[data$mean !=0,]
 data <- data[data$mean >0,]
@@ -299,7 +342,7 @@ ggsave(
 # Crear columna con nombre del mes en ingl?s y completo
 datos_boxplot <- data %>%
   mutate(
-    mes = month(date, label = TRUE, abbr = FALSE, locale = "C"),
+    mes = month(date, label = TRUE, abbr = FALSE, locale = "es_ES"),
     mes = factor(mes, levels = month.name)  # ordenar de enero a diciembre
   )
 
@@ -322,6 +365,51 @@ mensual_total <-ggplot(datos_boxplot, aes(x = mes, y = mean)) +
   ) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+
+
+####
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+
+# Crear columna con nombre del mes en español y ordenarlos
+datos_boxplot <- data %>%
+  mutate(
+    mes = month(date, label = TRUE, abbr = FALSE, locale = "es_ES"),
+    mes = factor(mes, levels = c("enero", "febrero", "marzo", "abril", "mayo", "junio",
+                                 "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"))
+  )
+# c("SP" = "#005a32", 
+#   "ST" = "#fd8d3c", 
+#   "BA" = "#99000d", 
+#   "MD" = "#023858", 
+#   "MX" = "#ce1256")) 
+# Boxplot sin outliers y con meses en español
+datos_boxplot <- datos_boxplot[complete.cases(datos_boxplot$mean),]
+mensual_total <- ggplot(datos_boxplot, aes(x = mes, y = mean)) +
+  geom_boxplot(
+    fill =  "#ce1256",#"#023858",#"#99000d",#"#005a32",#"#fd8d3c",
+    color = "black",
+    outlier.shape = NA  # eliminar los outliers
+  )  + scale_y_continuous(
+    limits = c(0, 120),
+    breaks = seq(0, 120, by = 40)  # saltos de 40
+  ) +
+  labs(
+    x = " ",
+    y = "  "
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 13),
+    strip.text = element_text(size = 12)
+  )
+  #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+mensual_total
+
 mensual_total
 dir <- paste("D:/Josefina/Proyectos/Tesis/",estacion,"/plots/",sep="")
 getwd()

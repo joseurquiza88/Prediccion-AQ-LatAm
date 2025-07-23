@@ -130,7 +130,7 @@ print(resultados_RLM)
 #########################################################################################
 ### ----- SVR  -----
 library(e1071)  # para usar svm
-estacion <-"MX"
+estacion <-"BA"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
@@ -140,8 +140,8 @@ test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,"
 
 
 svr_model <- svm(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
-                   SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
-                   d2m_mean  +t2m_mean +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
+                   SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean +sp_mean + #+t2m_mean
+                   d2m_mean   +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
                  data = train_data,
                  type = "eps-regression",  # regresi?n epsilon-SVR
                  kernel = "radial",        # pod?s probar tambi?n "linear" o "polynomial"
@@ -154,6 +154,9 @@ resultados_SVR <- evaluar_modelo(modelo=svr_model, datos_test=test_data, variabl
 print(resultados_SVR)
 
 
+setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
+getwd()
+save(svr_model, file=paste("01-SVR-M",modelo,"-170625",estacion,".RData",sep=""))
 
 
 #########################################################################################
@@ -161,7 +164,7 @@ print(resultados_SVR)
 ### ----- ET   -----
 library(caret)
 library(ranger)
-estacion <-"MD"
+estacion <-"BA"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
@@ -171,9 +174,9 @@ test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,"
 
 # Entrenamiento simple sin b?squeda de hiperpar?metros ni CV
 modelo_ranger <- train(
-  PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
+  PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + #+t2m_mean 
     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
-    d2m_mean  +t2m_mean +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
+    d2m_mean  +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
   data = train_data,
   method = "ranger",
   trControl = trainControl(method = "none"),  # sin validaci?n cruzada
@@ -188,10 +191,17 @@ modelo_ranger <- train(
 resultados_ET <- evaluar_modelo(modelo=modelo_ranger, datos_test=test_data, variable_real = "PM25",tipoModelo="ET",y_test=NA)
 
 print(resultados_ET)
+
+
+setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
+getwd()
+save(modelo_ranger, file=paste("01-ET-M",modelo,"-170625",estacion,".RData",sep=""))
+
+
 #########################################################################################
 #########################################################################################
 ### ----- RF   -----
-estacion <-"MX"
+estacion <-"CH"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
@@ -200,19 +210,25 @@ train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 control <- trainControl(method = "none")
 # Entrenar el modelo una sola vez
-modelo_RF <- train(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
-                     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
-                     d2m_mean  +t2m_mean +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
+modelo_RF <- train(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + +t2m_mean +
+                     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean +# sp_mean +
+                     d2m_mean +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
                    data = train_data,
                    method = "rf",
                    trControl = control,
                    importance = TRUE)
 
 
-10:20-10:28
+07:52
 resultados_RF <- evaluar_modelo(modelo=modelo_RF, datos_test=test_data, variable_real = "PM25",tipoModelo="RF",y_test=NA)
 
 print(resultados_RF)
+
+setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
+getwd()
+save(modelo_RF, file=paste("01-RF-M",modelo,"-170625",estacion,".RData",sep=""))
+
+
 #########################################################################################
 #########################################################################################
 
@@ -220,7 +236,7 @@ print(resultados_RF)
 library(xgboost)
 library(Matrix)
 ### ----- XGB   -----
-estacion <-"MX"
+estacion <-"BA"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
@@ -230,21 +246,21 @@ test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,"
 
 
 X <- train_data[ , c( "AOD_055",
-                      "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia"
+                      "ndvi", "BCSMASS_dia","DUSMASS_dia", "sp_mean",#"t2m_mean",
                       "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
-                      "sp_mean", "d2m_mean", "t2m_mean","v10_mean",
+                       "d2m_mean", "v10_mean",
                         "u10_mean", "tp_mean","DEM",
                       "dayWeek")]#
 
 
 y <- train_data$PM25
 
-X_test <- test_data[ ,c("AOD_055",
-                        "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia"
-                        "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
-                        "sp_mean", "d2m_mean", "t2m_mean","v10_mean",
-                        "u10_mean", "tp_mean","DEM",
-                        "dayWeek")]#
+X_test <- test_data[ ,c( "AOD_055",
+                         "ndvi", "BCSMASS_dia","DUSMASS_dia", "sp_mean",#"t2m_mean",
+                         "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
+                         "d2m_mean", "v10_mean",
+                         "u10_mean", "tp_mean","DEM",
+                         "dayWeek")]#
 y_test<- test_data$PM25
 # Convertir a matrices xgboost
 dtrain <- xgb.DMatrix(data = as.matrix(X), label = y)
@@ -276,6 +292,11 @@ dtest <- xgb.DMatrix(data = as.matrix(X_test), label = y_test)
 resultados_XGB <- evaluar_modelo(modelo=xgb_model, datos_test=dtest, variable_real = "PM25",tipoModelo="XGB",y_test=y_test)
 
 print(resultados_XGB)
+
+
+setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
+getwd()
+save(xgb_model, file=paste("01-XGB-M",modelo,"-170625",estacion,".RData",sep=""))
 
 #########################################################################################
 #########################################################################################

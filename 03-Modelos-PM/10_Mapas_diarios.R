@@ -8,34 +8,40 @@
 ###########################################################################
 #rm(list=ls())
 df_rbind <- data.frame()
-estacion <- "MD"
+estacion <- "BA"
 dir <- paste("D:/Josefina/Proyectos/tesis/",estacion,"/modelos/",sep="")
 setwd(dir)
+
 # para seleccionar el modelo
 list.files(pattern = "ET")
 modelo_ET_cv[["coefnames"]]
-
+rm(list = setdiff(ls(), "df_rbind"))
 for (l in 1:1){
   rm(list = setdiff(ls(), "df_rbind"))
-  estacion <- "MD"
+  estacion <- "BA"
   year<- 2024
-  numRaster <- "05"
-  modelo <- "01-ET-CV-M1-270525-sAOD-MD.RData"
-  nombre_salida <- "01-ET-CV-M1-270525-sAOD-MD"
+  numRaster <- "01"
+  #modelo <- "01-ET-CV-M1-170625-BA.RData"
+  modelo <- "02-ET-CV-M1-230625-sAOD-BA.RData" 
+  nombre_salida <- "02-ET-CV-M1-230625-sAOD-BA"
   setwd(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/dataset_ejemplo/Prediccion_",year,"/tiff/",sep=""))
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",nombre_salida,"/",sep="")
   # Fechas de inter?1
-  fechaInicio <- as.Date("01-05-2024", format = "%d-%m-%Y")
-  fechaFin <- as.Date("31-05-2024", format = "%d-%m-%Y")
+  fechaInicio <- as.Date("01-12-2024", format = "%d-%m-%Y")
+  fechaFin <- as.Date("31-12-2024", format = "%d-%m-%Y")
   ###
-  fechaNDVI<- as.Date("01-05-2024", format = "%d-%m-%Y")
+  fechaNDVI<- as.Date("01-12-2024", format = "%d-%m-%Y")
   lista_fecha <- data.frame(date=seq.Date(fechaInicio, fechaFin, by = "day"))
   dir_modelos <- paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep="")
   load(paste(dir_modelos,modelo,sep=""))
 }
 
 # lista_fecha$date[j]+2
-# j<-1
+# 
+# 
+# # 
+#j<-1
+
 for (j in 1:nrow(lista_fecha)) {
   
   print(j)
@@ -56,7 +62,7 @@ for (j in 1:nrow(lista_fecha)) {
   if (nchar(dayJulian)==3) {
     sep = ""
   }
-  #maiacDate <- paste(yearInteres,sep,dayJulian,sep = "")
+  maiacDate <- paste(yearInteres,sep,dayJulian,sep = "")
   #MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster_",numRaster,".tif",sep=""))
   #MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster.tif",sep=""))
   #MAIAC_raster <- raster(paste("00_MAIAC/",maiacDate,"-MAIAC_raster.tif",sep=""))
@@ -114,8 +120,8 @@ for (j in 1:nrow(lista_fecha)) {
   
   ## BCSMASS
   #BCSMASS_raster <- raster(paste("04_MERRA-2/",fechaInteres_MERRA,"-BCSMASS_raster.tif",sep=""))
-  BCSMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-BCSMASS_raster_",numRaster,".tif",sep=""))
-  #BCSMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-BCSMASS_raster.tif",sep=""))
+  #BCSMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-BCSMASS_raster_",numRaster,".tif",sep=""))
+  BCSMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-BCSMASS_raster.tif",sep=""))
   
   #BCSMASS_raster_NA <- sum(is.na(BCSMASS_raster[]))
   #print(c("BCSMASS",BCSMASS_raster_NA))
@@ -123,9 +129,9 @@ for (j in 1:nrow(lista_fecha)) {
 
   ## DUSMASS
   #DUSMASS_raster <- raster(paste("04_MERRA-2/",fechaInteres_MERRA,"-DUSMASS_raster.tif",sep=""))
-  DUSMASS_raster <- raster(paste("04_MERRA-2_DIA/",fechaInteres_MERRA,"-DUSMASS_raster_",numRaster,".tif",sep=""))
+  #DUSMASS_raster <- raster(paste("04_MERRA-2_DIA/",fechaInteres_MERRA,"-DUSMASS_raster_",numRaster,".tif",sep=""))
   
-  #DUSMASS_raster <- raster(paste("04_MERRA-2_DIA/",fechaInteres_MERRA,"-DUSMASS_raster.tif",sep=""))
+  DUSMASS_raster <- raster(paste("04_MERRA-2_DIA/",fechaInteres_MERRA,"-DUSMASS_raster.tif",sep=""))
   #DUSMASS_raster_NA <- sum(is.na(DUSMASS_raster[]))
   #print(c("DUSMASS",DUSMASS_raster_NA))
   #plot(DUSMASS_raster)
@@ -149,9 +155,9 @@ for (j in 1:nrow(lista_fecha)) {
   #plot(OCSMASS_raster)
   
   ## SO2SMASS
-  # SO2SMASS_raster <- raster(paste("04_MERRA-2/",fechaInteres_MERRA,"-SO2SMASS_raster.tif",sep=""))
-  SO2SMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SO2SMASS_raster_",numRaster,".tif",sep=""))
-  #SO2SMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SO2SMASS_raster.tif",sep=""))
+  #SO2SMASS_raster <- raster(paste("04_MERRA-2/",fechaInteres_MERRA,"-SO2SMASS_raster.tif",sep=""))
+  #SO2SMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SO2SMASS_raster_",numRaster,".tif",sep=""))
+  SO2SMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SO2SMASS_raster.tif",sep=""))
   
   #SO2SMASS_raster_NA <- sum(is.na(SO2SMASS_raster[]))
   #print(c("SO2SMASS",SO2SMASS_raster_NA))
@@ -159,8 +165,8 @@ for (j in 1:nrow(lista_fecha)) {
   
   ## SO4SMASS
   #SO4SMASS_raster <- raster(paste("04_MERRA-2/",fechaInteres_MERRA,"-SO4SMASS_raster.tif",sep=""))
-  SO4SMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SO4SMASS_raster_",numRaster,".tif",sep=""))
-  #SO4SMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SO4SMASS_raster.tif",sep=""))
+  #SO4SMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SO4SMASS_raster_",numRaster,".tif",sep=""))
+  SO4SMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SO4SMASS_raster.tif",sep=""))
   
   #SO4SMASS_raster_NA <- sum(is.na(SO4SMASS_raster[]))
   #print(c("SO4SMASS",SO4SMASS_raster_NA))
@@ -168,8 +174,8 @@ for (j in 1:nrow(lista_fecha)) {
   
   ## SSSMASS
   #SSSMASS_raster <- raster(paste("04_MERRA-2/",fechaInteres_MERRA,"-SSSMASS_raster.tif",sep=""))
-  SSSMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SSSMASS_raster_",numRaster,".tif",sep=""))
-  #SSSMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SSSMASS_raster.tif",sep=""))
+  #SSSMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SSSMASS_raster_",numRaster,".tif",sep=""))
+  SSSMASS_raster <- raster(paste("04_MERRA-2_dia/",fechaInteres_MERRA,"-SSSMASS_raster.tif",sep=""))
   #SSSMASS_raster_NA <- sum(is.na(SSSMASS_raster[]))
   #print(c("SSSMASS",SSSMASS_raster_NA))
   #plot(SSSMASS_raster)
@@ -185,50 +191,50 @@ for (j in 1:nrow(lista_fecha)) {
   
   ################# -----     ERA5     -----
   ## BLH     -----
-  BLH_raster <- raster(paste("05_ERA5/",fechaInteres,"-BLH_raster_",numRaster,".tif",sep=""))
-  #BLH_raster <- raster(paste("05_ERA5/",fechaInteres,"-BLH_raster.tif",sep=""))
+  #BLH_raster <- raster(paste("05_ERA5/",fechaInteres,"-BLH_raster_",numRaster,".tif",sep=""))
+  BLH_raster <- raster(paste("05_ERA5/",fechaInteres,"-BLH_raster.tif",sep=""))
   
   
   #plot(BLH_raster)
   #BLH_raster_raster_NA <- sum(is.na(BLH_raster[]))
   #print(c("BLH",BLH_raster_raster_NA))
   ## D2M
-  D2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-D2M_raster_",numRaster,".tif",sep=""))
-  #D2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-D2M_raster.tif",sep=""))
+  #D2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-D2M_raster_",numRaster,".tif",sep=""))
+  D2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-D2M_raster.tif",sep=""))
   #plot(D2M_raster)
   #D2M_raster_NA <- sum(is.na(D2M_raster[]))
   #print(c("D2M",D2M_raster_NA))
   ## T2M
-  T2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-T2M_raster_",numRaster,".tif",sep=""))
+  #T2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-T2M_raster_",numRaster,".tif",sep=""))
   
-  #T2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-T2M_raster.tif",sep=""))
+  T2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-T2M_raster.tif",sep=""))
   #plot(T2M_raster)
   #T2M_raster_NA <- sum(is.na(T2M_raster[]))
   #print(c("T2M",T2M_raster_NA))
   
   ## TP
-  TP_raster <- raster(paste("05_ERA5/",fechaInteres,"-TP_raster_",numRaster,".tif",sep=""))
-  #TP_raster <- raster(paste("05_ERA5/",fechaInteres,"-TP_raster.tif",sep=""))
+  #TP_raster <- raster(paste("05_ERA5/",fechaInteres,"-TP_raster_",numRaster,".tif",sep=""))
+  TP_raster <- raster(paste("05_ERA5/",fechaInteres,"-TP_raster.tif",sep=""))
   
   #plot(TP_raster)
   #TP_raster_NA <- sum(is.na(TP_raster[]))
   #print(c("TP",TP_raster_NA))
   ## SP
-  #SP_raster <- raster(paste("05_ERA5/",fechaInteres,"-SP_raster.tif",sep=""))
-  SP_raster <- raster(paste("05_ERA5/",fechaInteres,"-SP_raster_",numRaster,".tif",sep=""))
+  SP_raster <- raster(paste("05_ERA5/",fechaInteres,"-SP_raster.tif",sep=""))
+  #SP_raster <- raster(paste("05_ERA5/",fechaInteres,"-SP_raster_",numRaster,".tif",sep=""))
   #plot(SP_raster)
   #SP_raster_NA <- sum(is.na(SP_raster[]))
   #print(c("SP",SP_raster_NA))
   ## V10
-  #V10_raster <- raster(paste("05_ERA5/",fechaInteres,"-V10_raster.tif",sep=""))
+  V10_raster <- raster(paste("05_ERA5/",fechaInteres,"-V10_raster.tif",sep=""))
   
-  V10_raster <- raster(paste("05_ERA5/",fechaInteres,"-V10_raster_",numRaster,".tif",sep=""))
+  #V10_raster <- raster(paste("05_ERA5/",fechaInteres,"-V10_raster_",numRaster,".tif",sep=""))
   #plot(V10_raster)
   #V10_raster_NA <- sum(is.na(V10_raster[]))
   #print(c("V10",V10_raster_NA))
   ## U10
-  U10_raster <- raster(paste("05_ERA5/",fechaInteres,"-U10_raster_",numRaster,".tif",sep=""))
-  #U10_raster <- raster(paste("05_ERA5/",fechaInteres,"-U10_raster.tif",sep=""))
+  #U10_raster <- raster(paste("05_ERA5/",fechaInteres,"-U10_raster_",numRaster,".tif",sep=""))
+  U10_raster <- raster(paste("05_ERA5/",fechaInteres,"-U10_raster.tif",sep=""))
   
   #plot(U10_raster)
   #U10_raster_NA <- sum(is.na(U10_raster[]))
@@ -241,15 +247,17 @@ for (j in 1:nrow(lista_fecha)) {
   #dayWeek_raster_NA <- sum(is.na(dayWeek_raster[]))
   #print(c("dayWeek",dayWeek_raster_NA))
   ##### STACK
-  
-  r_stack <- stack(NDVI_raster, #MAIAC_raster
+  # modelo_ET_cv[["coefnames"]]
+  #modelo_ranger[["coefnames"]]
+  #xgb_cv_model[["feature_names"]]
+  r_stack <- stack(NDVI_raster,  #,MAIAC_AOD_MERRA,  MAIAC_AOD_MERRA MAIAC_raster,SP_raster
                    BCSMASS_raster ,DUSMASS_raster,
                    SO2SMASS_raster, SO4SMASS_raster,
-                   SSSMASS_raster ,BLH_raster,
-                   SP_raster, D2M_raster,
-                   T2M_raster,V10_raster,
-                   U10_raster,TP_raster,
-                   DEM_raster,dayWeek_raster)  
+                   SSSMASS_raster ,BLH_raster,SP_raster,
+                   D2M_raster,  V10_raster,#T2M_raster,
+                   U10_raster,
+                  TP_raster, DEM_raster,
+                   dayWeek_raster)  
   # r_stack <- stack(MAIAC_raster,NDVI_raster,#LandCover_raster,
   #                  BCSMASS_raster ,DUSMASS_raster,DUSMASS25_raster,
   #                  OCSMASS_raster,SO2SMASS_raster, SO4SMASS_raster,
@@ -278,15 +286,18 @@ for (j in 1:nrow(lista_fecha)) {
   #                         "t2m_mean","v10_mean",
   #                         "u10_mean" ,"tp_mean" , 
   #                         "DEM","dayWeek")
-  
-  names(r_stack_df) <- c( "ndvi", #"AOD_055" ,
+  modelo_ET_cv[["coefnames"]]
+  #modelo_ranger[["coefnames"]]
+  #xgb_cv_model[["feature_names"]]
+  names(r_stack_df) <- c( "ndvi", # ,"AOD_055",
                           "BCSMASS_dia","DUSMASS_dia",
                           "SO2SMASS_dia","SO4SMASS_dia",
-                          "SSSMASS_dia","blh_mean" ,
-                          "sp_mean","d2m_mean",
-                          "t2m_mean","v10_mean",
+                          "SSSMASS_dia","blh_mean" ,"sp_mean",
+                          "d2m_mean", "v10_mean",#"t2m_mean",
+                          #
                           "u10_mean" ,"tp_mean" , 
-                          "DEM","dayWeek")
+                          "DEM",
+                          "dayWeek")
   ###############################################################
   ##################################################################
   ##############################################################
@@ -294,22 +305,25 @@ for (j in 1:nrow(lista_fecha)) {
   
   # Aplicar el modelo
   predictions <- predict(modelo_ET_cv, newdata = r_stack_df)
-  
+  #predictions <- predict(modelo_ranger, newdata = r_stack_df)
   # Para XGB
-  # X_test <- r_stack_df[ , c("AOD_055", "ndvi" ,
-  #                           "BCSMASS_dia", "DUSMASS_dia", #"DUSMASS25_dia",
-  #                           "SO2SMASS_dia", "OCSMASS_dia",
-  #                           "SO4SMASS_dia", #"SSSMASS_dia", #"SSSMASS25_dia",
-  #                           "blh_mean",  "d2m_mean", #"sp_mean",
-  #                           "t2m_mean",  "u10_mean", #"v10_mean",
-  #                           "tp_mean", "DEM","dayWeek")]
+  # X_test <- r_stack_df[ , c("ndvi", # ,"AOD_055",
+  #                           "BCSMASS_dia","DUSMASS_dia",
+  #                           "SO2SMASS_dia","SO4SMASS_dia",
+  #                           "SSSMASS_dia","blh_mean" ,"sp_mean",
+  #                           "d2m_mean", "v10_mean","t2m_mean",
+  #                           #
+  #                           "u10_mean" ,"tp_mean" , 
+  #                           "DEM",
+  #                           "dayWeek")]
   # # 
   # # 
-  # dtest <- as.matrix(X_test)
+  #dtest <- as.matrix(X_test)
   # # dtest <- xgb.DMatrix(data = as.matrix(X_test))
   #predictions <- predict(xgb_tuned, newdata = dtest)
   # predictions <- predict(xgb_model, newdata = dtest)
   # predictions <- predict(xgb_cv_model, newdata = dtest)
+
   # dtest <- as.matrix(X_test)
   # dtrain <- as.matrix(X)
   
