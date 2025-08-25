@@ -18,6 +18,7 @@ data_SP_sAOD <- data_SP_sAOD[year(data_SP_sAOD$date)==2024,]
 unique(year(data_SP$date))
 unique(year(data_SP_sAOD$date))
 
+
 # Promedios diarios
 data_AOD_diario_SP <- data_SP %>%
   group_by(date) %>%
@@ -45,6 +46,12 @@ data_sAOD_diario_SP <- data_sAOD_diario_SP[year(data_sAOD_diario_SP$date)==2024,
 
 data_merged <- left_join(data_sAOD_diario_SP, data_AOD_diario_SP, by = "date")
 unique(year(data_merged$date))
+
+
+
+
+
+
 #Oscuro SAOD - Claro con AOD
 # SP "#00441b","#238b45"
 
@@ -57,8 +64,8 @@ data_long_SP <- data_merged %>%
 library(ggplot2)
 library(scales)  # por si necesitás formatos personalizados
 
-# ggplot(data_long_SP, aes(x = date, y = valor, color = variable)) +
-  ggplot(data_long_SP, aes(x = month, y = valor, color = variable)) +
+ ggplot(data_long_SP, aes(x = date, y = valor, color = variable)) +
+#  ggplot(data_long_SP, aes(x = month, y = valor, color = variable)) +
   geom_line(size = 0.5) +
   scale_color_manual(
     values = c(

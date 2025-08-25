@@ -43,7 +43,7 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
 ##############################################################################
 ##01. --- RLS
 # Cargar los datos
-estacion <- "MD"
+estacion <- "CH"
 modelo <- "1"
 
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
@@ -477,7 +477,7 @@ evaluar_glmnet <- function(modelo, x_test, y_test, lambda_usar) {
 # =====================
 # Cargar datos
 # =====================
-estacion <- "MX"
+estacion <- "CH"
 modelo <- "1"
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
 setwd(dir)
@@ -489,9 +489,9 @@ test_data  <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_test_", es
 # Seleccionar variables predictoras
 # =====================
 variables <- c("AOD_055", "ndvi", "BCSMASS_dia", "DUSMASS_dia", 
-               "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "sp_mean",
-               "blh_mean",  "d2m_mean","v10_mean", "DEM","t2m_mean" ,
-               "u10_mean", "tp_mean", "dayWeek") #,,,,
+               "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", #"sp_mean",
+               "blh_mean",  "d2m_mean","v10_mean", "t2m_mean" ,
+               "u10_mean", "tp_mean","DEM", "dayWeek") #,,,,
 
 # =====================
 # Estandarizar predictores (media 0, sd 1) usando los parámetros de entrenamiento
@@ -543,8 +543,10 @@ coef_df$variable <- rownames(coef_df)
 coef_df$variable2 <- c("intercept","AOD", 
                        "NDVI", "BCSMASS", "DUSMASS", 
                        "SO2SMASS", "SO4SMASS", "SSSMASS", 
-                       "sp", "blh",  "d2m","v10", 
-                       "t2m" ,"DEM","u10", "tp", "dayWeek")
+                       #"sp", 
+                       "blh",  "d2m","v10", 
+                       "t2m" ,
+                       "u10", "tp","DEM", "dayWeek")#
 colnames(coef_df)[1] <- "coeficiente"
 
 # Filtrar variables con coeficiente distinto de cero (descarta intercepto)
@@ -552,15 +554,20 @@ coef_filtrado <- coef_df[coef_df$coeficiente != 0 & coef_df$variable != "(Interc
 
 # Ordenar por valor absoluto del coeficiente
 coef_filtrado <- coef_filtrado[order(abs(coef_filtrado$coeficiente), decreasing = TRUE), ]
-
+#scale_color_manual(values = c("#005a32", "#fd8d3c","#99000d","#023858","#ce1256")) +
 # Graficar
 ggplot(coef_filtrado, aes(x = reorder(variable2, abs(coeficiente)), y = coeficiente)) +
-  geom_col(fill = "steelblue") +
+  geom_col(fill = "#fd8d3c") +
   coord_flip() +
   labs(#title = "Importancia de las variables según regresión Lasso",
        x = "Variables",
        y = "Coeficiente") +
-  theme_classic()
+  theme_classic()+theme(
+    axis.title.x = element_text(size = 14),  # tamaño título eje x
+    axis.title.y = element_text(size = 14),  # tamaño título eje y
+    axis.text.x = element_text(size = 12),   # tamaño de los ticks eje x
+    axis.text.y = element_text(size = 12)    # tamaño de los ticks eje y
+  )
 
 # Predicciones sobre los datos de entrenamiento
 
@@ -569,7 +576,7 @@ df <- data.frame(pred=pred,y_test=y_test)
 names (df) <- c("pred","PM25")
 test_data <- df[df$pred>0,]
 plot_RLM_Lasso<- ggplot(test_data, aes(x = PM25, y = pred)) +
-  geom_point(color = "steelblue", alpha = 0.6) +     # puntos reales vs predicción
+  geom_point(color = "#99000d", alpha = 0.6) +     # puntos reales vs predicción
   geom_abline(slope = 1, intercept = 0, color = "black", ) +  # línea ideal
   geom_smooth(method = "lm", se = FALSE, color = "red",linetype = "dashed") +  # ajuste de regresión
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
@@ -798,7 +805,7 @@ evaluar_modelo_ridge(ridge_model_final, x_test, y_test)
 library(mgcv)
 
 # Definir estación y modelo
-estacion <- "MX"
+estacion <- "SP"
 modelo <- "1"
 
 # Definir directorio y cargar datasets

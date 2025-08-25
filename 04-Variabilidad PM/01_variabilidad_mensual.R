@@ -69,6 +69,7 @@ data_long_SP$month <- factor(
 # ggplot(data_long_SP, aes(x = date, y = valor, color = variable)) +
 ggplot(data_long_SP, aes(x = month, y = valor, color = variable, group = variable)) +
   geom_line(size = 0.8) +
+  geom_point(size = 1.5) +
   #geom_point() +
   scale_color_manual(
     values = c(

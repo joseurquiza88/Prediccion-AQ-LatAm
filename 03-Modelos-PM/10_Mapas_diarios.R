@@ -8,21 +8,21 @@
 ###########################################################################
 #rm(list=ls())
 df_rbind <- data.frame()
-estacion <- "BA"
+estacion <- "CH"
 dir <- paste("D:/Josefina/Proyectos/tesis/",estacion,"/modelos/",sep="")
 setwd(dir)
 
 # para seleccionar el modelo
-list.files(pattern = "ET")
+list.files(pattern = "RF")
 modelo_ET_cv[["coefnames"]]
 rm(list = setdiff(ls(), "df_rbind"))
 for (l in 1:1){
   rm(list = setdiff(ls(), "df_rbind"))
-  estacion <- "BA"
+  estacion <- "CH"
   year<- 2024
   numRaster <- "01"
   #modelo <- "01-ET-CV-M1-170625-BA.RData"
-  modelo <- "02-ET-CV-M1-230625-sAOD-BA.RData" 
+  modelo <- "01-RF-CV-M1-170625-CH.RData" 
   nombre_salida <- "02-ET-CV-M1-230625-sAOD-BA"
   setwd(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/dataset_ejemplo/Prediccion_",year,"/tiff/",sep=""))
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",nombre_salida,"/",sep="")

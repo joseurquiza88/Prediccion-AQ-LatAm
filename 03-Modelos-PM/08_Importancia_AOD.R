@@ -440,9 +440,9 @@ list.files(pattern = "RF")
 # BA  "#99000d"  "#fb6a4a",
 #MD "#023858", "#4292c6"
 # MX "#3f007d", "#807dba",
-load("01-SVR-CV-M1-200625-sAOD-MX.RData" )
+load("01-RF-CV-M1-290525-MX.RData" )
 modelo_rf_AOD <- modelo_RF_cv
-load("01-SVR-CV-M1-210625-sAODMX.RData")
+load("02-RF-CV-M1-240625-sAODMX.RData")
 modelo_rf_sinAOD <- modelo_RF_cv  # Guardás con un nuevo nombre
 ## predicciones
 predicciones_AOD <- predict(modelo_rf_AOD, newdata = test_data)
@@ -590,7 +590,7 @@ plot_regresion_ET <- ggplot(df_combinado) +
     #title = "BSQ"
   ) +
   theme(
-    #legend.position = "none",
+    legend.position = "none",
     legend.title = element_blank(),
     axis.title = element_text(size = 12),
     axis.text = element_text(size = 10)
@@ -852,3 +852,36 @@ plot_regresion_XGB <- ggplot(df_combinado) +
 
 theme_classic() #+
 plot_regresion_XGB
+
+
+
+
+################################
+
+# SP "#00441b","#238b45"
+#ST "#fc4e2a",  "#feb24c",
+# BA  "#99000d"  "#fb6a4a",
+#MD "#023858", "#4292c6"
+# MX "#3f007d", "#807dba",
+
+
+plot_regresion_ET <- ggplot(df_combinado) +
+  geom_point(aes(y = real, x = pred_sAOD, color = "sAOD"), alpha = 0.9, size = 1.5, shape = 20) +
+  geom_point(aes(y = real, x = pred_AOD, color = "AOD"), size = 1.5, shape = 8) +
+  scale_color_manual(values = c("sAOD" =   "#807dba", "AOD" = "#3f007d" )) +
+  
+  scale_y_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
+  scale_x_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
+  
+  geom_abline(slope = 1, intercept = 0, color = "black", size = 0.5) +
+  geom_smooth(aes(y = real, x = pred_sAOD), method = "lm", color = "red", se = FALSE, size = 0.6, linetype = "dashed") +
+  geom_smooth(aes(y = real, x = pred_AOD), method = "lm", color = "red", se = FALSE, size = 0.6, linetype = "solid") +
+  
+  labs(x = "Observado", y = "Predicción", color = "Modelo") +
+  
+  theme_classic() +
+  theme(
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
+plot_regresion_ET

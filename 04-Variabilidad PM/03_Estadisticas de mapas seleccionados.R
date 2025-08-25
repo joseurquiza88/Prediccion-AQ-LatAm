@@ -22,7 +22,7 @@ mean(valores_SAOD_SP)
 sd(valores_SAOD_SP)
 min(valores_SAOD_SP)
 max(valores_SAOD_SP)
-mean_valor_raster_AOD = "#a1d99b", 
+mean_valor_raster_AOD = "#a1d99b" 
 mean_valor_raster_sAOD = "#41ab5d"
 
 
@@ -48,6 +48,67 @@ ggplot(df, aes(x = sAOD)) +
     x = " ", 
     y = " ") +
   theme_classic(base_size = 15)
+
+
+
+
+############
+library(raster)
+library(RColorBrewer)
+
+# Cargar raster (ya los tienes)
+SP_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/SP/modelos/salidas/SalidasAnuales/01-XGB-CV-M1-200525-SP/Promedio_anual_2024-01-XGB-CV-M1-200525-SP_Recorte.tif")
+SP_sAOD <- raster("D:/Josefina/Proyectos/ProyectoChile/SP/modelos/salidas/SalidasAnuales/02-XGB-CV-1-210525-sAOD-SP/Promedio_anual_2024-02-XGB-CV-1-210525-sAOD-SP_Recortado.tif")
+
+# Asegurarse que tienen la misma resolución y extensión
+SP_sAOD <- resample(SP_sAOD, SP_AOD, method = "bilinear")
+
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map <- SP_AOD - SP_sAOD
+
+# Visualizar el mapa de diferencias
+# Paleta de colores: azul para diferencias negativas, rojo para positivas
+pal <- colorRampPalette(c("blue", "white", "red"))(100)
+
+plot(diff_map, col = pal, 
+     #main = "Mapa de diferencia PM2.5 (Con AOD - Sin AOD)",
+     xlab = " ", ylab = " ")
+legend("bottomright", legend = c("Mayor diferencia", "Menor diferencia"),
+       fill = c("blue", "red"), bty = "n")
+
+# Opcional: añadir una leyenda con puntos críticos de diferencia
+legend("topright", legend = c("Mejora con AOD", "Peor con AOD"),
+       fill = c("blue", "red"), bty = "n")
+
+
+legend("topright",
+       legend = c("Diferencia positiva (modelo con AOD > sin AOD)", "Diferencia negativa (modelo con AOD < sin AOD)"),
+       fill = c("blue", "red"), bty = "n")
+### ### ### ### ### ### ### ### ### ### 
+### DIFERENCIA RELATIVA
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map_relativa <- ((SP_AOD - SP_sAOD)/SP_sAOD)*100
+
+# Visualizar el mapa de diferencias
+# Paleta de colores: azul para diferencias negativas, rojo para positivas
+pal <- colorRampPalette(c("blue", "white", "red"))(100)
+
+plot(diff_map_relativa, col = pal, 
+     #main = "Mapa de diferencia PM2.5 (Con AOD - Sin AOD)",
+     xlab = " ", ylab = " ")
+legend("bottomright", legend = c("Mayor diferencia", "Menor diferencia"),
+       fill = c("blue", "red"), bty = "n")
+
+# Opcional: añadir una leyenda con puntos críticos de diferencia
+legend("topright", legend = c("Mejora con AOD", "Peor con AOD"),
+       fill = c("blue", "red"), bty = "n")
+
+
+legend("topright",
+       legend = c("Diferencia positiva (modelo con AOD > sin AOD)", "Diferencia negativa (modelo con AOD < sin AOD)"),
+       fill = c("blue", "red"), bty = "n")
+
+
 ########################################################################
 ########################################################################
 ########################################################################
@@ -99,8 +160,43 @@ ggplot(df, aes(x = sAOD)) +
     y = " ") +
   theme_classic(base_size = 15)
 
+############
+library(raster)
+library(RColorBrewer)
 
 
+# Asegurarse que tienen la misma resolución y extensión
+CH_sAOD <- resample(CH_sAOD, CH_AOD, method = "bilinear")
+
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map <- CH_AOD - CH_sAOD
+
+# Visualizar el mapa de diferencias
+# Paleta de colores: azul para diferencias negativas, rojo para positivas
+pal <- colorRampPalette(c("blue", "white", "red"))(100)
+
+plot(diff_map, col = pal)#, 
+     #main = "Mapa de diferencia PM2.5 (Con AOD - Sin AOD)",
+     xlab = "Longitud", ylab = "Latitud")
+
+# Opcional: añadir una leyenda con puntos críticos de diferencia
+legend("topright", legend = c("Mejora con AOD", "Peor con AOD"),
+       fill = c("blue", "red"), bty = "n")
+
+legend("bottomright", legend = c("Mayor diferencia", "Menor diferencia"),
+       fill = c("blue", "red"), bty = "n")
+
+legend("topright",
+       legend = c("Diferencia positiva (modelo con AOD > sin AOD)", "Diferencia negativa (modelo con AOD < sin AOD)"),
+       fill = c("blue", "red"), bty = "n")
+
+### ### ### ### ### ### ### ### ### ### 
+### DIFERENCIA RELATIVA
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map_relativa <- ((CH_AOD - CH_sAOD)/CH_sAOD)*100
+plot(diff_map_relativa, col = pal)#, 
+#main = "Mapa de diferencia PM2.5 (Con AOD - Sin AOD)",
+xlab = "Longitud", ylab = "Latitud")
 ########################################################################
 ########################################################################
 ########################################################################
@@ -152,8 +248,42 @@ ggplot(df, aes(x = sAOD)) +
   theme_classic(base_size = 15)
 
 
+############
+library(raster)
+library(RColorBrewer)
 
 
+# Asegurarse que tienen la misma resolución y extensión
+BA_sAOD <- resample(BA_sAOD, BA_AOD, method = "bilinear")
+
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map <- BA_AOD - BA_sAOD
+
+# Visualizar el mapa de diferencias
+# Paleta de colores: azul para diferencias negativas, rojo para positivas
+pal <- colorRampPalette(c("blue", "white", "red"))(100)
+
+plot(diff_map, col = pal)#, 
+     #main = "Mapa de diferencia PM2.5 (Con AOD - Sin AOD)",
+     xlab = "Longitud", ylab = "Latitud")
+
+# Opcional: añadir una leyenda con puntos críticos de diferencia
+legend("topright", legend = c("Mejora con AOD", "Peor con AOD"),
+       fill = c("blue", "red"), bty = "n")
+
+legend("topright", legend = c("Mayor diferencia", "Menor diferencia"),
+       fill = c("blue", "red"), bty = "n")
+
+legend("topright",
+       legend = c("Diferencia positiva (modelo con AOD > sin AOD)", "Diferencia negativa (modelo con AOD < sin AOD)"),
+       fill = c("blue", "red"), bty = "n")
+
+
+### ### ### ### ### ### ### ### ### ### 
+### DIFERENCIA RELATIVA
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map_relativa <- ((CH_AOD - CH_sAOD)/CH_sAOD)*100
+plot(diff_map_relativa, col = pal)#, 
 ########################################################################
 ########################################################################
 ########################################################################
@@ -161,6 +291,7 @@ ggplot(df, aes(x = sAOD)) +
 
 MD_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/MD/modelos/salidas/SalidasAnuales/01-ET-CV-M1-260525-MD/Promedio_anual_2024-01-ET-CV-M1-260525-MD_recortado.tif")
 MD_sAOD <- raster("D:/Josefina/Proyectos/ProyectoChile/MD/modelos/salidas/SalidasAnuales/01-ET-CV-M1-270525-sAOD-MD/Promedio_anual_2024-01-ET-CV-M1-270525-sAOD-MD_recortado.tif")
+
 
 
 # Extraer los valores del raster eliminando los NA
@@ -205,9 +336,42 @@ ggplot(df, aes(x = sAOD)) +
   theme_classic(base_size = 15)
 
 
+############
+library(raster)
+library(RColorBrewer)
 
 
+# Asegurarse que tienen la misma resolución y extensión
+MD_sAOD <- resample(MD_sAOD, MD_AOD, method = "bilinear")
 
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map <- MD_AOD - MD_sAOD
+
+# Visualizar el mapa de diferencias
+# Paleta de colores: azul para diferencias negativas, rojo para positivas
+pal <- colorRampPalette(c("blue", "white", "red"))(100)
+
+plot(diff_map, col = pal)#, 
+     #main = "Mapa de diferencia PM2.5 (Con AOD - Sin AOD)",
+     xlab = "Longitud", ylab = "Latitud")
+
+# Opcional: añadir una leyenda con puntos críticos de diferencia
+legend("topright", legend = c("Mejora con AOD", "Peor con AOD"),
+       fill = c("blue", "red"), bty = "n")
+
+legend("topright", legend = c("Mayor diferencia", "Menor diferencia"),
+       fill = c("blue", "red"), bty = "n")
+
+legend("topright",
+       legend = c("Diferencia positiva (modelo con AOD > sin AOD)", "Diferencia negativa (modelo con AOD < sin AOD)"),
+       fill = c("blue", "red"), bty = "n")
+
+
+### ### ### ### ### ### ### ### ### ### 
+### DIFERENCIA RELATIVA
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map_relativa <- ((MD_AOD - MD_sAOD)/MD_sAOD)*100
+plot(diff_map_relativa, col = pal)#, 
 ########################################################################
 ########################################################################
 ########################################################################
@@ -257,3 +421,95 @@ ggplot(df, aes(x = sAOD)) +
     x = " ", 
     y = " ") +
   theme_classic(base_size = 15)
+
+
+
+############
+library(raster)
+library(RColorBrewer)
+
+
+# Asegurarse que tienen la misma resolución y extensión
+MX_sAOD <- resample(MX_sAOD, MX_AOD, method = "bilinear")
+
+# Calcular mapa de diferencia (con AOD - sin AOD)
+diff_map <- MX_AOD - MX_sAOD
+
+# Visualizar el mapa de diferencias
+# Paleta de colores: azul para diferencias negativas, rojo para positivas
+pal <- colorRampPalette(c("blue", "white", "red"))(100)
+
+plot(diff_map, col = pal)#, 
+     #main = "Mapa de diferencia PM2.5 (Con AOD - Sin AOD)",
+     xlab = "Longitud", ylab = "Latitud")
+
+# Opcional: añadir una leyenda con puntos críticos de diferencia
+legend("topright", legend = c("Mejora con AOD", "Peor con AOD"),
+       fill = c("blue", "red"), bty = "n")
+
+legend("topright", legend = c("Mayor diferencia", "Menor diferencia"),
+       fill = c("blue", "red"), bty = "n")
+
+legend("topright",
+       legend = c("Diferencia positiva (modelo con AOD > sin AOD)", "Diferencia negativa (modelo con AOD < sin AOD)"),
+       fill = c("blue", "red"), bty = "n")
+
+
+### ### ### ### ### ### ### ### ### ### 
+### DIFERENCIA RELATIVA
+# Calcular mapa de diferencia (con AOD - sin AOD)
+pal <- colorRampPalette(c("blue", "white", "red"))(100)
+
+diff_map_relativa <- ((MX_AOD - MX_sAOD)/MX_sAOD)*100
+plot(diff_map_relativa, col = pal)#, 
+diff_map_relativa
+#########################################################
+############################################################
+library(ggplot2)
+library(dplyr)
+
+# Supongamos que estos son tus vectores de datos
+# valores_AOD_SP <- c(...)  
+# valores_AOD_ST <- c(...)  
+# valores_AOD_BA <- c(...)  
+# valores_AOD_MD <- c(...)  
+# valores_AOD_MX <- c(...)  
+
+library(ggplot2)
+library(dplyr)
+
+# Combinar en un solo data frame con el orden deseado
+df <- data.frame(
+  valor = c(valores_AOD_SP, valores_AOD_CH, valores_AOD_BA, valores_AOD_MD, valores_AOD_MX),
+  sitio = factor(rep(c("SP", "ST", "BA", "MD", "MX"),
+                     times = c(length(valores_AOD_SP), length(valores_AOD_CH), 
+                               length(valores_AOD_BA), length(valores_AOD_MD), 
+                               length(valores_AOD_MX))),
+                 levels = c("SP", "ST", "BA", "MD", "MX"))
+)
+
+# Definir paleta de colores (cambié CH por ST)
+colores <- c(
+  "SP" = "#00441b",
+  "ST" = "#fc4e2a",
+  "BA" = "#99000d",
+  "MD" = "#023858",
+  "MX" = "#3f007d"
+)
+
+# Graficar con texto sobre la línea horizontal usando geom_text
+a<-ggplot(df, aes(x = sitio, y = valor, fill = sitio)) +
+  geom_boxplot(width = 0.4, alpha = 0.7, outlier.size = 1) +
+  scale_fill_manual(values = colores) +
+  geom_hline(yintercept = 5, linetype = "dashed", color = "black", size = 0.7) +
+  labs(#title = "Distribución de concentraciones AOD por sitio",
+     x = " ",
+     y = " ")+#expression(paste("Concentración de AOD (", mu, "g/m"^3, ")"))) +
+  theme_classic() +
+  scale_y_continuous(limits = c(0, 40)) +
+  theme(legend.position = "none",
+        text = element_text(size = 11))
+a
+a+ggplot2::annotate("text", x = 1.5, y = 6, label = "Limite anual OMS ", hjust = 1, size = 4)
+ a 
+ 
