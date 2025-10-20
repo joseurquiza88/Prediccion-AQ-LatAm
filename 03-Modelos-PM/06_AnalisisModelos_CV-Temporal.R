@@ -295,7 +295,7 @@ ET_temporal
 ##############################################################################
 
 ################# RF  Temporal
-estacion <- "CH"
+estacion <- "MX"
 modelo <- "1"
 #Data modelo 1
 test_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
@@ -353,9 +353,11 @@ setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(rf_temporal_model, file=paste("01-RF-CV-Temp_M",modelo,"-180625-",estacion,".RData",sep=""))
 load(file=paste("01-RF-CV-Temp_M",modelo,"-180625-",estacion,".RData",sep=""))
+load(file=paste("01-RF-CV-Temp_M",modelo,"-270525-",estacion,".RData",sep=""))
+load(file=paste("01-RF-CV-Temp_M",modelo,"-290525-",estacion,".RData",sep=""))
 
 # Metricas globales
-resultados_RF_cv_Temporal <- evaluar_modelo(rf_temporal_model, test_data)
+#resultados_RF_cv_Temporal <- evaluar_modelo(rf_temporal_model, test_data)
 resultados_RF_cv_Temporal <- evaluar_modelo(modelo=rf_temporal_model, datos_test=test_data, variable_real = "PM25",tipoModelo="SVR",y_test=NA)
 
 print(resultados_RF_cv_Temporal)
@@ -398,15 +400,15 @@ ET_temporal<-ggplot(df_metricas, aes(x = year)) +
   #scale_x_continuous(breaks = 2015:2023) + 
   scale_color_manual(values = c("R²" = "#2c7fb8",  "RMSE" = "#cb181d")) +
   labs(#title = "Evaluación del modelo",
-    x = "RF Temporal", color = "") +
+    x = " ", color = "") +
   theme_classic()+
   theme(
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.title.y.right = element_text(size = 13),  # Para RMSE
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.text.y.right = element_text(size = 10),  # Ticks del eje derecho
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 16),
+    axis.title.y.right = element_text(size = 14),  # Para RMSE
+    axis.text.x = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    axis.text.y.right = element_text(size = 14),  # Ticks del eje derecho
     legend.text = element_text(size = 10),
     legend.position = "none"  # opcional: ubica la leyenda arriba
   )
@@ -432,10 +434,10 @@ train_data$year <- as.numeric(format(as.Date(train_data$date), "%Y"))
 # Variables predictoras y variable target
 # Fórmula y selección de columnas
 vars <- c("AOD_055",
-          "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia"
+          "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia" "sp_mean",
           "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
-          "sp_mean", "d2m_mean","v10_mean",# "t2m_mean", 
-          "u10_mean",  "tp_mean", #"DEM",
+          "d2m_mean","v10_mean", "t2m_mean", 
+          "u10_mean",  "tp_mean", "DEM",
           "dayWeek")
 target <- "PM25"
 
@@ -543,7 +545,7 @@ getwd()
 save(modelo_xgb_final, file = paste0("01-XGB-CV-Temp_M", modelo, "-180625-", estacion, ".RData"))
 load(paste("01-ET-CV-Esp_M",modelo,"-180625-",estacion,".RData",sep=""))
 
-
+load(paste("D:/Josefina/Proyectos/Tesis/CH/modelos/01-XGB-CV-Temp_M1-180625-CH.RData",sep=""))
 # Crear el dataframe
 resultados <- data.frame(
   anio = 2015:2023,
@@ -551,6 +553,14 @@ resultados <- data.frame(
   RMSE = c(10.27,11.44,6.98,5.50,5.59,6.57,4.66,4.40,4.44)
 )
 
+
+
+#XGB PARA CH
+resultados <- data.frame(
+  anio = 2015:2023,
+  R2 = c(0.73,0.66,0.76,0.78,0.74,0.68,0.81,0.76,0.79),
+  RMSE = c(11.9,10.3,8.18,7.15,7.07,7.81,7.69,8.48,7.16)
+)
 # Pasar a formato largo para ggplot
 resultados_largo <- df %>%#resultados %>%
   pivot_longer(cols = c(R2, RMSE), names_to = "Metrica", values_to = "Valor")
@@ -577,6 +587,7 @@ resultados$rmse_escalado <- (resultados$RMSE - min_rmse) / (max_rmse - min_rmse)
 # rmse_all <- (6.41 - min_rmse) / (max_rmse - min_rmse)
 #RF
 rmse_all <- (7.040815 - min_rmse) / (max_rmse - min_rmse)
+
 # Crear el gráfico
 xgb_temporal<-ggplot(resultados, aes(x = anio)) +
   geom_line(aes(y = R2, color = "R²"), size = 1.2) +

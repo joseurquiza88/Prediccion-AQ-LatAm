@@ -34,6 +34,8 @@ ggplot(datos, aes(x = Ridge_R2, y = Lasso_R2, color = Sitio)) +
        )+
   theme_classic(base_size = 14)
 
+
+
 ##########################################
 ###########################################
 
@@ -56,6 +58,7 @@ datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
 ggplot(datos, aes(x = Ridge_RMSE, y = Lasso_RMSE, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
+  geom_smooth(aes(group = 1), method = "lm", se = FALSE, color = "black", size = 1.2)+
   scale_color_manual(values = colores) +
   scale_x_continuous(limits = c(0, 12), breaks = seq(0, 12, 2)) +
   scale_y_continuous(limits = c(0, 12), breaks = seq(0, 12, 2)) +
@@ -92,6 +95,8 @@ datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
 ggplot(datos, aes(x = GLM_AOD_R2, y = GLM_multiple_R2, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
+  geom_smooth(aes(group = 1), method = "lm", se = FALSE, color = "black", size = 1.2)+
+
   scale_color_manual(values = colores) +
   scale_x_continuous(limits = c(0, 1)) +
   scale_y_continuous(limits = c(0, 1)) +
@@ -127,6 +132,7 @@ datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
 ggplot(datos, aes(x = GLM_AOD_RMSE, y = GLM_multiple_RMSE, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
+  geom_smooth(aes(group = 1), method = "lm", se = FALSE, color = "black", size = 1.2)+
   scale_color_manual(values = colores) +
   scale_x_continuous(limits = c(0, 18), breaks = seq(0, 18, 3)) +
   scale_y_continuous(limits = c(0, 18), breaks = seq(0, 18, 3)) +
@@ -163,6 +169,7 @@ datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
 ggplot(datos, aes(x = LME_AOD_R2, y = LME_multiple_R2, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
+  geom_smooth(aes(group = 1), method = "lm", se = FALSE, color = "red", size = 1.2)+
   scale_color_manual(values = colores) +
   scale_x_continuous(limits = c(0, 1)) +
   scale_y_continuous(limits = c(0, 1)) +
@@ -198,6 +205,8 @@ datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
 ggplot(datos, aes(x = LME_AOD_RMSE, y = LME_multiple_RMSE, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
+  geom_smooth(aes(group = 1), method = "lm", se = FALSE, color = "red", size = 1.2)+
+  
   scale_color_manual(values = colores) +
   scale_x_continuous(limits = c(0, 12), breaks = seq(0, 12, 3)) +
   scale_y_continuous(limits = c(0, 12), breaks = seq(0, 12, 3)) +
@@ -290,13 +299,16 @@ ggplot(datos, aes(x = GAM_AOD_RMSE, y = GAM_multiple_RMSE, color = Sitio)) +
 
 ##01. --- RLS
 # Cargar los datos
-estacion <- "SP"
+estacion <- "MX"
 modelo <- "1"
 
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
 setwd(dir)
 
 train_data <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_train_", estacion, ".csv"))
+
+train_data$NombreColumnaNueva <- 
+
 test_data <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_test_", estacion, ".csv"))
 
 
@@ -318,7 +330,8 @@ colores <- c("SP" = "#00441b",
 
 library(dplyr)
 library(ggplot2)
-
+modelo_lm <- lm(PM25 ~ AOD_055, data = train_data)
+test_data$pred <- predict(modelo_lm, newdata = test_data)
 # Asegurate de trabajar con una copia limpia
 df <- test_data
 
@@ -353,14 +366,42 @@ df <- df %>%
 
 df2 <- df[df$bias>-50,]
 ggplot(df2, aes(x = bin_label, y = bias)) +
-  geom_violin(fill = "#023858", alpha = 0.4, trim = FALSE) +
-  geom_boxplot(width = 0.1, outlier.shape = NA, color = "#023858") +
+  geom_violin(fill = "#3f007d", alpha = 0.4, trim = FALSE) +
+  geom_boxplot(width = 0.1, outlier.shape = NA, color = "#3f007d") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   labs(
     x = "Rango de AOD (cuantiles)", 
     y = "Bias (PM_pred - PM Medido)"
-  ) +
+  ) +  coord_cartesian(ylim = c(-60, 40)) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+
+################################
+#Producto satelital
+df <- data.frame(sensor = c("GOME", "MODIS","MISR", "MODIS","SCIAMACHY", "OMI",
+                            "GOME-2", "VIIRS", "OLI", "MSI", "TROPOMI"),
+                 plataforma =c("ERS-2", "TERRA","TERRA", "AQUA", "ENVISAT", "AURA",
+                               "METOP-A",  "Suomi NPP", "Landsat-8", "Sentinel-2",
+                               "Sentinel-5P"),
+                 fecha_inicio = c(1995, 2000 , 2000, 2002, 2002, 2004, 2006,2011,
+                                  2013, 2015, 2017),
+                 fecha_final = c(2003, 2024 , 2024, 2024, 2012, 2024, 2024,2024,
+                                  2024, 2024, 2024))
+df$sensorPlat <- paste (df$sensor," (",df$plataforma,")",sep="")
+
+library(ggplot2)
+
+library(ggplot2)
+
+ggplot(df, aes(x = fecha_inicio, xend = fecha_final, 
+               y = factor(sensorPlat, levels = sensorPlat), 
+               yend = factor(sensorPlat, levels = sensorPlat))) +
+  geom_segment(size = 6, color = "steelblue") +
+  theme_classic() +
+  scale_x_continuous(breaks = seq(1995, 2024, by = 5)) +
+  labs(x = " ", y = "Sensor (Plataforma)")+
+   #    title = "Período de operación de sensores satelitales") +
+  theme(axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 

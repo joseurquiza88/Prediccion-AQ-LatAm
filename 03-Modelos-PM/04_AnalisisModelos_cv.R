@@ -75,6 +75,21 @@ setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(modelo_cv_svr, file=paste("01-SVR-CV-M",modelo,"-210625-sAOD",estacion,".RData",sep=""))
 
+load("01-SVR-CV-M1-200525-SP.RData")
+load("01-SVR-CV-M1-210625-sAODCH.RData")
+load("01-SVR-CV-M1-210625-sAOD-BA.RData")
+load("01-SVR-CV-M1-260525-MD.RData")
+load("01-SVR-CV-M1-290525_MX.RData")
+
+
+# 1. Hiperparámetros óptimos encontrados por CV
+cat("Hiperparámetros óptimos:\n")
+print(modelo_cv_svr$bestTune)
+
+# 2. Todas las combinaciones de hiperparámetros evaluadas y sus métricas
+cat("\nResultados de todas las combinaciones de hiperparámetros:\n")
+print(svr_model$results)
+
 ##############################################################################
 ##############################################################################
 ##############################################################################
@@ -116,6 +131,40 @@ getwd()
 save(modelo_ET_cv, file=paste("01-ET-CV-M",modelo,"-290525",estacion,".RData",sep=""))
 
 
+load("01-ET-CV-M1-200525-SP.RData")
+load("01-ET-M1-170625-CH.RData")
+load("01-ET-CV-M1-170625-BA.RData")
+load("01-ET-CV-M1-260525-MD.RData")
+load("01-ET-CV-M1-290525_MX.RData")
+
+# Hiperparámetros elegidos
+cat("Hiperparámetros seleccionados:\n")
+print(modelo_ET_cv$bestTune)
+print(modelo_ranger$bestTune)
+print(modelo_et_spatial$bestTune)
+# Resumen del modelo final
+cat("\nDetalles del modelo final:\n")
+# print(modelo_ET_cv$finalModel)
+
+# Número de árboles realmente entrenados
+cat("\nNúmero de árboles:\n")
+print(modelo_ET_cv$finalModel$num.trees)
+
+# Parámetros de nodo mínimo
+cat("\nMin node size:\n")
+print(modelo_ET_cv$finalModel$min.node.size)
+
+# Variables candidatas en cada split
+cat("\nMtry:\n")
+print(modelo_ET_cv$finalModel$mtry)
+
+# Regla de división usada
+cat("\nSplit rule:\n")
+print(modelo_ET_cv$finalModel$splitrule)
+
+
+
+
 ##############################################################################
 ##############################################################################
 ##############################################################################
@@ -155,13 +204,30 @@ setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(modelo_RF_cv, file=paste("01-RF-CV-M",modelo,"-290525_",estacion,".RData",sep=""))
 
+load("01-RF-CV-M1-200525-SP.RData")
+load("01-RF-CV-M1-170625-CH.RData")
+load("01-RF-CV-M1-170625-BA.RData")
+load("01-RF-CV-M1-260525-MD.RData")
+load("01-RF-CV-M1-290525-MX.RData")
+# Imprimir los hiperparámetros ajustados por caret
+cat("Mejor combinación de hiperparámetros según validación cruzada:\n")
+print(modelo_RF_cv$bestTune)
+
+# Acceder al modelo final (objeto randomForest) para ver parámetros adicionales
+cat("\nHiperparámetros del modelo final (randomForest):\n")
+cat("Número de árboles (ntree):", modelo_RF_cv$finalModel$ntree, "\n")
+cat("Número de variables consideradas por división (mtry):", modelo_RF_cv$finalModel$mtry, "\n")
+cat("Tamaño mínimo de nodos terminales (nodesize):", modelo_RF_cv$finalModel$nodesize, "\n")
+cat("Número máximo de nodos (maxnodes):", modelo_RF_cv$finalModel$maxnodes, "\n")
+
+
 
 ##############################################################################
 ##############################################################################
 ##############################################################################
 ### ----- XGB   -----
 
-estacion <-"BA"
+estacion <-"MX"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
@@ -238,3 +304,20 @@ setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(xgb_cv_model, file=paste("01-XGB-CV-M",modelo,"-190625_",estacion,".RData",sep=""))
 
+
+load("01-XGB-CV-M1-200525-SP.RData")
+load("01-XGB-CV-M1-190625-CH.RData")
+load("01-XGB-CV-M1-190625-BA.RData")
+load("01-XGB-CV-M1-260525-MD.RData")
+load("02-XGB-CV-M1-230625-sAOD-MX.RData")
+
+
+cat("Hiperparámetros del modelo XGB:\n")
+print(params)
+
+cat("\nNúmero óptimo de rondas de boosting:\n")
+print(best_nrounds)
+print(xgb_cv_model$params)
+
+cat("\nNúmero de rondas usadas:\n")
+print(xgb_cv_model$niter)

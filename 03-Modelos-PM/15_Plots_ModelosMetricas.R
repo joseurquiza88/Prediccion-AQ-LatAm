@@ -11,7 +11,7 @@ data <- tribble(
   "SP", "RF", 0.71, 5.94, 0.11,
   "SP", "ET", 0.72, 5.92, 0.10,
   "SP", "XGB", 0.72, 5.74, -0.12,
-  "ST", "SVR", 0.82, 8.23, -0.53,
+  "ST", "SVR", 0.82, 7.12, -0.53,
   "ST", "RF", 0.84, 6.66, 0.12,
   "ST", "ET", 0.83, 6.91, 0.16,
   "ST", "XGB", 0.85, 6.28, 0.11,
@@ -529,4 +529,96 @@ ggplot(data_todo, aes(x = CV, y = Bias, color = Model, group = Model)) +
     strip.text = element_text(size = 12),
     legend.position = "none"
   )
+
+
+
+##########################################################################
+###########################################################################
+library(dplyr)
+library(ggplot2)
+
+# 🔹 Filtrar solo la ciudad ST
+data_st <- data_todo %>% filter(City == "ST")
+
+# Aseguramos que el orden de CV y Model siga igual
+data_st$CV <- factor(data_st$CV, levels = c("Random", "Espacial", "Temporal"))
+data_st$CV <- factor(
+  data_st$CV,
+  levels = c("Random", "Espacial", "Temporal"),
+  labels = c("Random", "Spatial", "Temporal")
+)
+## === 1️⃣ Plot R² ===
+plot_R2_st <- ggplot(data_st, aes(x = CV, y = R2, color = Model, group = Model)) +
+  geom_point(size = 3) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(limits = c(0.6, 1)) +
+  scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
+  labs(
+    x = "",
+    y = "R²",
+    color = "Modelo",
+    #title = "Ciudad: ST"
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(size = 14, face = "bold"),
+    #legend.position = "bottom"
+    legend.position = "none"
+  )
+plot_R2_st
+## === 2️⃣ Plot RMSE ===
+plot_RMSE_st <- ggplot(data_st, aes(x = CV, y = RMSE, color = Model, group = Model)) +
+  geom_point(size = 3) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(limits = c(5, 10)) +
+  scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
+  labs(
+    x = " ",
+    y = "RMSE",
+    color = "Modelo",
+    #title = "Ciudad: ST"
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(size = 14, face = "bold"),
+    
+    #legend.position = "bottom"
+    legend.position = "none"
+  )
+plot_RMSE_st
+## === 3️⃣ Plot Bias ===
+plot_Bias_st <- ggplot(data_st, aes(x = CV, y = Bias, color = Model, group = Model)) +
+  geom_point(size = 3) +
+  geom_line(linewidth = 1) +
+  geom_hline(yintercept = 0, color = "black", linetype = "dashed", linewidth = 0.3) +
+  scale_y_continuous(limits = c(-1, 1)) +
+  scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
+  labs(
+    x = "",#"Tipo de validación cruzada",
+    y = "Bias",
+    color = "Modelo",
+    #title = "Ciudad: ST"
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(size = 14, face = "bold"),
+    # legend.position = "bottom"
+    legend.position = "none"
+  )
+plot_Bias_st
+# Mostrar los tres
+plot_R2_st
+plot_RMSE_st
+plot_Bias_st
+
+
 

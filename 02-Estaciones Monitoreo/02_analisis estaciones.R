@@ -43,10 +43,10 @@ ggplot(datos_prop, aes(x = Sitio, y = prop, fill = Tipo)) +
   )
 
 
-estacion <- "MX"
+estacion <- "MD"
 data<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
-data$date <- as.POSIXct(as.character(data$date), format ="%Y-%m-%d")# "%d/%m/%Y")#
-data$mean<-data$Registros.completos
+data$date <- as.POSIXct(as.character(data$date), format = "%d/%m/%Y")#"%Y-%m-%d")#
+#data$mean<-data$Registros.completos
 data <- data[complete.cases(data$mean),]
 data <- data[data$mean !=0,]
 data <- data[data$mean >0,]
@@ -127,14 +127,22 @@ estacion_picos_maxProm
 ######################################################
 #       Serie temporal diaria por estacion para todo 
 ######################################################
-
+unique(data_plot$estacion)
 media_por_estacion <- data %>%
   group_by(estacion) %>%
   summarise(media_estacion = mean(mean, na.rm = TRUE))
+View(media_por_estacion)
 data$date <- as.Date(data$date)
 # Unir la media por estaci?n al dataframe original
 data_plot <- left_join(data, media_por_estacion, by = "estacion")
-
+nombre_estaciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
+nombre_estaciones
+data_plot
+data_combinada <- data_plot %>%
+  left_join(nombre_estaciones, by = "estacion")
+# Graficar
+data_plot<-data_combinada
+data_plot$estacion <- data_plot$estacion2 
 stats_por_estacion <- data_plot %>%
   group_by(estacion) %>%
   summarise(
@@ -147,30 +155,35 @@ stats_por_estacion <- data_plot %>%
     label = paste0("Media: ", media, "\nSD: ", sd, "\nMax: ", max),
     x = as.Date("2015-01-01"),  # izquierda del gr?fico
     # y = 350  #CH                  # altura deseada del texto
-    y = 100
+    y = 120,
   )
 
 # Crear un data frame para la l?nea horizontal (AMS mean)
 lineas_extra <- data.frame(
   estacion = unique(data_plot$estacion),
-  total_mean = 14.51 #SP
+  total_mean = 18.56
 )
+# SP 16.43, 
+# ST 25.96, 
+# BA 14.43 
+# MD 18.56 
+# MX 21.09
+# Para MX
 
-# Graficar
 serie_temporal <- ggplot() +
   geom_line(data = data_plot, aes(x = date, y = mean, color = "Media estacion")) +
   # L?nea horizontal de AMS mean en cada faceta
   geom_hline(data = lineas_extra, aes(yintercept = total_mean, color = "Media SP"), size = 0.9) +
   geom_label(data = stats_por_estacion,
              aes(x = x, y = y, label = label),
-             hjust = 0, vjust = 1,
-             fill = "white", alpha = 0.8, size = 2.8) +
+             hjust = 0, vjust = 0,
+             fill = "white", alpha = 1, size = 1.9) +
   # Facetas por estaci?n
   facet_wrap(~ estacion, scales = "fixed") +
   # Ejes
   scale_x_date(limits = as.Date(c("2015-01-01", "2024-12-31"))) +
   # scale_y_continuous(limits = c(0, 350)) +
-  scale_y_continuous(limits = c(0, 100)) +
+  scale_y_continuous(limits = c(0, 200)) +
   # Definir colores y etiquetas de leyenda
   scale_color_manual(
     name = NULL,
@@ -210,13 +223,15 @@ data$label <- "PM2.5"
 #   "MX" = "#ce1256")) 
 ggplot(data, aes(x = estacion, y = mean)) +
   geom_boxplot(fill ="#ce1256", outlier.shape = NA,width = 0.3) +
-  #facet_wrap(~ estacion, scales = "free_y") +
-  scale_y_continuous(limits = c(0, 60)) +
+  #facet_wrap(~ ID, scales = "free_y") +
+  scale_y_continuous(limits = c(0, 80)) +
   theme_classic() +
-  labs(x = "Estaciones MX", y = " ") +
+  labs(x = " ", y = " ") +
   theme(
     axis.text.x = element_blank(),
-    axis.ticks.x = element_blank()
+    axis.ticks.x = element_blank(),
+    axis.title.x = element_text(size = 13),
+    axis.text.y = element_text(size = 13)  # <- aquí agrandás los ticks del eje y
   )
 
 

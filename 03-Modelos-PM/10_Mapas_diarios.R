@@ -8,7 +8,7 @@
 ###########################################################################
 #rm(list=ls())
 df_rbind <- data.frame()
-estacion <- "CH"
+estacion <- "SP"
 dir <- paste("D:/Josefina/Proyectos/tesis/",estacion,"/modelos/",sep="")
 setwd(dir)
 
@@ -18,29 +18,32 @@ modelo_ET_cv[["coefnames"]]
 rm(list = setdiff(ls(), "df_rbind"))
 for (l in 1:1){
   rm(list = setdiff(ls(), "df_rbind"))
-  estacion <- "CH"
-  year<- 2024
+  estacion <- "SP"
+  year<- 2010
   numRaster <- "01"
   #modelo <- "01-ET-CV-M1-170625-BA.RData"
-  modelo <- "01-RF-CV-M1-170625-CH.RData" 
-  nombre_salida <- "02-ET-CV-M1-230625-sAOD-BA"
+  modelo <- "01-XGB-CV-M1-200525-SP.RData" 
+  nombre_salida <- "01-XGB-CV-M1-200525-SP"
   setwd(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/dataset_ejemplo/Prediccion_",year,"/tiff/",sep=""))
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",nombre_salida,"/",sep="")
   # Fechas de inter?1
-  fechaInicio <- as.Date("01-12-2024", format = "%d-%m-%Y")
-  fechaFin <- as.Date("31-12-2024", format = "%d-%m-%Y")
+  fechaInicio <- as.Date("31-12-2010", format = "%d-%m-%Y")
+  fechaFin <- as.Date("31-12-2010", format = "%d-%m-%Y")
   ###
-  fechaNDVI<- as.Date("01-12-2024", format = "%d-%m-%Y")
+  fechaNDVI<- as.Date("01-12-2010", format = "%d-%m-%Y")
   lista_fecha <- data.frame(date=seq.Date(fechaInicio, fechaFin, by = "day"))
   dir_modelos <- paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep="")
   load(paste(dir_modelos,modelo,sep=""))
 }
 
-# lista_fecha$date[j]+2
+
+lista_fecha$date[j]+1
+
 # 
 # 
 # # 
-#j<-1
+j<-1
+
 
 for (j in 1:nrow(lista_fecha)) {
   
@@ -63,7 +66,7 @@ for (j in 1:nrow(lista_fecha)) {
     sep = ""
   }
   maiacDate <- paste(yearInteres,sep,dayJulian,sep = "")
-  #MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster_",numRaster,".tif",sep=""))
+  MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster_",numRaster,".tif",sep=""))
   #MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster.tif",sep=""))
   #MAIAC_raster <- raster(paste("00_MAIAC/",maiacDate,"-MAIAC_raster.tif",sep=""))
   #num_na_MAIAC <- sum(is.na(MAIAC_raster[]))
@@ -109,7 +112,7 @@ for (j in 1:nrow(lista_fecha)) {
   
   ################# -----     DEM     -----
   
-  DEM_raster <- raster("03_DEM/DEM_raster.tif")
+  #DEM_raster <- raster("03_DEM/DEM_raster.tif")
   #plot(DEM_raster)
   #DEM_raster_NA <- sum(is.na(DEM_raster[]))
   #print(c("DEM",DEM_raster_NA))
@@ -207,7 +210,7 @@ for (j in 1:nrow(lista_fecha)) {
   ## T2M
   #T2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-T2M_raster_",numRaster,".tif",sep=""))
   
-  T2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-T2M_raster.tif",sep=""))
+  #T2M_raster <- raster(paste("05_ERA5/",fechaInteres,"-T2M_raster.tif",sep=""))
   #plot(T2M_raster)
   #T2M_raster_NA <- sum(is.na(T2M_raster[]))
   #print(c("T2M",T2M_raster_NA))
@@ -250,13 +253,13 @@ for (j in 1:nrow(lista_fecha)) {
   # modelo_ET_cv[["coefnames"]]
   #modelo_ranger[["coefnames"]]
   #xgb_cv_model[["feature_names"]]
-  r_stack <- stack(NDVI_raster,  #,MAIAC_AOD_MERRA,  MAIAC_AOD_MERRA MAIAC_raster,SP_raster
+  r_stack <- stack(MAIAC_raster,NDVI_raster,  #,MAIAC_AOD_MERRA,  MAIAC_AOD_MERRA ,SP_raster
                    BCSMASS_raster ,DUSMASS_raster,
                    SO2SMASS_raster, SO4SMASS_raster,
                    SSSMASS_raster ,BLH_raster,SP_raster,
                    D2M_raster,  V10_raster,#T2M_raster,
                    U10_raster,
-                  TP_raster, DEM_raster,
+                  TP_raster, #DEM_raster,
                    dayWeek_raster)  
   # r_stack <- stack(MAIAC_raster,NDVI_raster,#LandCover_raster,
   #                  BCSMASS_raster ,DUSMASS_raster,DUSMASS25_raster,
@@ -286,17 +289,17 @@ for (j in 1:nrow(lista_fecha)) {
   #                         "t2m_mean","v10_mean",
   #                         "u10_mean" ,"tp_mean" , 
   #                         "DEM","dayWeek")
-  modelo_ET_cv[["coefnames"]]
+  #modelo_ET_cv[["coefnames"]]
   #modelo_ranger[["coefnames"]]
   #xgb_cv_model[["feature_names"]]
-  names(r_stack_df) <- c( "ndvi", # ,"AOD_055",
+  names(r_stack_df) <- c( "AOD_055","ndvi", 
                           "BCSMASS_dia","DUSMASS_dia",
                           "SO2SMASS_dia","SO4SMASS_dia",
                           "SSSMASS_dia","blh_mean" ,"sp_mean",
                           "d2m_mean", "v10_mean",#"t2m_mean",
                           #
                           "u10_mean" ,"tp_mean" , 
-                          "DEM",
+                          #"DEM",
                           "dayWeek")
   ###############################################################
   ##################################################################
@@ -304,25 +307,25 @@ for (j in 1:nrow(lista_fecha)) {
   ####
   
   # Aplicar el modelo
-  predictions <- predict(modelo_ET_cv, newdata = r_stack_df)
+  #predictions <- predict(modelo_ET_cv, newdata = r_stack_df)
   #predictions <- predict(modelo_ranger, newdata = r_stack_df)
   # Para XGB
-  # X_test <- r_stack_df[ , c("ndvi", # ,"AOD_055",
-  #                           "BCSMASS_dia","DUSMASS_dia",
-  #                           "SO2SMASS_dia","SO4SMASS_dia",
-  #                           "SSSMASS_dia","blh_mean" ,"sp_mean",
-  #                           "d2m_mean", "v10_mean","t2m_mean",
-  #                           #
-  #                           "u10_mean" ,"tp_mean" , 
-  #                           "DEM",
-  #                           "dayWeek")]
+  X_test <- r_stack_df[ , c("AOD_055","ndvi", # ,
+                            "BCSMASS_dia","DUSMASS_dia",
+                            "SO2SMASS_dia","SO4SMASS_dia",
+                            "SSSMASS_dia","blh_mean" ,"sp_mean",
+                            "d2m_mean", "v10_mean",#"t2m_mean",
+                            #
+                            "u10_mean" ,"tp_mean" ,
+                            #"DEM",
+                            "dayWeek")]
+  #
   # # 
-  # # 
-  #dtest <- as.matrix(X_test)
+  dtest <- as.matrix(X_test)
   # # dtest <- xgb.DMatrix(data = as.matrix(X_test))
   #predictions <- predict(xgb_tuned, newdata = dtest)
   # predictions <- predict(xgb_model, newdata = dtest)
-  # predictions <- predict(xgb_cv_model, newdata = dtest)
+  predictions <- predict(xgb_cv_model, newdata = dtest)
 
   # dtest <- as.matrix(X_test)
   # dtrain <- as.matrix(X)

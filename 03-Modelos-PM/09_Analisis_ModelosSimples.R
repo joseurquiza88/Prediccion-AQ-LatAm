@@ -90,7 +90,16 @@ plot_RLS <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  theme_classic()+ theme(legend.position="none")
+  theme_classic()+ 
+  #theme(legend.position="none")+  theme_classic() +
+  theme(
+    #legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  ) 
 
 plot_RLS
 
@@ -99,7 +108,7 @@ plot_RLS
 ##############################################################################
 ## --- Corregir AOD por la PBL
 # Cargar los datos
-estacion <- "SP"
+estacion <- "CH"
 modelo <- "1"
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
 setwd(dir)
@@ -134,7 +143,14 @@ plot_RLS_aod<- ggplot(test_data, aes(x = PM25, y = pred)) +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   
-  theme_classic()
+  theme_classic()+  theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  ) 
 plot_RLS_aod
 
 
@@ -148,7 +164,14 @@ plot_RLS <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  theme_classic()+ theme(legend.position="none")
+  theme_classic()+ theme(legend.position="none")+  theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  ) 
 
 plot_RLS
 
@@ -156,7 +179,7 @@ plot_RLS
 #############################################################################
 #############################################################################
 ## --- Corregir AOD por la humedad
-estacion <- "MX"
+estacion <- "CH"
 modelo <- "RH"
 
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
@@ -207,14 +230,21 @@ plot_RLS <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  theme_classic()+ theme(legend.position="none")
+  theme_classic()+ theme(legend.position="none")+ theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  ) 
 
 plot_RLS
 ##############################################################################
 ##############################################################################
 ##############################################################################
 ## --- Corregir AOD por la PBL + humedad
-estacion <- "MX"
+estacion <- "CH"
 modelo <- "RH"
 
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
@@ -265,7 +295,14 @@ plot_RLS <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  theme_classic()+ theme(legend.position="none")
+  theme_classic()+ theme(legend.position="none")+ theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  ) 
 
 plot_RLS
 ##############################################################################
@@ -274,7 +311,7 @@ plot_RLS
 ## --- RLM
 
 # Cargar los datos
-estacion <- "MX"
+estacion <- "CH"
 modelo <- "1"
 
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
@@ -285,7 +322,7 @@ test_data  <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_test_", es
 
 # Ajustar el modelo de regresión lineal múltiple
 modelo_lm_multiple <- lm(PM25 ~  AOD_055+ndvi + BCSMASS_dia + DUSMASS_dia + #OCSMASS
-                           SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean+
+                           SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + #sp_mean+
                            t2m_mean + 
                            DEM+  d2m_mean   +v10_mean + u10_mean + tp_mean+ dayWeek,
                          data = train_data)
@@ -329,18 +366,25 @@ plot_RLM <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  theme_classic()+ theme(legend.position="none")
+  theme_classic()+ theme(legend.position="none")+ theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  ) 
 
 plot_RLM
 
 
-##############################################################################
+ ##############################################################################
 ##############################################################################
 ##############################################################################
 #-- RLM Agregando de auna las variables
 # Cargar datos
 library(reshape2)
-estacion <- "MX"
+estacion <- "CH"
 
 modelo <- "1"
 
@@ -351,9 +395,9 @@ train_data <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_train_", e
 test_data  <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_test_", estacion, ".csv"))
 
 # Orden de variables a agregar
-variables <- c("blh_mean", "d2m_mean", "sp_mean","t2m_mean","v10_mean", "u10_mean", "tp_mean", # 
+variables <- c("blh_mean", "d2m_mean", "t2m_mean","v10_mean", "u10_mean", "tp_mean", # 
                "ndvi", "BCSMASS_dia", "DUSMASS_dia", "SO2SMASS_dia", "SO4SMASS_dia",
-               "SSSMASS_dia", "DEM","dayWeek")#
+               "SSSMASS_dia", "DEM","dayWeek")#"sp_mean",
 
 # Lista para guardar resultados
 resultados_modelos <- list()
@@ -418,9 +462,9 @@ ggplot(data_melt_limited, aes(x = Num_Variables, y = value)) +
   geom_point(aes(color = variable), size = 2) +
   facet_wrap(~variable, scales = "free_y", labeller = label_parsed) +
   scale_x_continuous(breaks = 1:16) +
-  labs(title = "Evolución del desempeño del modelo",
-       x = "N° de Variables",
-       y = "Valor de Métrica",
+  labs(title = " ",
+       x = "",#"N° de Variables",
+       y = "",#"Valor de Métrica",
        color = "Métrica") +
   theme_classic()+
   theme(
@@ -596,7 +640,14 @@ plot_RLM_Lasso <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  theme_classic()+ theme(legend.position="none")
+  theme_classic()+ theme(legend.position="none")+ theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  ) 
 
 plot_RLM_Lasso
 
@@ -634,7 +685,7 @@ evaluar_modelo_ridge <- function(modelo, x_test, y_test) {
 }
 
 # Parámetros
-estacion <- "MX"
+estacion <- "CH"
 modelo <- "1"
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
 
@@ -646,14 +697,14 @@ test_data  <- read.csv(paste0(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion
 x_train <- model.matrix(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
                           DEM + 
                           t2m_mean +
-                          SO2SMASS_dia + SO4SMASS_dia + SSSMASS_dia + blh_mean + sp_mean +
+                          SO2SMASS_dia + SO4SMASS_dia + SSSMASS_dia + blh_mean + #sp_mean +
                           d2m_mean  + v10_mean + u10_mean + tp_mean + dayWeek, data = train_data)[,-1]
 y_train <- train_data$PM25
 
 x_test <- model.matrix(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
                          DEM + 
                          t2m_mean +
-                         SO2SMASS_dia + SO4SMASS_dia + SSSMASS_dia + blh_mean + sp_mean +
+                         SO2SMASS_dia + SO4SMASS_dia + SSSMASS_dia + blh_mean + #sp_mean +
                          d2m_mean  + v10_mean + u10_mean + tp_mean + dayWeek, data = test_data)[,-1]
 y_test <- test_data$PM25
 
@@ -747,7 +798,14 @@ plot_RLM_ridge<- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  theme_classic()+ theme(legend.position="none")
+  theme_classic()+ theme(legend.position="none")+ theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  ) 
 
 plot_RLM_ridge
 ##############################################################################
@@ -805,7 +863,7 @@ evaluar_modelo_ridge(ridge_model_final, x_test, y_test)
 library(mgcv)
 
 # Definir estación y modelo
-estacion <- "SP"
+estacion <- "CH"
 modelo <- "1"
 
 # Definir directorio y cargar datasets
@@ -824,7 +882,7 @@ model.gam1 <-gam(PM25~s(AOD_055,        #GAM formula (Y~x1+x2...) with a smooth 
 
 # Ajustar el modelo GAM (con suavizadores para variables continuas)  
 modelo_gam <- gam(PM25 ~ s(AOD_055) + s(ndvi) + s(BCSMASS_dia) + s(DUSMASS_dia) +
-                    s(SO2SMASS_dia) + s(SO4SMASS_dia) + s(SSSMASS_dia) +s(sp_mean)+
+                    s(SO2SMASS_dia) + s(SO4SMASS_dia) + s(SSSMASS_dia) +#s(sp_mean)+
                     s(blh_mean) + s(d2m_mean) + s(DEM, k=5) + s(t2m_mean)+ 
                     s(v10_mean) + s(u10_mean) + s(tp_mean)+ dayWeek,
                   data = train_data,method="ML")
@@ -942,7 +1000,14 @@ plot_GAM<- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
   scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  theme_classic()+ theme(legend.position="none")
+  theme_classic()+ theme(legend.position="none")+ theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  )
 
 plot_GAM
 
@@ -956,7 +1021,7 @@ library(lme4)
 library(caret)  # Para crear folds
 
 # Cargar datos
-estacion <- "MX"
+estacion <- "CH"
 modelo <- "1"
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
 setwd(dir)
@@ -1073,7 +1138,7 @@ train_data_scaled[vars_a_escalar] <- scale(train_data[vars_a_escalar])
 
 # Ajustar modelo con variables escaladas
 modelo_final <- lmer(PM25 ~ AOD_055 + t2m_mean + d2m_mean + v10_mean + u10_mean +
-                      blh_mean + sp_mean + tp_mean + #ndvi +
+                      blh_mean + sp_mean + tp_mean + ndvi +
                       (1 + AOD_055 | fecha), data = train_data_scaled)
 
 
@@ -1132,7 +1197,7 @@ print(resultados_lm)
 ################################################################################
 # GLM sEGUN MA et al.,
 # Cargar datos
-estacion <- "MX"
+estacion <- "CH"
 modelo <- "1"
 dir <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/")
 setwd(dir)
@@ -1150,7 +1215,7 @@ familia <- "quasi"
 familia <-"quasibinomial"
 familia <- "quasipoisson"
 glm_model <- glm(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + DEM+t2m_mean+
-                   SO2SMASS_dia + SO4SMASS_dia + SSSMASS_dia + blh_mean + sp_mean +
+                   SO2SMASS_dia + SO4SMASS_dia + SSSMASS_dia + blh_mean + #sp_mean +
                    d2m_mean    +v10_mean + u10_mean + tp_mean   +dayWeek,#family = inverse.gaussian(),
                  data = train_data)
 
@@ -1161,7 +1226,7 @@ predicciones_test <- predict(glm_model, newdata = test_data, allow.new.levels = 
 
 # Evaluar con tu función evaluar_modelo
 resultados_test3 <- evaluar_modelo(
-  modelo = glm_model3,
+  modelo = glm_model,
   datos_test = test_data,
   variable_real = "PM25",
   tipoModelo = "GLM"
@@ -1181,7 +1246,14 @@ plot_glm <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   scale_y_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
   scale_x_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
-  theme_classic() + theme(legend.position = "none")
+  theme_classic() + theme(legend.position = "none")+ theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  )
 
 # Mostrar el gráfico
 plot_glm
@@ -1194,7 +1266,14 @@ plot_glm <- ggplot(test_data, aes(x = PM25, y = pred)) +
   geom_smooth(method = "lm", se = FALSE, color = "red",linetype = "dashed") +  # ajuste de regresión
   scale_y_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
   scale_x_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
-  theme_classic() + theme(legend.position = "none")
+  theme_classic() + theme(legend.position = "none")+ theme(
+    legend.position = "none",
+    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
+    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+  )+  labs(
+    x = " ",   # 🔹 Nombre del eje X
+    y = " "     # 🔹 Nombre del eje Y
+  )
 
 plot_glm
 
@@ -1309,7 +1388,7 @@ df_ST <- df[df$sitio == "ST", ]
 
 # Combinar los dos sitios
 df_comb <- df
-df_comb$sitio <- factor(df_comb$sitio , levels = c("SP", "CH", "BA", "MD", "MX"))
+df_comb$sitio <- factor(df_comb$sitio , levels = c("SP", "ST", "BA", "MD", "MX"))
 
 # Convertir a formato largo
 data_melt <- df_comb %>%
@@ -1366,6 +1445,9 @@ library(tidyverse)
 # Datos
 desempeño_data <- data.frame(
   Centro = c("SP", "ST", "BA", "MD", "MX"),
+  r2_simple = c(2.00E-05,0.01,0.0001,0.12,0.14),
+  rmse_simple = c(10.82,16.37,10.64,8.20,9.07),
+  
   r2_blh = c(0.01062,0.33424,0.03947,0.03289,0.106),
   rmse_blh = c(10.76,13.44,10.417,8.57,9.412),
   r2_rh = c(0.10,0.05,0.002,0.15,0.27),
@@ -1383,11 +1465,11 @@ desempeño_data$Centro <- factor(desempeño_data$Centro, levels = c("SP", "ST", 
 # Reorganizar datos en formato largo
 # Usar funciones explícitas para evitar conflictos
 r2_data <- desempeño_data %>%
-  #dplyr::select(Centro,  r2_blh,r2_rh,r2_ambas) %>%
-  dplyr::select(Centro, rmse_blh, rmse_rh, rmse_ambas) %>%
+  #dplyr::select(Centro, r2_simple, r2_blh,r2_rh,r2_ambas) %>%
+  dplyr::select(Centro,rmse_simple, rmse_blh, rmse_rh, rmse_ambas) %>%
   tidyr::pivot_longer(
-    #cols = c( r2_blh,r2_rh ,r2_ambas),
-    cols = c(rmse_blh, rmse_rh, rmse_ambas),
+    #cols = c( r2_simple, r2_blh,r2_rh ,r2_ambas),
+    cols = c(rmse_simple,rmse_blh, rmse_rh, rmse_ambas),
     names_to = "Tipo",
     values_to = "RMSE"
     #values_to = "r2"
@@ -1396,11 +1478,11 @@ r2_data <- desempeño_data %>%
 
 # Etiquetas más legibles
 r2_data$Tipo <- factor(r2_data$Tipo, 
-                       levels = c("r2_blh", "r2_rh", "r2_ambas"),
-                       labels = c("R² BLH","R² RH",  "R² RH+BLH"))
+                       levels = c("r2_simple","r2_blh", "r2_rh", "r2_ambas"),
+                       labels = c("R² RLS", "R² BLH","R² RH",  "R² RH+BLH"))
 r2_data$Tipo <- factor(r2_data$Tipo, 
-                       levels = c("rmse_blh", "rmse_rh", "rmse_ambas"),
-                       labels = c("RMSE BLH","RMSE RH",  "RMSE RH+BLH"))
+                       levels = c("rmse_simple","rmse_blh", "rmse_rh", "rmse_ambas"),
+                       labels = c("RMSE RLS","RMSE BLH","RMSE RH",  "RMSE RH+BLH"))
 
 
 # Gráfico
@@ -1412,11 +1494,15 @@ ggplot(r2_data, aes(x = Centro, y = RMSE, fill = Tipo)) +
     fill = "Tipo de modelo") +
   #scale_y_continuous(limits = c(0, 1)) +
   theme(legend.position = "none") +
-  # theme_classic()+scale_fill_manual(values = c( "RMSE BLH"= "#7fcdbb"  ,#"#41b6c4" ,
-  #                                               "RMSE RH" = "#02818a",#"#225ea8",
-  #                                               "RM RH+BLH"= "#081d58"))
- theme_classic()+scale_fill_manual(values = c( "RMSE BLH"= "#feb24c",
-                                               "RMSE RH" ="#fb6a4a", 
+  # theme_classic()+scale_fill_manual(values = c( "R² RLS"= "grey",
+  #                                               "R² BLH"= "#feb24c",
+  #                                               "R² RH" ="#fb6a4a", 
+  #                                               "R² RH+BLH" = "#cb181d"))
+
+
+ theme_classic()+scale_fill_manual(values = c( "RMSE RLS"= "grey",
+          "RMSE BLH"= "#feb24c",
+                                               "RMSE RH" ="#fb6a4a",
                                                "RMSE RH+BLH" = "#cb181d"))
 
 
@@ -1496,3 +1582,49 @@ plot_RLS <- ggplot(test_data, aes(x = PM25, y = pred)) +
   theme_classic()+ theme(legend.position="none")
 
 plot_RLS
+
+
+
+#######################################################
+library(ggplot2)
+library(MASS)          # Para kde2d
+library(dplyr)
+library(viridis)
+
+# Calcular densidad bidimensional (x = PM25, y = pred)
+dens <- with(test_data, MASS::kde2d(PM25, pred, n = 200))
+
+# Interpolar la densidad estimada a cada punto
+test_data$dens <- fields::interp.surface(dens, test_data[, c("PM25", "pred")])
+
+# Normalizar entre 0 y 1
+test_data <- test_data %>%
+  mutate(dens_norm = (dens - min(dens)) / (max(dens) - min(dens)))
+
+# Graficar usando la densidad normalizada
+plot_glm <- ggplot(test_data, aes(x = PM25, y = pred, color = dens_norm)) +
+  geom_point(size = 1.8) +
+  scale_color_viridis_c(
+    name = "Densidad\n(normalizada)",
+    limits = c(0, 1)
+  ) +
+  geom_abline(slope = 1, intercept = 0, color = "black") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+  scale_y_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
+  scale_x_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
+  theme_classic() +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 11)
+  ) +
+  labs(
+    x = "PM2.5 observado (µg/m³)",
+    y = "PM2.5 predicho (µg/m³)"
+  )
+
+# Mostrar el gráfico
+plot_glm
+
