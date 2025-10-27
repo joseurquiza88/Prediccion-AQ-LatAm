@@ -549,8 +549,8 @@ data_st$CV <- factor(
 )
 ## === 1️⃣ Plot R² ===
 plot_R2_st <- ggplot(data_st, aes(x = CV, y = R2, color = Model, group = Model)) +
-  geom_point(size = 3) +
-  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  geom_line(linewidth = 0.5, linetype = "dashed")+
   scale_y_continuous(limits = c(0.6, 1)) +
   scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
   labs(
@@ -621,4 +621,73 @@ plot_RMSE_st
 plot_Bias_st
 
 
-
+####################
+#barras
+## === 1️⃣ Plot R² ===
+plot_R2_st <- ggplot(data_st, aes(x = CV, y = R2, color = Model, group = Model)) +
+  geom_bar(size = 3) +
+  # geom_line(linewidth = 1) +
+  scale_y_continuous(limits = c(0.6, 1)) +
+  scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
+  labs(
+    x = "",
+    y = "R²",
+    color = "Modelo",
+    #title = "Ciudad: ST"
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(size = 14, face = "bold"),
+    #legend.position = "bottom"
+    legend.position = "none"
+  )
+plot_R2_st
+## === 2️⃣ Plot RMSE ===
+plot_RMSE_st <- ggplot(data_st, aes(x = CV, y = RMSE, color = Model, group = Model)) +
+  geom_point(size = 3) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(limits = c(5, 10)) +
+  scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
+  labs(
+    x = " ",
+    y = "RMSE",
+    color = "Modelo",
+    #title = "Ciudad: ST"
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(size = 14, face = "bold"),
+    
+    #legend.position = "bottom"
+    legend.position = "none"
+  )
+plot_RMSE_st
+## === 3️⃣ Plot Bias ===
+plot_Bias_st <- ggplot(data_st, aes(x = CV, y = Bias, color = Model, group = Model)) +
+  geom_point(size = 3) +
+  geom_line(linewidth = 1) +
+  geom_hline(yintercept = 0, color = "black", linetype = "dashed", linewidth = 0.3) +
+  scale_y_continuous(limits = c(-1, 1)) +
+  scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
+  labs(
+    x = "",#"Tipo de validación cruzada",
+    y = "Bias",
+    color = "Modelo",
+    #title = "Ciudad: ST"
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(size = 14, face = "bold"),
+    # legend.position = "bottom"
+    legend.position = "none"
+  )
+plot_Bias_st
