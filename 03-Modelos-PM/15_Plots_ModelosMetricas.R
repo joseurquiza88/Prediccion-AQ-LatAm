@@ -536,6 +536,17 @@ ggplot(data_todo, aes(x = CV, y = Bias, color = Model, group = Model)) +
 ###########################################################################
 library(dplyr)
 library(ggplot2)
+# Agregar columna CV a cada uno
+data_cv_random <- data_cv_random %>% mutate(CV = "Random")
+data_cv_espacial <- data_cv_espacial %>% mutate(CV = "Espacial")
+data_cv_temporal <- data_cv_temporal %>% mutate(CV = "Temporal")
+
+# Unir todos
+data_todo <- bind_rows(data_cv_random, data_cv_espacial, data_cv_temporal)
+
+# Reordenar niveles
+data_todo$CV <- factor(data_todo$CV, levels = c("Random", "Espacial", "Temporal"))
+data_todo$City <- factor(data_todo$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 # 🔹 Filtrar solo la ciudad ST
 data_st <- data_todo %>% filter(City == "ST")
@@ -691,3 +702,90 @@ plot_Bias_st <- ggplot(data_st, aes(x = CV, y = Bias, color = Model, group = Mod
     legend.position = "none"
   )
 plot_Bias_st
+
+
+########################
+
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+# Reorganizamos los datos al formato largo
+data_long <- data_st %>%
+  pivot_longer(cols = c(R2, RMSE, Bias),
+               names_to = "Metric",
+               values_to = "Value")
+
+# Para que las métricas se muestren en orden lógico
+data_long$Metric <- factor(data_long$Metric, levels = c("R2", "RMSE", "Bias"))
+# Gráfico de barras agrupadas
+ggplot(data_long, aes(x = CV, y = Value, fill = Model)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  facet_wrap(~ Metric, scales = "free_y", nrow = 1) +
+  labs(
+    x = " ",
+    y = " ",
+    fill = " ",
+    #title = "Comparación del desempeño de los modelos según el tipo de validación"
+  ) +
+  theme_classic(base_size = 13) +
+  theme(
+    strip.text = element_text(size = 13, face = "bold"),
+    axis.text.x = element_text(size = 12, angle = 0, hjust = 0.5),
+    axis.title.y = element_text(size = 13),
+    legend.position = "bottom"
+  )
+
+
+
+library(ggplot2)
+library(dplyr)
+library(patchwork)  # para combinar los plots
+
+# --- Filtramos cada métrica ---
+data_R2 <- data_long %>% filter(Metric == "R2")
+data_RMSE <- data_long %>% filter(Metric == "RMSE")
+data_BIAS <- data_long %>% filter(Metric == "Bias")
+
+# --- Gráfico 1: R2 ---
+plot_R2 <- ggplot(data_R2, aes(x = CV, y = Value, fill = Model)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  ylim(0, 1) +
+  labs(x = "", y = expression(R^2), fill = "") +
+  theme_classic(base_size = 13) +
+theme(
+  axis.text.x = element_text(size = 11),#, angle = 45, hjust = 1),
+  axis.title.y = element_text(size = 11, face = "bold"),
+  legend.position = "none"
+
+)
+# --- Gráfico 2: RMSE ---
+plot_RMSE <- ggplot(data_RMSE, aes(x = CV, y = Value, fill = Model)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  ylim(0, 10) +
+  labs(x = "", y = "RMSE", fill = "") +
+  theme_classic(base_size = 13) +
+  theme(
+    axis.text.x = element_text(size = 11),#, angle = 45, hjust = 1),
+    axis.title.y = element_text(size = 11, face = "bold"),
+    legend.position = "none"
+  )
+
+# --- Gráfico 3: BIAS ---
+plot_BIAS <- ggplot(data_BIAS, aes(x = CV, y = Value, fill = Model)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black", linewidth = 0.3) +
+  ylim(-1, 0.5) +
+  labs(x = "", y = "Bias", fill = "") +
+  theme_classic(base_size = 13) +
+  theme(
+    axis.text.x = element_text(size = 11),#, angle = 45, hjust = 1),
+    axis.title.y = element_text(size = 11, face = "bold"),
+    # legend.position = "none"
+    legend.position = "bottom"
+  )
+plot_R2
+plot_RMSE
+plot_BIAS
+
+
