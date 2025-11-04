@@ -65,7 +65,26 @@ SP_sAOD <- resample(SP_sAOD, SP_AOD, method = "bilinear")
 
 # Calcular mapa de diferencia (con AOD - sin AOD)
 diff_map <- SP_AOD - SP_sAOD
+# Cargar shapefile
+ciudad_SP <- st_read("D:/Josefina/Proyectos/ProyectoChile/SP/shape/ciudad SP/ciudad_SP.shp")
 
+# Si el shapefile y el raster tienen CRS diferentes, transformar:
+if (!st_crs(ciudad_SP) == st_crs(diff_map)) {
+  ciudad_SP <- st_transform(ciudad_SP, crs(diff_map))
+}
+
+# Paleta de colores
+pal <- colorRampPalette(c("blue", "white", "red"))(100)
+
+# Graficar mapa con shapefile superpuesto
+plot(diff_map, col = pal, 
+     main = "",
+     xlab = "", ylab = "")
+plot(st_geometry(ciudad_SP), add = TRUE, border = "black", lwd = 1.2)
+
+
+
+#####
 # Visualizar el mapa de diferencias
 # Paleta de colores: azul para diferencias negativas, rojo para positivas
 pal <- colorRampPalette(c("blue", "white", "red"))(100)
@@ -512,4 +531,276 @@ a<-ggplot(df, aes(x = sitio, y = valor, fill = sitio)) +
 a
 a+ggplot2::annotate("text", x = 1.5, y = 6, label = "Limite anual OMS ", hjust = 1, size = 4)
  a 
+ ##################################################
+ #################
+ ##################################################
+ #################
+ library(raster)
+ library(RColorBrewer)
+ library(sf)
+ 
+ # === Cargar rasters ===
+ SP_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/SP/modelos/salidas/SalidasAnuales/01-XGB-CV-M1-200525-SP/Promedio_anual_2024-01-XGB-CV-M1-200525-SP_Recorte.tif")
+ SP_sAOD <- raster("D:/Josefina/Proyectos/ProyectoChile/SP/modelos/salidas/SalidasAnuales/02-XGB-CV-1-210525-sAOD-SP/Promedio_anual_2024-02-XGB-CV-1-210525-sAOD-SP_Recortado.tif")
+ 
+ SP_sAOD <- resample(SP_sAOD, SP_AOD, method = "bilinear")
+ diff_map <- SP_AOD - SP_sAOD
+ 
+ # === Cargar shapefile ===
+ ciudad_SP <- st_read("D:/Josefina/Proyectos/ProyectoChile/SP/shape/ciudad SP/ciudad_SP.shp")
+ 
+ if (!st_crs(ciudad_SP) == st_crs(diff_map)) {
+   ciudad_SP <- st_transform(ciudad_SP, crs(diff_map))
+ }
+ 
+ # === Paleta de colores centrada en 0 ===
+ max_diff <- max(abs(values(diff_map)), na.rm = TRUE)
+ breaks <- seq(-max_diff, max_diff, length.out = 101)
+ pal <- colorRampPalette(rev(brewer.pal(11, "RdBu")))(100)
+ 
+ # === Plot elegante ===
+ par(mar = c(4, 4, 4, 8)) # márgenes más amplios para la leyenda
+ par(mar = c(4, 4, 4, 4)) # márgenes más amplios para la leyenda
+ 
+ plot(diff_map, 
+      col = pal, 
+      breaks = breaks,
+      main = " ",
+      cex.main = 1.2, font.main = 2,
+      axes = TRUE, box = FALSE,
+      legend = FALSE)
+ 
+ # Contorno del shapefile
+ plot(st_geometry(ciudad_SP), add = TRUE, border = "black", lwd = 1.2)
+ 
+ # === Leyenda personalizada a la derecha ===
+ image.plot(diff_map, col = pal, breaks = breaks, legend.only = TRUE,
+            horizontal = FALSE, legend.width = 1.2, legend.mar = 4,
+            legend.args = list(text = " ", side = 3, line = 1.5, cex = 1))
+ 
+ # === Marco fino y título extra ===
+ box(lwd = 1.2, col = "gray40")
+ mtext("Rango centrado en 0 (azul: menor con AOD, rojo: mayor con AOD)", 
+       side = 1, line = 2.8, cex = 0.9, col = "gray30")
+ 
+ 
+ ##################################################
+ #################
+ library(raster)
+ library(RColorBrewer)
+ library(sf)
+ 
+ # === Cargar rasters ===
+ CH_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/CH/modelos/salidas/SalidasAnuales/01-XGB-CV-M1-190625-CH/Promedio_anual_2024-01-XGB-CV-M1-190625-CH.tif")
+ CH_sAOD <- raster("D:/Josefina/Proyectos/ProyectoChile/CH/modelos/salidas/SalidasAnuales/02-XGB-CV-M1-230625-sAOD-CH/Promedio_anual_2024-02-XGB-CV-M1-230625-sAOD-CH.tif")
+ 
+ 
+ CH_sAOD <- resample(CH_sAOD, CH_AOD, method = "bilinear")
+ diff_map <- CH_AOD - CH_sAOD
+ 
+ # === Cargar shapefile ===
+ ciudad_CH <- st_read("D:/Josefina/Proyectos/ProyectoChile/shape/Comunas/Comunas_cortados.shp")
+ 
+ if (!st_crs(ciudad_CH) == st_crs(diff_map)) {
+   ciudad_CH <- st_transform(ciudad_CH, crs(diff_map))
+ }
+ 
+ # === Paleta de colores centrada en 0 ===
+ max_diff <- max(abs(values(diff_map)), na.rm = TRUE)
+ breaks <- seq(-max_diff, max_diff, length.out = 101)
+ pal <- colorRampPalette(rev(brewer.pal(11, "RdBu")))(100)
+ 
+ # === Plot elegante ===
+ par(mar = c(4, 4, 4, 8)) # márgenes más amplios para la leyenda
+ par(mar = c(4, 4, 4, 4)) # márgenes más amplios para la leyenda
+ 
+ plot(diff_map, 
+      col = pal, 
+      breaks = breaks,
+      main = " ",
+      cex.main = 1.2, font.main = 2,
+      axes = TRUE, box = FALSE,
+      legend = FALSE)
+ 
+ # Contorno del shapefile
+ plot(st_geometry(ciudad_CH), add = TRUE, border = "black", lwd = 1.2)
+ 
+ # === Leyenda personalizada a la derecha ===
+ image.plot(diff_map, col = pal, breaks = breaks, legend.only = TRUE,
+            horizontal = FALSE, legend.width = 1.2, legend.mar = 4,
+            legend.args = list(text = " ", side = 3, line = 1.5, cex = 1))
+ 
+ # === Marco fino y título extra ===
+ box(lwd = 1.2, col = "gray40")
+ mtext("Rango centrado en 0 (azul: menor con AOD, rojo: mayor con AOD)", 
+       side = 1, line = 2.8, cex = 0.9, col = "gray30")
+ 
+ ##################################################
+ #################
+ library(raster)
+ library(RColorBrewer)
+ library(sf)
+ 
+ # === Cargar rasters ===
+ ## BA
+ 
+ BA_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/BA/modelos/salidas/SalidasAnuales/01-ET-CV-M1-170625-BA/Promedio_anual_2024-01-ET-CV-M1-170625-BA_Recorte.tif")
+ BA_sAOD <- raster("D:/Josefina/Proyectos/ProyectoChile/BA/modelos/salidas/SalidasAnuales/02-ET-CV-M1-230625-sAOD-BA/Promedio_anual_2024-02-ET-CV-M1-230625-sAOD-BA_recorte.tif")
+ 
+ 
+ BA_sAOD <- resample(BA_sAOD, BA_AOD, method = "bilinear")
+ diff_map <- BA_AOD - BA_sAOD
+ 
+ # === Cargar shapefile ===
+ ciudad_BA <- st_read("D:/Josefina/Proyectos/ProyectoChile/BA/shapes/recorte/recorte.shp")
+ 
+ if (!st_crs(ciudad_BA) == st_crs(diff_map)) {
+   ciudad_BA <- st_transform(ciudad_BA, crs(diff_map))
+ }
+ 
+ # === Paleta de colores centrada en 0 ===
+ max_diff <- max(abs(values(diff_map)), na.rm = TRUE)
+ breaks <- seq(-max_diff, max_diff, length.out = 101)
+ pal <- colorRampPalette(rev(brewer.pal(11, "RdBu")))(100)
+ 
+ # === Plot elegante ===
+ par(mar = c(4, 4, 4, 8)) # márgenes más amplios para la leyenda
+ par(mar = c(4, 4, 4, 4)) # márgenes más amplios para la leyenda
+ 
+ plot(diff_map, 
+      col = pal, 
+      breaks = breaks,
+      main = " ",
+      cex.main = 1.2, font.main = 2,
+      axes = TRUE, box = FALSE,
+      legend = FALSE)
+ 
+ # Contorno del shapefile
+ plot(st_geometry(ciudad_BA), add = TRUE, border = "black", lwd = 1.2)
+ 
+ # === Leyenda personalizada a la dereBAa ===
+ image.plot(diff_map, col = pal, breaks = breaks, legend.only = TRUE,
+            horizontal = FALSE, legend.width = 1.2, legend.mar = 4,
+            legend.args = list(text = " ", side = 3, line = 1.5, cex = 1))
+ 
+ # === Marco fino y título extra ===
+ box(lwd = 1.2, col = "gray40")
+ mtext("Rango centrado en 0 (azul: menor con AOD, rojo: mayor con AOD)", 
+       side = 1, line = 2.8, cex = 0.9, col = "gray30")
+ 
+ 
+ 
+ 
+ 
+ ##################################################
+ #################
+ library(raster)
+ library(RColorBrewer)
+ library(sf)
+ 
+ # === Cargar rasters ===
+ ## MD
+ 
+ MD_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/MD/modelos/salidas/SalidasAnuales/01-ET-CV-M1-260525-MD/Promedio_anual_2024-01-ET-CV-M1-260525-MD_recortado.tif")
+ MD_sAOD <- raster("D:/Josefina/Proyectos/ProyectoChile/MD/modelos/salidas/SalidasAnuales/01-ET-CV-M1-270525-sAOD-MD/Promedio_anual_2024-01-ET-CV-M1-270525-sAOD-MD_recortado.tif")
+ 
+ 
+ 
+ MD_sAOD <- resample(MD_sAOD, MD_AOD, method = "bilinear")
+ diff_map <- MD_AOD - MD_sAOD
+ 
+ # === Cargar shapefile ===
+ ciudad_MD <- st_read("D:/Josefina/Proyectos/ProyectoChile/MD/shapefile/LimitesMedellin.shp")
+ 
+ if (!st_crs(ciudad_MD) == st_crs(diff_map)) {
+   ciudad_MD <- st_transform(ciudad_MD, crs(diff_map))
+ }
+ 
+ # === Paleta de colores centrada en 0 ===
+ max_diff <- max(abs(values(diff_map)), na.rm = TRUE)
+ breaks <- seq(-max_diff, max_diff, length.out = 101)
+ pal <- colorRampPalette(rev(brewer.pal(11, "RdBu")))(100)
+ 
+ # === Plot elegante ===
+ par(mar = c(4, 4, 4, 8)) # márgenes más amplios para la leyenda
+ par(mar = c(4, 4, 4, 4)) # márgenes más amplios para la leyenda
+ 
+ plot(diff_map, 
+      col = pal, 
+      breaks = breaks,
+      main = " ",
+      cex.main = 1.2, font.main = 2,
+      axes = TRUE, box = FALSE,
+      legend = FALSE)
+ 
+ # Contorno del shapefile
+ plot(st_geometry(ciudad_MD), add = TRUE, border = "black", lwd = 1.2)
+ 
+ # === Leyenda personalizada a la dereMDa ===
+ image.plot(diff_map, col = pal, breaks = breaks, legend.only = TRUE,
+            horizontal = FALSE, legend.width = 1.2, legend.mar = 4,
+            legend.args = list(text = " ", side = 3, line = 1.5, cex = 1))
+ 
+ # === Marco fino y título extra ===
+ box(lwd = 1.2, col = "gray40")
+ mtext("Rango centrado en 0 (azul: menor con AOD, rojo: mayor con AOD)", 
+       side = 1, line = 2.8, cex = 0.9, col = "gray30")
+ 
+ 
+ 
+ 
+ ##################################################
+ #################
+ library(raster)
+ library(RColorBrewer)
+ library(sf)
+ 
+ # === Cargar rasters ===
+ ## MX
+ 
+ 
+ MX_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/MX/modelos/salidas/SalidasAnuales/01-XGB-CV-M1-290525-MX/Promedio_anual_2024-01-XGB-CV-M1-290525-MX_Recortado.tif")
+ MX_sAOD <- raster("D:/Josefina/Proyectos/ProyectoChile/MX/modelos/salidas/SalidasAnuales/02-XGB-CV-M1-230625-sAOD-MX/Promedio_anual_2024-02-XGB-CV-M1-230625-sAOD-MX_Recortado.tif")
+ 
+ 
+ 
+ MX_sAOD <- resample(MX_sAOD, MX_AOD, method = "bilinear")
+ diff_map <- MX_AOD - MX_sAOD
+ 
+ # === Cargar shapefile ===
+ ciudad_MX <- st_read("D:/Josefina/Proyectos/ProyectoChile/MX/shapefile/poligonos_alcaldias_cdmx/poligonos_alcaldias_cdmx.shp")
+ 
+ if (!st_crs(ciudad_MX) == st_crs(diff_map)) {
+   ciudad_MX <- st_transform(ciudad_MX, crs(diff_map))
+ }
+ 
+ # === Paleta de colores centrada en 0 ===
+ max_diff <- max(abs(values(diff_map)), na.rm = TRUE)
+ breaks <- seq(-max_diff, max_diff, length.out = 101)
+ pal <- colorRampPalette(rev(brewer.pal(11, "RdBu")))(100)
+ 
+ # === Plot elegante ===
+ par(mar = c(4, 4, 4, 8)) # márgenes más amplios para la leyenda
+ par(mar = c(4, 4, 4, 4)) # márgenes más amplios para la leyenda
+ 
+ plot(diff_map, 
+      col = pal, 
+      breaks = breaks,
+      main = " ",
+      cex.main = 1.2, font.main = 2,
+      axes = TRUE, box = FALSE,
+      legend = FALSE)
+ 
+ # Contorno del shapefile
+ plot(st_geometry(ciudad_MX), add = TRUE, border = "black", lwd = 1.2)
+ 
+ # === Leyenda personalizada a la dereMXa ===
+ image.plot(diff_map, col = pal, breaks = breaks, legend.only = TRUE,
+            horizontal = FALSE, legend.width = 1.2, legend.mar = 4,
+            legend.args = list(text = " ", side = 3, line = 1.5, cex = 1))
+ 
+ # === Marco fino y título extra ===
+ box(lwd = 1.2, col = "gray40")
+ mtext("Rango centrado en 0 (azul: menor con AOD, rojo: mayor con AOD)", 
+       side = 1, line = 2.8, cex = 0.9, col = "gray30")
  
