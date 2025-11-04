@@ -1,12 +1,9 @@
 
-#################################################################################
-#################################################################################
-#                           Modelos Predictivos de PM2.5
-#################################################################################
-#################################################################################
-# biblioteca para vif
-
-#  --        01. Preparaci?n de los datos: selecci?n de variables
+#######################################################################
+## OBJETIVO: Contruir modelos para predecir PM2.5
+##
+######################################################################## 
+# Preparacion de datos: seleccio de variables
 estacion <- "MX"
 data_com <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/merge_tot/",estacion,"_merge_comp.csv",sep=""))
 names(data_com)
@@ -25,38 +22,23 @@ modelo <- lm(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + OCSMASS_dia+
                SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
                d2m_mean + t2m_mean + v10_mean + u10_mean + tp_mean + DEM + dayWeek,
              data = data_com)
-modelo <- lm(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
-               SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
-               d2m_mean  + v10_mean + u10_mean + tp_mean +  dayWeek,
-             data = data_com)
 
 vif(modelo)
-# Esto te devuelve una tabla con el VIF para cada variable. Como regla general:
-
-#   VIF ??? 1: no hay colinealidad
-# 
-# VIF entre 5 y 10: hay cierta colinealidad, ojo
-# 
-# VIF > 10: colinealidad severa ??? deber?as eliminar o transformar alguna variable
 sort(vif(modelo), decreasing = TRUE)
 a<- data.frame(vif(modelo))
 a <- 
 
 car::vif(modelo)
 summary(modelo)
-#Vamos a guardar en el mismo archivo pero con el dayokweek
-write.csv(data_com ,paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/merge_tot/",estacion,"_merge_comp.csv",sep=""))
 
-data_com
-######################################################
 #########################################################
-## Complejidad de los modelos
+## Modelos predictivos de ML pero sin CV
 #########################################################
-#funcion para evaluar modelos
-
+# Se contruye una funcion para evaluar todos los modelos
+# Entrenamiento ==> set de Entrenamiento
+# Testeo ==> set de testeo
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test) {
     predicciones <- predict(modelo, newdata = datos_test)
-
   
   if(tipoModelo=="XGB"){
     valores_reales <- y_test
@@ -87,73 +69,36 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
   return(resultados)
 }
 
-# Modelo
-### ----- RLS  -----
-#########################################################
-estacion <-"MX"
-modelo <- "1"
-
-dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
-setwd(dir)
-train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
-test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
-# Entrenar el modelo de regresi?n lineal m?ltiple
-lm_model <- lm(PM25 ~ AOD_055,
-               data = train_data)
-
-resultados_RLS <- evaluar_modelo(modelo=lm_model, datos_test=test_data, variable_real = "PM25",tipoModelo="RLS",y_test=NA)
-
-print(resultados_RLS)
 
 #########################################################################################
 #########################################################################################
-### ----- RLM  -----
-estacion <-"MX"
-modelo <- "1"
-
-dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
-setwd(dir)
-train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
-test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
-names(train_data)
-# Entrenar el modelo de regresi?n lineal m?ltiple
-lm_model <- lm(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
-                 SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
-                 d2m_mean  +t2m_mean +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
-               data = train_data)
-
-
-resultados_RLM2 <- evaluar_modelo(modelo=lm_model, datos_test=test_data, variable_real = "PM25",tipoModelo="RLS",y_test=NA)
-
-print(resultados_RLM)
-#########################################################################################
-#########################################################################################
-### ----- SVR  -----
+### ----- Modelo SVR  -----
 library(e1071)  # para usar svm
 estacion <-"BA"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
+# Set de datos para entrenar y validar
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
-
+# Se crea el modelo
 svr_model <- svm(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
                    SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean +sp_mean + #+t2m_mean
                    d2m_mean   +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
                  data = train_data,
-                 type = "eps-regression",  # regresi?n epsilon-SVR
-                 kernel = "radial",        # pod?s probar tambi?n "linear" o "polynomial"
-                 cost = 10,                # par?metro de penalizaci?n (ajustable)
+                 type = "eps-regression",  # regresion epsilon-SVR
+                 kernel = "radial",        # Otra alernativa "linear" o "polynomial"
+                 cost = 10,                # parametro de penalizacion (ajustable)
                  epsilon = 0.1)            # margen de tolerancia (ajustable)
 
-
+# Evaluar el desempeño
 resultados_SVR <- evaluar_modelo(modelo=svr_model, datos_test=test_data, variable_real = "PM25",tipoModelo="SVR",y_test=NA)
 
 print(resultados_SVR)
 
-
+# Guardar el modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(svr_model, file=paste("01-SVR-M",modelo,"-170625",estacion,".RData",sep=""))
@@ -161,7 +106,7 @@ save(svr_model, file=paste("01-SVR-M",modelo,"-170625",estacion,".RData",sep="")
 
 #########################################################################################
 #########################################################################################
-### ----- ET   -----
+### ----- Modelo ET  -----
 library(caret)
 library(ranger)
 estacion <-"BA"
@@ -172,27 +117,28 @@ setwd(dir)
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
-# Entrenamiento simple sin b?squeda de hiperpar?metros ni CV
+# Entrenamiento simple sin busqueda de hiperparametros ni CV
 modelo_ranger <- train(
-  PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + #+t2m_mean 
+  PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + +t2m_mean 
     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
     d2m_mean  +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
   data = train_data,
   method = "ranger",
-  trControl = trainControl(method = "none"),  # sin validaci?n cruzada
+  trControl = trainControl(method = "none"),  # sin validacion cruzada
   tuneGrid = data.frame(
-    mtry = 5,                # eleg? un valor fijo, por ejemplo 5
+    mtry = 5,                # elegir un valor fijo, por ejemplo 5
     splitrule = "extratrees", # Extra Trees
-    min.node.size = 5        # tambi?n pod?s cambiar este valor si quer?s
+    min.node.size = 5        
   ),
   importance = 'impurity'
 )
 
+# Evaluar el desempeño
 resultados_ET <- evaluar_modelo(modelo=modelo_ranger, datos_test=test_data, variable_real = "PM25",tipoModelo="ET",y_test=NA)
 
 print(resultados_ET)
 
-
+#Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(modelo_ranger, file=paste("01-ET-M",modelo,"-170625",estacion,".RData",sep=""))
@@ -200,12 +146,13 @@ save(modelo_ranger, file=paste("01-ET-M",modelo,"-170625",estacion,".RData",sep=
 
 #########################################################################################
 #########################################################################################
-### ----- RF   -----
+### ----- Modelo Random Forest  -----
 estacion <-"CH"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
+#Dataset de entrenamiento y testeo
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 control <- trainControl(method = "none")
@@ -218,12 +165,11 @@ modelo_RF <- train(PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + +t2m_mean
                    trControl = control,
                    importance = TRUE)
 
-
-07:52
+# Evaluar el desempeño
 resultados_RF <- evaluar_modelo(modelo=modelo_RF, datos_test=test_data, variable_real = "PM25",tipoModelo="RF",y_test=NA)
 
 print(resultados_RF)
-
+# Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(modelo_RF, file=paste("01-RF-M",modelo,"-170625",estacion,".RData",sep=""))
@@ -231,8 +177,8 @@ save(modelo_RF, file=paste("01-RF-M",modelo,"-170625",estacion,".RData",sep=""))
 
 #########################################################################################
 #########################################################################################
+### ----- Modelo Extreme Gradient Boosting  -----
 
-# Cargar librer?as necesarias
 library(xgboost)
 library(Matrix)
 ### ----- XGB   -----
@@ -241,10 +187,10 @@ modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
+#Dataset de entrenamiento y testeo
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
-
-
+#Generamos dataframe 
 X <- train_data[ , c( "AOD_055",
                       "ndvi", "BCSMASS_dia","DUSMASS_dia", "sp_mean",#"t2m_mean",
                       "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
@@ -265,16 +211,16 @@ y_test<- test_data$PM25
 # Convertir a matrices xgboost
 dtrain <- xgb.DMatrix(data = as.matrix(X), label = y)
 
-# Especificar los par?metros del modelo
+# Especificar los parametros del modelo
 params <- list(
   booster = "gbtree", 
-  objective = "reg:squarederror",  # Tarea de regresi?n
-  eval_metric = "rmse",             # M?trica para evaluaci?n
+  objective = "reg:squarederror",  # Tarea de regresion
+  eval_metric = "rmse",             # Metrica para evaluacion
   eta = 0.3,      #0.1chat                  # Tasa de aprendizaje
-  max_depth = 6,                    # Profundidad m?xima de los ?rboles
-  gamma = 0,                        # Regularizaci?n L2
-  subsample = 0.8,                  # Proporci?n de datos para entrenamiento
-  colsample_bytree = 1, #0.8 chat           # Proporci?n de caracter?sticas para entrenamiento
+  max_depth = 6,                    # Profundidad maxima de los arboles
+  gamma = 0,                        # Regularizacion L2
+  subsample = 0.8,                  # Proporcion de datos para entrenamiento
+  colsample_bytree = 1, #0.8            # Proporcion de caracterasticas para entrenamiento
   min_child_weight = 1 
 )
 
@@ -282,18 +228,16 @@ params <- list(
 xgb_model <- xgb.train(
   params = params,
   data = dtrain,
-  nrounds = 2000#,      #2000    # N?mero de rondas de boosting
+  nrounds = 2000#,      #2000    # Numero de rondas de boosting
   #early_stopping_rounds = 10  # Detener el entrenamiento si no mejora
 )
 
-
-
+#Generacion de  de la matriz
 dtest <- xgb.DMatrix(data = as.matrix(X_test), label = y_test)
 resultados_XGB <- evaluar_modelo(modelo=xgb_model, datos_test=dtest, variable_real = "PM25",tipoModelo="XGB",y_test=y_test)
 
 print(resultados_XGB)
-
-
+# Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(xgb_model, file=paste("01-XGB-M",modelo,"-170625",estacion,".RData",sep=""))

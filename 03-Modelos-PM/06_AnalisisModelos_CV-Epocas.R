@@ -1,9 +1,8 @@
-#################################################################################
-#################################################################################
-#                           Modelos Predictivos de PM2.5 con CV por epoca
-#################################################################################
-#################################################################################
-#  Objetivo: Evaluar cómo varía el rendimiento del modelo SVR por estación del año
+
+#######################################################################
+## OBJETIVO: Contruccion de modelos Predictivos de PM2.5 con CV por epoca
+##revisar, usar
+#######################################################################
 
 #funcion para evaluar modelos
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test=NA) {
@@ -19,7 +18,7 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
   # Extraer los valores reales de la variable objetivo
   
   
-  # Calcular métricas
+  # Calcular metricas
   r2 <- cor(predicciones, valores_reales)^2
   pearson <- cor(valores_reales, predicciones, method = "pearson")
   rmse <- sqrt(mean((predicciones - valores_reales)^2))
@@ -41,29 +40,27 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- SVR   -----
+### ----- Modelo predictivo SVR   -----
 estacion <-"MD"
 modelo <- "1"
-
+# datasets
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
 
-
-# Asegurate que 'fecha' esté en formato Date
+# la fecha debe ser del tipo date
 train_data$date <- as.Date(train_data$date)
 test_data$date  <- as.Date(test_data$date)
 
-# Función para clasificar estaciones
+# Funcion para clasificar estaciones
 get_season <- function(date) {
   m <- month(date)
   ifelse(m %in% c(12, 1, 2), "Verano",
-         ifelse(m %in% c(3, 4, 5), "Otoño",
+         ifelse(m %in% c(3, 4, 5), "Oto�o",
                 ifelse(m %in% c(6, 7, 8), "Invierno", "Primavera")))
 }
-
 
 
 
@@ -80,11 +77,11 @@ estaciones <- c("Primavera", "Verano", "Otoño", "Invierno")
 for (s in estaciones) {
   cat("/n--- Entrenando SVR para:", s, "---/n")
   
-  # Filtrar datos por estación
+  # Filtrar datos por estacion
   train_s <- subset(train_data, season == s)
   test_s <- subset(test_data, season == s)
   
-  if (nrow(train_s) >= 30) {  # Asegura tamaño mínimo para CV
+  if (nrow(train_s) >= 30) {  # Asegura tama�o maximo de cv
     # Entrenamiento con CV=10
     ctrl <- trainControl(method = "cv", number = 10, 
                          savePredictions = "final", verboseIter = TRUE)
@@ -101,7 +98,7 @@ for (s in estaciones) {
     
     modelos_svr_por_estacion[[s]] <- modelo_svr
     
-    # Evaluación
+    # Evaluacion
     resultado <- evaluar_modelo(modelo_svr, test_s,variable_real = "PM25",tipoModelo="SVR",y_test=NA)
     
     # resultado <- evaluar_modelo(modelo_svr, test_s)
@@ -124,22 +121,21 @@ df_resultados <- bind_rows(
 
 print(df_resultados)
 
-#Plot
+#factor para ordenar la info
 df_resultados$season <- factor(df_resultados$season,
-                               levels = c("Otoño", "Invierno", "Primavera", "Verano"))
-
-
+                               levels = c("Oto�o", "Invierno", "Primavera", "Verano"))
+#Plot
 ggplot(df_resultados, aes(x = season, y = RMSE)) +
   geom_bar(stat = "identity", fill = "#e34a33") +
   labs(title = "Modelo SVR",
-       x = "Estación del año", y = "RMSE") +
+       x = "Estacion", y = "RMSE") +
   scale_y_continuous(limits = c(0, 10)) +
   theme_classic()
 
 ggplot(df_resultados, aes(x = season, y = R2)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   labs(subtitle =  "Modelo SVR",
-       x = "Estación del año", y = "R²") +
+       x = "Estacion del a�o", y = "R²") +
   scale_y_continuous(limits = c(0, 1)) +
   theme_classic()
 
@@ -148,15 +144,15 @@ ggplot(df_resultados, aes(x = season, y = R2)) +
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- ET   -----
-# --- Parámetros iniciales
+### ----- Modelo predictivo ET   -----
+# --- Parametros iniciales
 estacion <- "MD"
 modelo <- "1"
 
 # --- Cargar datos
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/", sep = "")
 setwd(dir)
-
+# datos de entrenamiento/testeo
 train_data <- read.csv(paste(dir, "Modelo_", modelo, "/M", modelo, "_train_", estacion, ".csv", sep = ""))
 test_data <- read.csv(paste(dir, "Modelo_", modelo, "/M", modelo, "_test_", estacion, ".csv", sep = ""))
 
@@ -164,14 +160,14 @@ test_data <- read.csv(paste(dir, "Modelo_", modelo, "/M", modelo, "_test_", esta
 train_data$date <- as.Date(train_data$date)
 test_data$date <- as.Date(test_data$date)
 
-# Clasificación estacional
+# Clasificacion estacional
 get_season <- function(date) {
   m <- month(date)
   ifelse(m %in% c(12, 1, 2), "Verano",
-         ifelse(m %in% c(3, 4, 5), "Otoño",
+         ifelse(m %in% c(3, 4, 5), "Oto�o",
                 ifelse(m %in% c(6, 7, 8), "Invierno", "Primavera")))
 }
-
+# agregar data
 train_data$season <- get_season(train_data$date)
 test_data$season <- get_season(test_data$date)
 
@@ -179,12 +175,13 @@ test_data$season <- get_season(test_data$date)
 modelos_et_por_estacion <- list()
 resultados_et_por_estacion <- list()
 
-estaciones <- c("Primavera", "Verano", "Otoño", "Invierno")
+estaciones <- c("Primavera", "Verano", "Oto�o", "Invierno")
 
+#Recorrer las estaciones del a�o
 for (s in estaciones) {
   cat("/n--- Entrenando ET para:", s, "---/n")
   
-  # Filtrar por estación
+  # Filtrar por estacion
   train_s <- subset(train_data, season == s)
   test_s  <- subset(test_data,  season == s)
   
@@ -242,39 +239,40 @@ ggplot(df_resultados_et, aes(x = season, y = RMSE)) +
   scale_y_continuous(limits = c(0, 10)) +
   theme_classic()
 
-# --- Plot R²
+# --- Plot R2
 ggplot(df_resultados_et, aes(x = season, y = R2)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   labs(subtitle = "Modelo ET",
-       x = "Estación del año", y = "R²") +
+       x = "Estaciondel a�o", y = "R2") +
   scale_y_continuous(limits = c(0, 1)) +
   theme_classic()
 
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- RF   -----
+### ----- Modelo predictivo RF   -----
 # -------------------------------------------------------------------
-# Configuración inicial
+# Configuracion inicial
 estacion <- "MD"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/", sep = "")
 setwd(dir)
+#dataset
 train_data <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_train_", estacion, ".csv"))
 test_data  <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_test_", estacion, ".csv"))
-
+# Formato date
 train_data$date <- as.Date(train_data$date)
 test_data$date  <- as.Date(test_data$date)
 
-# Clasificación estacional
+# Clasificacion estacional
 get_season <- function(date) {
   m <- month(date)
   ifelse(m %in% c(12, 1, 2), "Verano",
-         ifelse(m %in% c(3, 4, 5), "Otoño",
+         ifelse(m %in% c(3, 4, 5), "Oto�o",
                 ifelse(m %in% c(6, 7, 8), "Invierno", "Primavera")))
 }
-
+# Colocar la estacion
 train_data$season <- get_season(train_data$date)
 test_data$season  <- get_season(test_data$date)
 
@@ -282,8 +280,8 @@ test_data$season  <- get_season(test_data$date)
 modelos_rf_por_estacion <- list()
 resultados_rf_por_estacion <- list()
 
-estaciones <- c("Primavera", "Verano", "Otoño", "Invierno")
-
+estaciones <- c("Primavera", "Verano", "Oto�o", "Invierno")
+# Recorrer info por estaciones
 for (s in estaciones) {
   cat("/n--- Entrenando RF para:", s, "---/n")
   
@@ -328,19 +326,19 @@ print(df_resultados_rf)
 
 # Ordenar y graficar
 df_resultados_rf$season <- factor(df_resultados_rf$season,
-                                  levels = c("Otoño", "Invierno", "Primavera", "Verano"))
-
+                                  levels = c("Oto�o", "Invierno", "Primavera", "Verano"))
+# Plot
 ggplot(df_resultados_rf, aes(x = season, y = RMSE)) +
   geom_bar(stat = "identity", fill = "#e34a33") +
   labs(title = "Modelo RF",
-       x = "Estación del año", y = "RMSE") +
+       x = "Estacion del a�o", y = "RMSE") +
   scale_y_continuous(limits = c(0, 10)) +
   theme_classic()
 
 ggplot(df_resultados_rf, aes(x = season, y = R2)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   labs(subtitle = "Modelo RF",
-       x = "Estación del año", y = "R²") +
+       x = "Estacion del a�o", y = "R²") +
   scale_y_continuous(limits = c(0, 1)) +
   theme_classic()
                      
@@ -348,15 +346,15 @@ ggplot(df_resultados_rf, aes(x = season, y = R2)) +
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- XGB   -----
+### ----- Modelo predictivo XGB   -----
 library(xgboost)
 library(Matrix)
-# ----------------- Configuración inicial -----------------
+# ----------------- Configuracion inicial -----------------
 estacion <- "MD"
 modelo <- "1"
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/modelos/ParticionDataSet/", sep = "")
 setwd(dir)
-
+#dataset
 train_data <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_train_", estacion, ".csv"))
 test_data <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_test_", estacion, ".csv"))
 
@@ -364,19 +362,19 @@ test_data <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_test_", est
 train_data$date <- as.Date(train_data$date)
 test_data$date <- as.Date(test_data$date)
 
-# ----------------- Función estación -----------------
+# ----------------- Funcion estacion -----------------
 get_season <- function(date) {
   m <- month(date)
   ifelse(m %in% c(12, 1, 2), "Verano",
-         ifelse(m %in% c(3, 4, 5), "Otoño",
+         ifelse(m %in% c(3, 4, 5), "Oto�o",
                 ifelse(m %in% c(6, 7, 8), "Invierno", "Primavera")))
 }
-
+#setear las estaciones
 train_data$season <- get_season(train_data$date)
 test_data$season <- get_season(test_data$date)
 
-# ----------------- Evaluación por estación -----------------
-estaciones <- c("Primavera", "Verano", "Otoño", "Invierno")
+# ----------------- Evaluacion por estacion-----------------
+estaciones <- c("Primavera", "Verano", "Oto�o", "Invierno")
 resultados_xgb_por_estacion <- list()
 modelos_xgb_por_estacion <- list()
 
@@ -385,18 +383,19 @@ vars <- c("AOD_055", "ndvi", "BCSMASS_dia", "DUSMASS_dia",
           "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean",
           "sp_mean", "d2m_mean", "t2m_mean","v10_mean", "u10_mean", "tp_mean", "DEM","dayWeek")
 
+# Recorrer estaciones
 for (s in estaciones) {
   cat("/n--- Entrenando XGB para:", s, "---/n")
   
   train_s <- subset(train_data, season == s)
   test_s  <- subset(test_data, season == s)
-  
+  # recorrte
   if (nrow(train_s) >= 30) {
     X <- train_s[, vars]
     y <- train_s$PM25
     dtrain <- xgb.DMatrix(data = as.matrix(X), label = y)
     
-    # Parámetros del modelo
+    # Parametros del modelo
     params <- list(
       booster = "gbtree",
       objective = "reg:squarederror",
@@ -461,7 +460,7 @@ df_resultados_xgb$season <- factor(df_resultados_xgb$season,
 
 print(df_resultados_xgb)
 
-# ----------------- Gráficos -----------------
+# ----------------- Graficos -----------------
 
 ggplot(df_resultados_xgb, aes(x = season, y = RMSE)) +
   geom_bar(stat = "identity", fill = "#e34a33") +
@@ -485,8 +484,8 @@ names(data)
 
 library(ggplot2)
 
-# Asegurarte de que las estaciones estén en orden lógico
-df$r2 <- as.numeric(df$r2)  # Por si r2 está como carácter
+# orden logico
+df$r2 <- as.numeric(df$r2) 
 df$numModelo <- factor(df$numModelo, levels = c("otonio", "invierno","primavera", "verano"))
 
 ggplot(df, aes(x = numModelo, y = r2, color = modelo, group = modelo)) +
@@ -499,7 +498,7 @@ ggplot(df, aes(x = numModelo, y = r2, color = modelo, group = modelo)) +
   ) +
   scale_y_continuous(limits = c(0.5, 0.9)) +
   scale_x_discrete(labels = c(
-    "otonio" = "Otoño",
+    "otonio" = "Oto�o",
     "invierno" = "Invierno",
     "primavera" = "Primavera",
     "verano" = "Verano"

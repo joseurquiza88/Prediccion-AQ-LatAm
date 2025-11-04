@@ -1,13 +1,10 @@
-#################################################################################
-#################################################################################
-#                           Modelos Predictivos de PM2.5 con CV
-#################################################################################
-#################################################################################
-
+#######################################################################
+## OBJETIVO: Contruccion de modelos Predictivos de PM2.5 con CV
+##
+#######################################################################
 #funcion para evaluar modelos
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test) {
   predicciones <- predict(modelo, newdata = datos_test)
-  
   
   if(tipoModelo=="XGB"){
     valores_reales <- y_test
@@ -16,10 +13,9 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
     valores_reales <- datos_test[[variable_real]]
   }
   # Extraer los valores reales de la variable objetivo
-  
   df <- data.frame(predicciones=predicciones, valores_reales=valores_reales)
   df <- df[df$predicciones>0,]
-  # Calcular m?tricas
+  # Calcular metricas
   r2 <- cor(df$predicciones, df$valores_reales)^2
   pearson <- cor(df$valores_reales, df$predicciones, method = "pearson")
   rmse <- sqrt(mean((df$predicciones - df$valores_reales)^2))
@@ -41,22 +37,25 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- SVR   -----
+### ----- Modelo predictivo SVR   -----
 estacion <-"MX"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
+# dataset
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
-# 1. Definimos el control de entrenamiento con CV = 10
+# Definimos el control de entrenamiento con CV = 10
 ctrl <- trainControl(method = "cv", number = 10,
                      savePredictions = "final",
                      verboseIter = TRUE)
 
-# 2. Entrenamiento del modelo SVR con validación cruzada en train_data
-set.seed(123)#AOD_055+
+# ntrenamiento del modelo SVR con validacion cruzada en train_data
+# Seteamos semilla
+set.seed(123)
+#Modelo predictivo
 modelo_cv_svr <- train(PM25 ~  ndvi + BCSMASS_dia + DUSMASS_dia + #
                          SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
                          d2m_mean  +t2m_mean +
@@ -66,15 +65,14 @@ modelo_cv_svr <- train(PM25 ~  ndvi + BCSMASS_dia + DUSMASS_dia + #
                        trControl = ctrl,
                        preProcess = c("center", "scale"),
                        tuneLength = 5) 
+#Desempe�o
 resultados_SVR_cv <- evaluar_modelo(modelo=modelo_cv_svr, datos_test=test_data, variable_real = "PM25",tipoModelo="SVR",y_test=NA)
-
 print(resultados_SVR_cv)
-
-
+# Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(modelo_cv_svr, file=paste("01-SVR-CV-M",modelo,"-210625-sAOD",estacion,".RData",sep=""))
-
+# lo cargmamos
 load("01-SVR-CV-M1-200525-SP.RData")
 load("01-SVR-CV-M1-210625-sAODCH.RData")
 load("01-SVR-CV-M1-210625-sAOD-BA.RData")
@@ -82,34 +80,35 @@ load("01-SVR-CV-M1-260525-MD.RData")
 load("01-SVR-CV-M1-290525_MX.RData")
 
 
-# 1. Hiperparámetros óptimos encontrados por CV
-cat("Hiperparámetros óptimos:\n")
+# Hiperparametros optimos encontrados por CV
+cat("Hiperparmetros optimos:\n")
 print(modelo_cv_svr$bestTune)
 
-# 2. Todas las combinaciones de hiperparámetros evaluadas y sus métricas
+# Todas las combinaciones de hiperparámetros evaluadas y sus metricas
 cat("\nResultados de todas las combinaciones de hiperparámetros:\n")
 print(svr_model$results)
 
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- ET   -----
+### ----- Modelo predictivo ET   ----
 estacion <-"MX"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
+#dataset de entrada
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
-# Entrenamiento con validación cruzada de 10 pliegues
+# Entrenamiento con validacion cruzada de 10 pliegues
 modelo_ranger <- train(
   PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + # + 
     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
     d2m_mean  +t2m_mean +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
   data = train_data,
   method = "ranger",
-  trControl = trainControl(method = "cv", number = 10),  # Validación cruzada 10-fold
+  trControl = trainControl(method = "cv", number = 10),  
   tuneGrid = data.frame(
     mtry = 5,                   # valor fijo
     splitrule = "extratrees",  # Extra Trees
@@ -120,25 +119,25 @@ modelo_ranger <- train(
 
 modelo_ET_cv <- modelo_ranger
 
-
+# Evaluacion del desempe�o
 resultados_ET_cv <- evaluar_modelo(modelo=modelo_ET_cv, datos_test=test_data, variable_real = "PM25",tipoModelo="ET",y_test=NA)
 
 print(resultados_ET_cv)
 
-
+# Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(modelo_ET_cv, file=paste("01-ET-CV-M",modelo,"-290525",estacion,".RData",sep=""))
 
-
+# Cargar modelo
 load("01-ET-CV-M1-200525-SP.RData")
 load("01-ET-M1-170625-CH.RData")
 load("01-ET-CV-M1-170625-BA.RData")
 load("01-ET-CV-M1-260525-MD.RData")
 load("01-ET-CV-M1-290525_MX.RData")
 
-# Hiperparámetros elegidos
-cat("Hiperparámetros seleccionados:\n")
+# Hiperparametros elegidos
+cat("Hiperparametros seleccionados:\n")
 print(modelo_ET_cv$bestTune)
 print(modelo_ranger$bestTune)
 print(modelo_et_spatial$bestTune)
@@ -146,11 +145,11 @@ print(modelo_et_spatial$bestTune)
 cat("\nDetalles del modelo final:\n")
 # print(modelo_ET_cv$finalModel)
 
-# Número de árboles realmente entrenados
-cat("\nNúmero de árboles:\n")
+# Numero de arboles realmente entrenados
+cat("\Numero de arboles:\n")
 print(modelo_ET_cv$finalModel$num.trees)
 
-# Parámetros de nodo mínimo
+# Parametros de nodo minimo
 cat("\nMin node size:\n")
 print(modelo_ET_cv$finalModel$min.node.size)
 
@@ -158,7 +157,7 @@ print(modelo_ET_cv$finalModel$min.node.size)
 cat("\nMtry:\n")
 print(modelo_ET_cv$finalModel$mtry)
 
-# Regla de división usada
+# Regla de division usada
 cat("\nSplit rule:\n")
 print(modelo_ET_cv$finalModel$splitrule)
 
@@ -168,7 +167,7 @@ print(modelo_ET_cv$finalModel$splitrule)
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- RF   -----
+### ----- Modelo predictivo Random Forest   ----
 estacion <-"MX"
 modelo <- "1"
 
@@ -178,8 +177,8 @@ train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
 train_control <- trainControl(
-  method = "cv",          # Método de validación cruzada
-  number = 10,            # Número de pliegues para la validación cruzada
+  method = "cv",          # Metodo de validacion cruzada
+  number = 10,            # Numero de pliegues 
   verboseIter = TRUE,     # Mostrar progreso de entrenamiento
   allowParallel = TRUE    # Permitir procesamiento paralelo
 )
@@ -192,56 +191,58 @@ modelo_RF_cv <- train(  PM25 ~  AOD_055 +ndvi + BCSMASS_dia +
                           tp_mean + DEM+#dayWeek+ 
                           t2m_mean, # 
                         trControl = train_control,importance = TRUE)
- # tu código de entrenamiento
+# Setear cuando empieza y termina el modelo, duracion
 end_time <- Sys.time()
 print(end_time - start_time)
+# Evaluar el desempe�o
 resultados_RF_cv <- evaluar_modelo(modelo=modelo_RF_cv, datos_test=test_data, variable_real = "PM25",tipoModelo="RF",y_test=NA)
 
 print(resultados_RF_cv)
 
-
+# Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(modelo_RF_cv, file=paste("01-RF-CV-M",modelo,"-290525_",estacion,".RData",sep=""))
-
+# Cagar modelo
 load("01-RF-CV-M1-200525-SP.RData")
 load("01-RF-CV-M1-170625-CH.RData")
 load("01-RF-CV-M1-170625-BA.RData")
 load("01-RF-CV-M1-260525-MD.RData")
 load("01-RF-CV-M1-290525-MX.RData")
-# Imprimir los hiperparámetros ajustados por caret
-cat("Mejor combinación de hiperparámetros según validación cruzada:\n")
+# Imprimir los hiperparametros ajustados por caret
+cat("Mejor combinacion de hiperparametros segun validacion cruzada:\n")
 print(modelo_RF_cv$bestTune)
 
-# Acceder al modelo final (objeto randomForest) para ver parámetros adicionales
-cat("\nHiperparámetros del modelo final (randomForest):\n")
-cat("Número de árboles (ntree):", modelo_RF_cv$finalModel$ntree, "\n")
-cat("Número de variables consideradas por división (mtry):", modelo_RF_cv$finalModel$mtry, "\n")
-cat("Tamaño mínimo de nodos terminales (nodesize):", modelo_RF_cv$finalModel$nodesize, "\n")
-cat("Número máximo de nodos (maxnodes):", modelo_RF_cv$finalModel$maxnodes, "\n")
+# Acceder al modelo final (objeto randomForest) para ver parametros adicionales
+cat("\nhiperparametros del modelo final (randomForest):\n")
+cat("Numero de arboles (ntree):", modelo_RF_cv$finalModel$ntree, "\n")
+cat("Numero de variables consideradas por division (mtry):", modelo_RF_cv$finalModel$mtry, "\n")
+cat("Tama�o minimo de nodos terminales (nodesize):", modelo_RF_cv$finalModel$nodesize, "\n")
+cat("Numero maximo de nodos (maxnodes):", modelo_RF_cv$finalModel$maxnodes, "\n")
 
 
 
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- XGB   -----
+### ----- Modelo predictivo XGB   ----
 
 estacion <-"MX"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
+#dataset de entrenamiento y testeo
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
-
+#dataset
 X <- train_data[ , c( "AOD_055",
                       "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia"
                       "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
                       "sp_mean","d2m_mean", "v10_mean",#"t2m_mean",
                       "u10_mean", "tp_mean","DEM",
-                      "dayWeek")]#
+                      "dayWeek")]
 
 
 y <- train_data$PM25
@@ -257,37 +258,37 @@ y_test<- test_data$PM25
 # Convertir a matrices xgboost
 dtrain <- xgb.DMatrix(data = as.matrix(X), label = y)
 
-# Especificar los parámetros del modelo
-# Configurar los parámetros del modelo
+# Especificar los parametros del modelo
+
 params <- list(
   booster = "gbtree",
-  objective = "reg:squarederror",  # Tarea de regresión
-  eval_metric = "rmse",             # Métrica para evaluación
+  objective = "reg:squarederror",  # Tarea de regresion
+  eval_metric = "rmse",             # Metrica para evaluacion
   eta = 0.3,                       # Tasa de aprendizaje
-  max_depth = 6,                   # Profundidad máxima de los árboles
-  gamma = 0,                       # Regularización L2
-  subsample = 0.8,                 # Proporción de datos para entrenamiento
-  colsample_bytree = 1,            # Proporción de características para entrenamiento
+  max_depth = 6,                   # Profundidad maxima de los arboles
+  gamma = 0,                       # Regularizacion L2
+  subsample = 0.8,                 # Proporcion de datos para entrenamiento
+  colsample_bytree = 1,            # Proporcion de caracteristicas para entrenamiento
   min_child_weight = 1
 )
 
-# Realizar validación cruzada
+# Realizar validacion cruzada
 #Esto es lo que mas tarda!! igual en comparacion con rf tarda mucho menos
-# porque?
+# porque??
 cv_results  <- xgb.cv(
   params = params,
   data = dtrain,
-  nrounds = 2000,                   # Número de rondas de boosting
-  nfold = 10,                        # Número de pliegues para la validación cruzada
+  nrounds = 2000,                   # Numero de rondas de boosting
+  nfold = 10,                        # Numero de pliegues para la validacion cruzada
   early_stopping_rounds = 20,       # Detener si no mejora
   verbose = TRUE                    # Mostrar progreso
 )
 
 
-# Obtener el número óptimo de rondas
+# Obtener el numero optimo de rondas
 best_nrounds <- cv_results$best_iteration
 
-# Ajustar el modelo con el número óptimo de rondas
+# Ajustar el modelo con el numero optimo de rondas
 xgb_cv_model <- xgb.train(
   params = params,
   data = dtrain,
@@ -295,16 +296,16 @@ xgb_cv_model <- xgb.train(
 )
 
 
-
+## convertir a matrix
 dtest <- xgb.DMatrix(data = as.matrix(X_test), label = y_test)
 resultados_XGB <- evaluar_modelo(modelo=xgb_cv_model, datos_test=dtest, variable_real = "PM25",tipoModelo="XGB",y_test=y_test)
 print(resultados_XGB)
-
+# Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(xgb_cv_model, file=paste("01-XGB-CV-M",modelo,"-190625_",estacion,".RData",sep=""))
 
-
+# Crgar modelo
 load("01-XGB-CV-M1-200525-SP.RData")
 load("01-XGB-CV-M1-190625-CH.RData")
 load("01-XGB-CV-M1-190625-BA.RData")
@@ -312,12 +313,12 @@ load("01-XGB-CV-M1-260525-MD.RData")
 load("02-XGB-CV-M1-230625-sAOD-MX.RData")
 
 
-cat("Hiperparámetros del modelo XGB:\n")
+cat("Hiperparametros del modelo XGB:\n")
 print(params)
 
-cat("\nNúmero óptimo de rondas de boosting:\n")
+cat("\nNumero optimo de rondas de boosting:\n")
 print(best_nrounds)
 print(xgb_cv_model$params)
 
-cat("\nNúmero de rondas usadas:\n")
+cat("\nNumero de rondas usadas:\n")
 print(xgb_cv_model$niter)

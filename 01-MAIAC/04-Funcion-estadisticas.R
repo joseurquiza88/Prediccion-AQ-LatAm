@@ -1,9 +1,17 @@
 
 ####                ---  STATISTICAL FUNCTIONS  --- ######
+
+
+#######################################################################
+## OBJETIVO: Realizar una funcion para calcular diferentes funciones 
+## estadisticas para usar en otros codigos
+#######################################################################
+
+
 funcion_estaditicas <- function(m,o, type){
-  m <- m
-  o <- o
+  # Tabla vacia
   tabla <- data.frame()
+  # Hay distintas metricas implementadas
     if(type == "bias"){
     resta<- m - o 
     suma <- sum(resta)
@@ -112,7 +120,7 @@ funcion_estaditicas <- function(m,o, type){
     return(slope)
   }
   
-  
+  # Se agregan todas las metricas en una misma tabla
   if(type=="tabla"){
 
     type_1 <-  funcion_estaditicas(m,o,"mean_mod")
@@ -161,7 +169,7 @@ funcion_estaditicas <- function(m,o, type){
     type_15 <-  funcion_estaditicas(m,o,"slope")
     names(type_15) <- "slope"
     
-    # Final data frame 
+    # Data frame final
     df <- cbind(type_1,type_2,type_3,type_4,type_5,type_6,type_7,type_8,
                 type_9, type_10,type_11,type_12,type_13,type_14,type_15)
     colnames(df) <- c(names(type_1),names(type_2),names(type_3),
@@ -174,16 +182,21 @@ funcion_estaditicas <- function(m,o, type){
 }
 
 ###########################################################################
-# Con esta funcion recorremos y obtenemos las estadisticas de todas las carpetas
+# Con esta funcion recorremos y obtenemos las estadisticas de todas
+# las carpetas
 
 
 funcion_estadisticas_carpeta <- function(dire){
+  # Nos ubicamos en carpeta de interes
   setwd(dire)
+  # Seteamos el path local
   id <- dir(dire, pattern = ".csv")
   df <- data.frame()
+  #Recorrer todos los archivos que hay una carpeta
   for (x in 1:length(id)){
     print(x)
     data <- read.csv(id[x])
+    # Calculamos metricas con la funcion anterior
     info <- funcion_estaditicas(m=data$AOD_550_maiac,o=data$AOD_550_AER_mean, type="tabla")
     name <- id[x]
     df_info <- data.frame(name,info)
@@ -191,7 +204,8 @@ funcion_estadisticas_carpeta <- function(dire){
   }
   return(df)
 }
-# 
+######################################################################
+# Utilizamos funcione anteriores
 region <- "USA"
 dire_1km <- paste("D:/Josefina/paper_git/paper_maiac/datasets/V03/processed/merge_AER-MAIAC/",region,"_C61/dia/1km/",sep="")
 dire_3km <- paste("D:/Josefina/paper_git/paper_maiac/datasets/V03/processed/merge_AER-MAIAC/",region,"_C61/dia/3km/",sep="")
@@ -206,15 +220,17 @@ df_5km <- funcion_estadisticas_carpeta(dire_5km)
 df_15km <- funcion_estadisticas_carpeta(dire_15km)
 df_25km <- funcion_estadisticas_carpeta(dire_25km)
 
-
+# Unimos todos los buffers
 df_tot <- rbind(df_1km,df_3km,df_5km,df_15km,df_25km)
 df_tot$ciudad <- substr(df_tot$name,3,4)
 df_tot$buffer <- substr(df_tot$name,6,9)
 df_tot$temp <-substr(df_tot$name,17,18)
 getwd()
 
+# Se guardan todos las estadisticas en un mismo dataframe
 write.csv(df_tot,"D:/Josefina/paper_git/paper_maiac/datasets/V03/processed/merge_AER-MAIAC/USA_C61/estadisticas_USA-MAIAC_C61-AER-V03-dia.csv")
-########################################
+################################################################################
+
 #Queremos saber cual es el mejor buffer
 # Minimo RMSE, Minimo Bias (abs), Maximo RMSE
 id_df_output <- data.frame()
@@ -262,6 +278,6 @@ for(x in 1:length(group_dat_ciudad)){
 }
 
 
-
+# Guardamos resultados
 write.csv(df_rbind, "D:/Josefina/paper_git/paper_maiac/datasets/V02/processed/Latam_C61/tot/estadisticas_BTEMP-ESP-C613.csv")
 

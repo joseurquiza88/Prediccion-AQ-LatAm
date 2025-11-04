@@ -1,10 +1,8 @@
-
-#################################################################################
-#################################################################################
-#                           Modelos Predictivos de PM2.5 con CV espacial
-#################################################################################
-#################################################################################
-
+#######################################################################
+## OBJETIVO: Contruccion de modelos Predictivos de PM2.5 de ML
+# con CV Espacial
+## Revisar codigo!!
+#######################################################################
 #funcion para evaluar modelos
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test) {
   predicciones <- predict(modelo, newdata = datos_test)
@@ -20,7 +18,7 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
   
   df <- data.frame(predicciones=predicciones, valores_reales=valores_reales)
   df <- df[df$predicciones>0,]
-  # Calcular m?tricas
+  # Calcular metricas
   r2 <- cor(df$predicciones, df$valores_reales)^2
   pearson <- cor(df$valores_reales, df$predicciones, method = "pearson")
   rmse <- sqrt(mean((df$predicciones - df$valores_reales)^2))
@@ -43,21 +41,20 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
 ##############################################################################
 ##############################################################################
 
-################# SVR ESPACIAL
+### ----- Modelo predictivo SVR espacial   -----
 estacion <- "BA"
 modelo <- "1"
-
+# Dataset
 test_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 train_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 
 
-# 1. Obtener las estaciones únicas
+#Obtener las estaciones unicas
 stations <- unique(train_data$estacion)
-#stations <- unique(train_data$ID)
-# 2. Crear listas de índices personalizados
+#Crear listas de indices personalizados
 index_list <- list()
 indexOut_list <- list()
-
+# Se recorren los set de datos de las estaciones
 for (i in seq_along(stations)) {
   test_station <- stations[i]
   train_index <- which(train_data$estacion != test_station)
@@ -67,7 +64,7 @@ for (i in seq_along(stations)) {
   indexOut_list[[i]] <- test_index
 }
 
-# 3. Definir el control de entrenamiento con CV por estación
+#Definir el control de entrenamiento con CV por estacion
 train_control_spatial <- trainControl(
   method = "cv",
   number = length(stations),
@@ -78,7 +75,7 @@ train_control_spatial <- trainControl(
   allowParallel = TRUE
 )
 
-# 4. Entrenar el modelo SVR con validación cruzada espacial
+#Entrenar el modelo con validacion cruzada espacial
 modelo_svr_spatial <- train(
   PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + #+t2m_mean
     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
@@ -90,18 +87,14 @@ modelo_svr_spatial <- train(
   tuneLength = 5
 )
 
-09:07
+
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
-
-
 #Guardar modelo
 save(modelo_svr_spatial, file=paste("01-SVR-CV-Esp_M",modelo,"-180625-",estacion,".RData",sep=""))
 
-
 # Metricas globales
 resultados_SVR_cv_Espacial <- evaluar_modelo(modelo=modelo_svr_spatial, datos_test=test_data, variable_real = "PM25",tipoModelo="ET",y_test=NA)
-
 print(resultados_SVR_cv_Espacial)
 
 #Metricas por estacion
@@ -110,7 +103,7 @@ max_rmse <- max(df_metricas$RMSE)
 min_rmse <- min(df_metricas$RMSE)
 
 df_metricas$rmse_escalado <- (df_metricas$RMSE - min_rmse) / (max_rmse - min_rmse)
-
+# BA
 df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample1" = "EMC I" ,
                                "Resample2" = "EMCII-LE",
@@ -118,10 +111,10 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample4" = "EMC II LM-AER",
                                "Resample5" = "EMB",
                                
-                               # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                               # Deja las que no cambian fuera o ponelas igual a si mismas
                                .default = df_metricas$Resample
 )
-
+# ST
 # df_metricas$estacion <- recode(df_metricas$Resample,
 #                                    "Resample01" = "BSQ",
 #                                    "Resample02" = "IND",
@@ -135,12 +128,11 @@ df_metricas$estacion <- recode(df_metricas$Resample,
 #                                    "Resample10" = "QUII",
 #                                    "Resample11" = "OHG",
 #                                    "Resample12" = "QUI",
-#                                    # Dejá las que no cambian fuera o ponelas igual a sí mismas
+#                                     # Deja las que no cambian fuera o ponelas igual a si mismas
 #                                    .default = df_metricas$Resample
 # )
 
-
-
+# SP
 df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample01" = "Carapicuiba",
                                "Resample02" = "Marg.Tiete-Pte Remedios",
@@ -158,10 +150,10 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample14" = "Ibirapuera",
                                "Resample15" = "Interlagos",
                                "Resample16" = "Itaim Paulista",
-                               # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                               # Deja las que no cambian fuera o ponelas igual a si mismas
                                .default = df_metricas$Resample
 )
-
+# MD
 df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample01" = "Estacion Trafico Centro",
                                "Resample02" = "Casa de Justicia Itagui",
@@ -180,12 +172,12 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample15" = "Envigado - Santa Gertrudis",
                                "Resample16" ="Sabaneta - Rafael J. Mejia",
                                "Resample17" ="Medellin - Santa Elena",
-                               # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                               # Deja las que no cambian fuera o ponelas igual a si mismas
                                .default = df_metricas$Resample
 )
 
 
-
+#MX
 df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample01" = "MER",
                                "Resample02" = "SFE",
@@ -209,24 +201,25 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample20" ="NEZ",
                                "Resample21" = "UIZ" ,
                                "Resample22" ="HGM",
-                               # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                               # Deja las que no cambian fuera o ponelas igual a si mismas
                                .default = df_metricas$Resample
 )
-# Ordenar las estaciones por R² de mayor a menor
+# Tomar la info por estacion de monitoreo y ver las metricas de cada una
+# Ordenar las estaciones por R2 de mayor a menor
 df_metricas <- df_metricas %>%
   arrange(desc(Rsquared)) %>%
-  mutate(estacion = factor(estacion, levels = estacion))  # fija el orden en el gráfico
-#c("R²" = "blue", "RMSE" = "red")) +
+  mutate(estacion = factor(estacion, levels = estacion))  # fija el orden en el grafico
+
 # Crear el histograma
 r2<-ggplot(df_metricas, aes(x = estacion, y = Rsquared)) +
   geom_bar(stat = "identity", color = "#0570b0", fill = "#74a9cf") +
   scale_y_continuous(limits = c(0, 1)) +
   labs(x = "SVR Spatial", y = "R² ") +
   theme_classic() +
-  #theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+
   theme(
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8),  # Agrandar los números de los ticks
+    axis.text = element_text(size = 8),  # Agrandar los numeros de los ticks
     legend.title = element_text(family = "Roboto", size = 6, face = 2),
     legend.position = "top",  # Elimina la leyenda
     axis.text.x = element_text(angle = 45, hjust = 1)
@@ -242,9 +235,9 @@ rmse<-ggplot(df_metricas, aes(x = estacion, y = RMSE)) +
   theme_classic() +
   theme(
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8),  # Agrandar los números de los ticks
+    axis.text = element_text(size = 8), 
     legend.title = element_text(family = "Roboto", size = 6, face = 2),
-    legend.position = "top",  # Elimina la leyenda
+    legend.position = "top",  
     axis.text.x = element_text(angle = 45, hjust = 1)
   ) 
 
@@ -256,31 +249,30 @@ rmse
 ##############################################################################
 library(caret)
 library(ranger)
-################# ET ESPACIAL
+### ----- Modelo predictivo ET espacial   -----
 estacion <- "BA"
 modelo <- "1"
-
+# Set de datos
 test_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 train_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 set.seed(123)
 
-# 1. Estaciones únicas
+#Estaciones unicas
 stations <- unique(train_data$estacion)
 
-# 2. Índices personalizados
+#Indices personalizados
 index_list <- list()
 indexOut_list <- list()
-
+# Recorre estaciones
 for (i in seq_along(stations)) {
   test_station <- stations[i]
   train_index <- which(train_data$estacion != test_station)
   test_index <- which(train_data$estacion == test_station)
-  
   index_list[[i]] <- train_index
   indexOut_list[[i]] <- test_index
 }
 
-# 3. Control de entrenamiento con CV por estación
+#Control de entrenamiento con CV por estacion
 train_control_spatial <- trainControl(
   method = "cv",
   number = length(stations),
@@ -291,7 +283,7 @@ train_control_spatial <- trainControl(
   allowParallel = TRUE
 )
 
-# 4. Entrenar el modelo Extra Trees (ranger con splitrule = "extratrees")
+#Entrenar el modelo Extra Trees (ranger con splitrule = "extratrees")
 modelo_et_spatial <- train(
   PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + # +t2m_mean 
     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
@@ -307,8 +299,7 @@ modelo_et_spatial <- train(
   importance = 'impurity'
 )
 
-08:50-
-getwd()
+#Setear el pat
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 
@@ -333,7 +324,7 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample4" = "EMC II LM-AER",
                                "Resample5" = "EMB",
                                
-                               # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                               # Deja las que no cambian fuera o ponelas igual a si mismas
                                .default = df_metricas$Resample
 )
 #--CH
@@ -350,7 +341,7 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                    "Resample10" = "QUII",
                                    "Resample11" = "OHG",
                                    "Resample12" = "QUI",
-                                   # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                               # Deja las que no cambian fuera o ponelas igual a si mismas
                                    .default = df_metricas$Resample
 )
 
@@ -373,7 +364,7 @@ df_metricas$estacion <- recode(df_metricas$Resample,
 #                                "Resample14" = "Ibirapuera",
 #                                "Resample15" = "Interlagos",
 #                                "Resample16" = "Itaim Paulista",
-#                                # Dejá las que no cambian fuera o ponelas igual a sí mismas
+#                                # Deja las que no cambian fuera o ponelas igual a si mismas
 #                                .default = df_metricas$Resample
 # )
 
@@ -381,16 +372,16 @@ df_metricas$estacion <- recode(df_metricas$Resample,
 df_metricas <- df_metricas %>%
   arrange(desc(Rsquared)) %>%
   mutate(estacion = factor(estacion, levels = estacion))  # fija el orden en el gráfico
-#c("R²" = "blue", "RMSE" = "red")) +
-# Crear el histograma
+
+# Plot
 r2<-ggplot(df_metricas, aes(x = estacion, y = Rsquared)) +
   geom_bar(stat = "identity", color = "#0570b0", fill = "#74a9cf") +
   scale_y_continuous(limits = c(0, 1)) +
-  labs(x = "ET Spatial", y = "R² ") +
+  labs(x = "ET Spatial", y = "R� ") +
   theme_classic() +
   theme(
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8),  # Agrandar los números de los ticks
+    axis.text = element_text(size = 8),  
     legend.title = element_text(family = "Roboto", size = 6, face = 2),
     legend.position = "top",  # Elimina la leyenda
     axis.text.x = element_text(angle = 45, hjust = 1)
@@ -405,7 +396,7 @@ rmse<-ggplot(df_metricas, aes(x = estacion, y = RMSE)) +
   theme_classic() +
   theme(
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8),  # Agrandar los números de los ticks
+    axis.text = element_text(size = 8),  
     legend.title = element_text(family = "Roboto", size = 6, face = 2),
     legend.position = "top",  # Elimina la leyenda
     axis.text.x = element_text(angle = 45, hjust = 1)
@@ -416,20 +407,21 @@ rmse
 ##############################################################################
 ##############################################################################
 
-################# RF  ESPACIAL
+### ----- Modelo predictivo RF espacial   -----
 estacion <- "BA"
 modelo <- "1"
 
+#Set de datos
 test_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 train_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 
 # Estaciones
 stations <- unique(train_data$estacion)
 
-# Índices personalizados
+# Indice personalizados
 index_list <- list()
 indexOut_list <- list()
-
+# Recorrer todas las estaciones
 for (i in seq_along(stations)) {
   test_station <- stations[i]
   train_index <- which(train_data$estacion != test_station)
@@ -457,11 +449,11 @@ rf_spatial_model <- train(
   data = train_data,
   method = "rf",
   trControl = train_control_spatial,
-  tuneGrid = data.frame(mtry = 5),  # <<---- fijás mtry aquí
+  tuneGrid = data.frame(mtry = 5),  
   importance = TRUE
 )
-10:03-11:35
-11:38
+
+# Setear ubicacion
 
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
@@ -480,7 +472,7 @@ max_rmse <- max(df_metricas$RMSE)
 min_rmse <- min(df_metricas$RMSE)
 
 df_metricas$rmse_escalado <- (df_metricas$RMSE - min_rmse) / (max_rmse - min_rmse)
-
+#BA
 df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample1" = "EMC I" ,
                                "Resample2" = "EMCII-LE",
@@ -488,10 +480,10 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample4" = "EMC II LM-AER",
                                "Resample5" = "EMB",
                                
-                               # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                               # Deja las que no cambian fuera o ponelas igual a si mismas
                                .default = df_metricas$Resample
 )
-
+#ST
 df_metricas$estacion <- recode(df_metricas$Resample,
                                    "Resample01" = "BSQ",
                                    "Resample02" = "IND",
@@ -505,10 +497,9 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                    "Resample10" = "QUII",
                                    "Resample11" = "OHG",
                                    "Resample12" = "QUI",
-                                   # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                                    # Deja las que no cambian fuera o ponelas igual a si mismas
                                    .default = df_metricas$Resample
 )
-
 
 
 df_metricas$estacion <- recode(df_metricas$Resample,
@@ -528,22 +519,18 @@ df_metricas$estacion <- recode(df_metricas$Resample,
                                "Resample14" = "Ibirapuera",
                                "Resample15" = "Interlagos",
                                "Resample16" = "Itaim Paulista",
-                               # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                               # Deja las que no cambian fuera o ponelas igual a si mismas
                                .default = df_metricas$Resample
 )
 
-
-# Crear el gráfico
-library(ggplot2)
-library(dplyr)
-
-# Ordenar las estaciones por R² de mayor a menor
+########
+# Ordenar las estaciones por R2 de mayor a menor
 df_metricas <- df_metricas %>%
   arrange(desc(Rsquared)) %>%
-  mutate(estacion = factor(estacion, levels = estacion))  # fija el orden en el gráfico
+  mutate(estacion = factor(estacion, levels = estacion))  # fija el orden en el grafico
 
 View(df_metricas)
-#c("R²" = "blue", "RMSE" = "red")) +
+
 # Crear el histograma
 r2<-ggplot(df_metricas, aes(x = estacion, y = Rsquared)) +
   geom_bar(stat = "identity", color = "#0570b0", fill = "#74a9cf") +
@@ -552,7 +539,7 @@ r2<-ggplot(df_metricas, aes(x = estacion, y = Rsquared)) +
   theme_classic() +
   theme(
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8),  # Agrandar los números de los ticks
+    axis.text = element_text(size = 8),  # Agrandar los numeros de los ticks
     legend.title = element_text(family = "Roboto", size = 6, face = 2),
     legend.position = "top",  # Elimina la leyenda
     axis.text.x = element_text(angle = 45, hjust = 1)
@@ -560,6 +547,7 @@ r2<-ggplot(df_metricas, aes(x = estacion, y = Rsquared)) +
 
 
 r2
+####
 rmse<-ggplot(df_metricas, aes(x = estacion, y = RMSE)) +
   geom_bar(stat = "identity", color = "#b30000", fill = "#e34a33") +
   scale_y_continuous(limits = c(0, 14), breaks = seq(0, 14, 2)) +
@@ -567,12 +555,12 @@ rmse<-ggplot(df_metricas, aes(x = estacion, y = RMSE)) +
   theme_classic() +
   theme(
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8),  # Agrandar los números de los ticks
+    axis.text = element_text(size = 8),  
     legend.title = element_text(family = "Roboto", size = 6, face = 2),
-    legend.position = "top",  # Elimina la leyenda
+    legend.position = "top",  
     axis.text.x = element_text(angle = 45, hjust = 1)
   ) 
-
+### Guardar plot
 rmse
 ggsave(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/plots/R2-RF-espacial.png",sep=""),r2,
        width = 10,
@@ -585,7 +573,7 @@ ggsave(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/plots/R2-RF-espac
 ##############################################################################
 ##############################################################################
 ##############################################################################
-### ----- XGB   -----
+### ----- Modelo predictivo XGB espacial   -----
 # Este es distinto en comparacio con el resto de los modelos
 library(xgboost)
 library(Matrix)
@@ -602,7 +590,7 @@ train_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/m
 # Estaciones
 stations <- unique(train_data$estacion)
 
-# Fórmula y selección de columnas
+# Formula y seleccion de columnas
 vars <- c("AOD_055",
           "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia" "t2m_mean",
           "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
@@ -614,9 +602,9 @@ target <- "PM25"
 
 predicciones <- data.frame()
 pred_entrenamiento <- data.frame()
-
+# Recorrer estaciones
 for (test_station in stations) {
-  # Separar train/test según estación
+  # Separar train/test segun estacion
   train_fold <- train_data %>% filter(estacion != test_station)
   test_fold <- train_data %>% filter(estacion == test_station)
   
@@ -653,13 +641,12 @@ for (test_station in stations) {
   ))
 }
 
-
+# Evaluar el desempe�o
 # TEST
 r2_test <- cor(predicciones$obs, predicciones$pred)^2
 pearson_test <- cor(predicciones$obs, predicciones$pred, method = "pearson")
 rmse_test <- rmse(predicciones$obs, predicciones$pred)
 bias_test <- mean(predicciones$pred - predicciones$obs)
-
 
 
 cat("### TEST\n")
@@ -670,7 +657,7 @@ cat("Bias test:", round(bias_test, 3), "\n")
 cat("min pred test:", round(min(predicciones$pred), 3), "\n")
 cat("max pred test:", round(max(predicciones$pred), 3), "\n")
 
-
+#Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(xgb_model, file=paste("01-XGB-CV-Esp_M",modelo,"-180625-",estacion,".RData",sep=""))
@@ -766,10 +753,10 @@ tabla_nombres <- data.frame(
 # Paso 3: unir nombres cortos
 resultados_por_estacion <- resultados_por_estacion %>%
   left_join(tabla_nombres, by = "estacion")
-# Aplicás ese orden al factor
+# Aplicar ese orden al factor
 resultados_por_estacion <- resultados_por_estacion %>%
   mutate(estacion = factor(estacion, levels = orden_estaciones))
-# fija el orden en el gráfico
+# fija el orden en el grafico
 
 #r2<-ggplot(resultados_por_estacion, aes(x = estacion_corta, y = R2)) +
 r2<-ggplot(resultados_por_estacion, aes(x = estacion, y = R2)) +
@@ -779,7 +766,7 @@ r2<-ggplot(resultados_por_estacion, aes(x = estacion, y = R2)) +
   theme_classic() +
   theme(
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8),  # Agrandar los números de los ticks
+    axis.text = element_text(size = 8),  
     legend.title = element_text(family = "Roboto", size = 6, face = 2),
     legend.position = "top",  # Elimina la leyenda
     axis.text.x = element_text(angle = 45, hjust = 1)
@@ -795,7 +782,7 @@ rmse<-ggplot(resultados_por_estacion, aes(x = estacion, y = RMSE)) +
   theme_classic() +
   theme(
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8),  # Agrandar los números de los ticks
+    axis.text = element_text(size = 8),  
     legend.title = element_text(family = "Roboto", size = 6, face = 2),
     legend.position = "top",  # Elimina la leyenda
     axis.text.x = element_text(angle = 45, hjust = 1)

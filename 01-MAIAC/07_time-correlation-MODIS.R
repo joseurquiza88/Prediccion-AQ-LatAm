@@ -1,27 +1,24 @@
-#In this code, an average of AERONET measurements is made for 
-# a given time interval centered  at satellite overpass to compare 
-# it with the average of MODIS retrievals
+
+
+#######################################################################
+## OBJETIVO: promedio de las mediciones de AERONET 
+# para un intervalo de tiempo determinado centrado en el paso del satélite,
+# para compararlo con el promedio de las recuperaciones de MODIS.
+##
+#######################################################################
 
 
 time_correlation <- function(path_aeronet,path_modis,time_buffer){
-  #path_aeronet AERONET file path
-  # path_modis modis file path
-  #time_buffer Time window considered in minutes. 
-  #According to the literature: 15 min - 30min - 60min - 90min - 120min
-  
-  # Open AERONET data
+  #De acuerdo a la literatura, ventanas: 15min, 30min, 60min, 90min, 120min
+  # Datos AERONET, previamente procesados
   data_aeronet <- read.csv(path_aeronet, header=TRUE, sep=",", dec=".", na.strings = "NA", stringsAsFactors = FALSE)
-  # Date formats
+  # Formato de la fecha
   data_aeronet$date <- as.POSIXct(strptime(data_aeronet$date, format = "%d/%m/%Y %H:%M", "GMT"))#"%Y-%m-%d %H:%M",
-  # Open modis data
+  # Datos MODIS, previamente procesados
   data_sat <- read.csv(path_modis, header=TRUE, sep=",",dec=".", stringsAsFactors = FALSE, na.strings = "NA")
-    
-  
-
-  
-  #NAs are removed
+  #Remover NA 
   data_modis <- data_sat  [complete.cases(data_sat$AOD),]
-  # Date formats
+  # Formato de la fecha
   data_modis$date  <- strptime(data_modis$dia, tz= "GMT", format = "%d/%m/%Y")
   data_modis $timestamp <- paste( data_modis$dia, data_modis$hora, sep = " ")
   data_modis $hour <- strptime( data_modis$timestamp, tz= "GMT", format = "%d/%m/%Y %H:%M")
@@ -32,7 +29,7 @@ time_correlation <- function(path_aeronet,path_modis,time_buffer){
     if (i %% 50 == 0) {
       print (i)
     }
-    #Day-month-year agreement between AERONET and modis is sought.
+    #Se busca la correspondencia día-mes-año entre AERONET y MODIS
     table_aeronet<- data_aeronet 
     eq_year <- which(year(table_aeronet$date) == year(data_modis[i,]$date))
     
@@ -44,20 +41,21 @@ time_correlation <- function(path_aeronet,path_modis,time_buffer){
     eq_day <- which(day(table_aeronet$date) == day(data_modis[i,]$date))
     table_aeronet<- table_aeronet[eq_day,]
     dim_table <- dim(table_aeronet)
-    
+    # Si la dimension de la tabla (no entro nada), hacer un df con NA
     if(dim_table[1] == 0){
       out_data <- data.frame(NA, NA, NA, NA,NA,NA,NA,NA,NA,NA)   
-      
+      # SINO se arma un df para agregarle la info que corresponda
     }else{ 
       #If there is a match, the AERONET time window is searched.
       table_dif <-data.frame()
-      
+      # Si existe una coincidencia, se busca la ventana de tiempo de AERONET.
       
       mach <- which(abs(difftime(table_aeronet$date, data_modis[i,]$hour,units = "mins")) <time_buffer)
       
-      
+      #Filtar la coincidencia
       table_dif <- table_aeronet[mach,]
       dim_table <- dim(table_dif)
+      # Se crea el archivo de salida con los datos de MAIAC y AERONET co-localizados.
       if(dim_table[1] == 0){  
         df <- data.frame()
         df <- data.frame(NA, NA,NA, NA, NA,NA,NA,NA)
@@ -86,8 +84,8 @@ time_correlation <- function(path_aeronet,path_modis,time_buffer){
 }
 
 
-
-######     -------  EXAMPLE for one station     -------  ######
+#################################################################
+######     -------  Ejemplo para una estacion     -------  ######
 rm(list = setdiff(ls(), "time_correlation"))
 city <- "SP"
 buffer_spatial <- "3KM"
@@ -102,8 +100,6 @@ combinate <- time_correlation (path_aeronet=data_aeronet,path_modis=data_modis,t
 write.csv (combinate,paste("D:/Josefina/paper_git/paper_maiac/datasets/V03/processed/merge_AER-MODIS/Latam/tot/",num_site,"_",city,"-",buffer_spatial,"-MODIS-",buffer_time,"-AER.csv",sep=""))
 
 
-###############################################################################
-###############################################################################
 ###############################################################################
 # PROMEDIOS DIARIOS
 promedios <- function(combinate){

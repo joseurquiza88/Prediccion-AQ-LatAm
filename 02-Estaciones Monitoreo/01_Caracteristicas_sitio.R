@@ -2,16 +2,13 @@
 
 #######################################################################
 #######################################################################
-
-##### Caracteristicas del sitio de estudio ########
+## OBJETIVO: Caracteristicas de los sitios de estudio (SP, ST, BA, MD, MX)
 
 #######################################################################
-#######################################################################
-
-estacion <- "BA"
+estacion <- "SP"
 numRaster <- "01"
 
-### TamaÃ±o del Dominio y ubicacion
+### Tamaño del Dominio y ubicacion
 grilla <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/rasterTemplate/",numRaster,"_raster_template.tif",sep=""))
 
 
@@ -29,8 +26,8 @@ length(unique(estaciones_train$estacion))
 dataset_merge_comp<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/merge_tot/",estacion,"_merge_comp.csv",sep=""))
 dataset_merge_comp$date <- as.Date(dataset_merge_comp$date)
 
-library(dplyr)
 
+# Dataframe con el nombre de la estacion con fecha inicio-fin del periodo
 fechas_por_estacion <- dataset_merge_comp %>%
   group_by(estacion) %>%
   summarise(
