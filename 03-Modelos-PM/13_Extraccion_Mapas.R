@@ -1,48 +1,36 @@
-##############################################################################
-##otra forma de extraer los datos
+#######################################################################
+## OBJETIVO: A partir de los mapas (diarios, mensuales, anuales),
+# se extraen los datos en los sitios(estciones de monitoreo) de interes
+# segun el centro urbano
+##
+#######################################################################
 estacion <- "CH"
-#modelo <- "01-XGB-CV-M1-200525-SP"
-# modelo <- "02-XGB-CV-1-210525-sAOD-SP" 
-#modelo <- "01-XGB-CV-M1-200525-MERRA-Combinado-SP"
+modelo <- "01-XGB-CV-M1-190625-CH"
 
-#modelo <- "01-XGB-CV-M1-190625-CH"
-#modelo <- "02-XGB-CV-M1-230625-sAOD-CH"
-#modelo <- "01-XGB-CV-M1-190625-MERRA-Combinado-CH"
-
-#modelo <- "01-ET-CV-M1-170625-BA"
-#modelo <- "02-ET-CV-M1-230625-sAOD-BA"
-#modelo <- "01-ET-CV-M1-170625-Combinado-BA"
-
-#modelo <- "01-ET-CV-M1-260525-MD"
-#modelo <- "01-ET-CV-M1-270525-sAOD-MD"
-# modelo <- "01-ET-CV-M1-260525-Combinado-MD"
-# 
-#modelo <- "01-XGB-CV-M1-290525-MX"
-#modelo <- "02-XGB-CV-M1-230625-sAOD-MX"
-modelo <- "01-RF-CV-M1-170625-CH_combinado"
-
+#Directorio donde se encuentran todas las imagenes
 #dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/Salidas/SalidasDiarias/",modelo,"/",year,"/",sep="")
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/Salidas/SalidasDiarias/",modelo,"/",sep="")
-dir <- "D:/Josefina/Proyectos/ProyectoChile/CH/modelos/Salidas/SalidasMensuales/01-XGB-CV-M1-190625-CH"
+#dir <- "D:/Josefina/Proyectos/ProyectoChile/CH/modelos/Salidas/SalidasMensuales/01-XGB-CV-M1-190625-CH"
 setwd(dir)
 id <- list.files(path = dir,
                  pattern = "*.tif",
                  full.names = FALSE)
-
-data_estacciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
-data_estacciones <- data_estacciones[data_estacciones$Considerado=="SI",]
-data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
-nrow(data_estacciones)
-puntos <- data_estacciones
-
+# archivo csv generado manualmente donde se encuentra las coordenadas
+# de cada estacion de monitoreo
+puntos <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
+puntos <- data_estacciones[data_estacciones$Considerado=="SI",]
+puntos <- data_estacciones[data_estacciones$tipo=="referencia",]
+# Corroramos el numero de estaciones
+nrow(puntos)
 
 crs_project <- "+proj=longlat +datum=WGS84"
 df_rbind <- data.frame()
 
 i<-1
+# Recorremos directorio donde se encuentrn las imagenes
 for (i in 1:length(id)){
   print(i)
-  pred_raster <- raster(id[i])
+  pred_raster <- raster(id[i]) # abrimos con formato raster
   
   #plot(pred_raster)
   # Extraer los valores del raster en las coordenadas especificadas
@@ -59,30 +47,42 @@ for (i in 1:length(id)){
   
   df_rbind <- rbind(df_rbind,puntos_con_valores)
 }
+###########################################################
+# Al data set anterior lo quiero unir con las mediciones reales
+# para ver que tan bien se hicieron las predicciones
 
+# Mediciones reales en las estaciones de monitoreo de PM2.5 
+#Ponemos en formato
 data_sensores <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
 data_sensores <- data_sensores[complete.cases(data_sensores$date),]
 data_sensores$date <- as.Date(as.POSIXct(data_sensores$date, format = "%d/%m/%Y"))#"%Y-%m-%d"))#
+
+# #Ponemos en formato el dataset de las predicciones
 df_rbind$date <- as.Date(as.POSIXct(df_rbind$date, format = "%Y-%m-%d"))#
-# vemos las variabñes
+# vemos las variables
 names(data_sensores)
 names(df_rbind)
 unique(df_rbind$ID)
 unique(data_sensores$ID)
-# merge
+
+# Hacemos un merge entre las mediciones reales y las predicciones
+# Unimos segun dia y estacion
 merged_df <- merge(df_rbind,data_sensores, by = c("ID", "date"), all.x = TRUE)
+# Descartamos datos que no coinciden
+# Cuantos son los datos descartados?
 merged_df_subt <- merged_df[complete.cases(merged_df$mean),]
 merged_df_subt <- merged_df[complete.cases(merged_df$Registros.completos),]
-
 merged_df_subt <- merged_df_subt[complete.cases(merged_df_subt$valor_raster),]
 
-# merged_df_subt2 <- merged_df_subt[year(merged_df_subt$date) !=2024,]
+# Solo nos quedamos con los datos de l 2024 para hacer una validacion independiente
+# Ya que el modelos se entreno/testeo sin estos datos
 merged_df_subt2 <- merged_df_subt[year(merged_df_subt$date) ==2024,]
-merged_df_subt2$mean <-merged_df_subt2$Registros.completos
+merged_df_subt2$mean <-merged_df_subt2$Registros.completos #solo ST
 nrow(merged_df_subt2)
+#Evaluamos el desempe�o todos los valores
 model <- lm(mean~valor_raster , data = merged_df_subt2)
 
-# Calculo de métricas de desempeño
+# Calculo de metricas de desempe�o
 R2 <- summary(model)$r.squared
 RMSE <- sqrt(mean(residuals(model)^2))
 Bias <- mean(merged_df_subt2$mean - merged_df_subt2$valor_raster)
@@ -90,9 +90,11 @@ n <- nrow(merged_df_subt2)
 df_metrica <- data.frame(R2,RMSE,Bias,n)
 df_metrica
 #write.csv(merged_df_subt,paste("D:/Josefina/Proyectos/Tesis/",estacion,"/resultados/merge_Prediccion_Real/",estacion,"_merge_01-ET-CV-M1-260525-MD.csv",sep=""))
-#write.csv(merged_df_subt,paste("D:/Josefina/Proyectos/Tesis/",estacion,"/resultados/merge_Prediccion_Real/",estacion,"_merge_",modelo,".csv",sep=""))
-
+#######
+# Otra evaluacion del desempe�o pero condatos diarios globales
+# Hacemos media diaria considerando todas las estaciones juntas
 merged_df_subt2$date <- as.Date(merged_df_subt2$date)
+#agrupamos por dia
 df_diario <- merged_df_subt2 %>%
   group_by(date) %>%
   summarise(
@@ -100,54 +102,46 @@ df_diario <- merged_df_subt2 %>%
     mean_medicion= mean(mean, na.rm = TRUE)
   )
 
-
+# Modelos 2 con datos diarios
 model_v2 <- lm( mean_medicion~mean_prediccion , data = df_diario)
-# Calculo de métricas de desempeño
+# Calculo de metricas de desempe�o
 R2_v2 <- summary(model_v2)$r.squared
 RMSE_v2 <- sqrt(mean(residuals(model_v2)^2))
 Bias_v2 <- mean(df_diario$mean_medicion - df_diario$mean_prediccion)
 n_v2 <- nrow(df_diario)
 df_metrica_v2 <- data.frame(R2_v2,RMSE_v2,Bias_v2,n_v2)
 df_metrica_v2
-####PLOT
+
+###########3
+####Plot comparando ambos datos
 ggplot(df_diario, aes(x = date)) +
-  #ggplot(df_date_rbind, aes(x = date)) +
-  # Línea para Registros.validados
-  # Línea para valor_Raster
+
   geom_line(aes(y = mean_medicion, color = "Monitoreo"), size = 0.8,na.rm = TRUE) +
   
   geom_line(aes(y = mean_prediccion, color = "Modelo"), size = 0.8, na.rm = TRUE)+#, linetype = "dashed") +
-  #geom_line(aes(y = valor_raster.y, color = "MERRA-2"), size = 0.3, na.rm = FALSE)+#, linetype = "dashed") +
-  
-  #geom_line(aes(y = Registros.preliminares, color = "Registros.no.validados"), size = 0.3, na.rm = FALSE)+#, linetype = "dashed") +
-  
-  # Separar en subplots por estación
+ # regesion por estacion de monitoreo
+  # Separar en subplots por estacion
   #facet_wrap(~ ID , scales = "free_y") +
   # 
   scale_y_continuous(limits = c(0, 120),breaks = seq(0, 120, by = 40)) +  # Ticks cada 10 en el eje Y
   
-  # Títulos y etiquetas
   labs(title = modelo,
        x = "",
        y = "PM2.5",
        color = "Variables") +
-  # Cambiar los colores de las líneas
   scale_color_manual(values = c("Monitoreo" = "#2ca25f", "Modelo" = "#feb24c"),#,"Monitoreo"="blue"),
                      labels = c("Monitoreo" = "Monitoreo", "Modelo" = "Modelo"))+#, "mean"="Monitoreo")) +
-  
-  # Personalización del tema
-  
-  #theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
   theme_classic() +
   theme(
-    plot.title = element_text(size = 10, hjust = 0.5),  # Tamaño y alineación del título
-    axis.title.x = element_text(size = 8),              # Tamaño del título del eje X
-    axis.title.y = element_text(size = 8),              # Tamaño del título del eje Y
-    axis.text.x = element_text(size = 6, angle = 45, hjust = 1), # Tamaño y rotación de los ticks del eje X
-    axis.text.y = element_text(size = 6),               # Tamaño de los ticks del eje Y
-    strip.text = element_text(size = 5),                # Tamaño del texto de los subplots
-    legend.title = element_text(size = 8),              # Tamaño del título de la leyenda
-    legend.text = element_text(size = 5)                # Tamaño del texto de la leyenda
+    plot.title = element_text(size = 10, hjust = 0.5),  
+    axis.title.x = element_text(size = 8),             
+    axis.title.y = element_text(size = 8),              
+    axis.text.x = element_text(size = 6, angle = 45, hjust = 1), 
+    axis.text.y = element_text(size = 6),               
+    strip.text = element_text(size = 5),                
+    legend.title = element_text(size = 8),              
+    legend.text = element_text(size = 5)               
   )
 
 
@@ -158,14 +152,17 @@ data_sensores_mes <- data_sensores %>%
     date = format(date, "%m-%Y")
   )
 
-# --- Promedio mensual por estación ---
+#####################################################################
+#####################################################################
+### Otras estadisticas
+# --- Promedio mensual por estacion ---
 promedio_mensual <- data_sensores_mes %>%
   group_by(estacion, mes_anio,date) %>%
   summarise(
     media_registros = mean(Registros.completos, na.rm = TRUE),
     .groups = "drop"
   )
-
+#########
 # --- Promedio mensual general (todas las estaciones) ---
 promedio_mensual_general <- data_sensores %>%
   group_by(mes_anio) %>%
@@ -178,15 +175,27 @@ promedio_mensual_general <- data_sensores %>%
 df_merge <- df_rbind %>%
   left_join(promedio_mensual, by = c("estacion", "date"))
 
-
+# Guardar para revisar manualmente
 write.csv(df_merge, paste(dir,"/1-XGB-CV-M1-190625-CH_merge.csv",sep=""))
-#############################
+
+
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+# Codigo relacionado con 00_xxxx relacionado a la comparativa 
+# con el modelo WUSTL
+
+# Se hace un merge entre las mediciones reales, 
+# las obtenidas con mi modelo y las del modelo global para comparalas
+
+#
 df <- read.csv("D:/Josefina/Proyectos/ProyectoChile/CH/Comparativas_resultados/PM_wustl/data_PM-WUSTL-TOT_comparativa XGB_CV_1-190625.csv")
 
 df_complete <- df[complete.cases(df$media_registros),]
 
+## Mediciones reales vs mi modelo
 model_v2 <- lm( media_registros~valor_raster_.1.XGB.CV.M1.190625.CH_merge , data = df_complete)
-# Calculo de métricas de desempeño
 R2_v2 <- summary(model_v2)$r.squared
 RMSE_v2 <- sqrt(mean(residuals(model_v2)^2))
 Bias_v2 <- mean(df_complete$media_registros - df_complete$valor_raster_.1.XGB.CV.M1.190625.CH_merge)
@@ -194,7 +203,7 @@ n_v2 <- nrow(df_complete)
 df_metrica_v2 <- data.frame(R2_v2,RMSE_v2,Bias_v2,n_v2)
 df_metrica_v2
 
-
+## Mediciones reales vs modelo WUSTL
 model_v3 <- lm( media_registros~ extracted_values_WUSTL_TOT, data = df_complete)
 # Calculo de métricas de desempeño
 R2_v3 <- summary(model_v3)$r.squared
@@ -204,10 +213,9 @@ n_v3<- nrow(df_complete)
 df_metrica_v3 <- data.frame(R2_v3,RMSE_v3,Bias_v3,n_v3)
 df_metrica_v3
 
-
-
+######
+## Mi modelo vs WUSTL
 model_v4 <- lm( valor_raster_.1.XGB.CV.M1.190625.CH_merge~ extracted_values_WUSTL_TOT, data = df_complete)
-# Calculo de métricas de desempeño
 R2_v4 <- summary(model_v4)$r.squared
 RMSE_v4 <- sqrt(mean(residuals(model_v4)^2))
 Bias_v4 <- mean(df_complete$valor_raster_.1.XGB.CV.M1.190625.CH_merge - df_complete$extracted_values_WUSTL_TOT)
@@ -215,63 +223,60 @@ n_v4<- nrow(df_complete)
 df_metrica_v4 <- data.frame(R2_v4,RMSE_v4,Bias_v4,n_v4)
 df_metrica_v4
 
-
+##########################################
+## Plots de dispersion Mi modelo vs WUSTL
 
 library(ggplot2)
-library(ggpointdensity)  # si no lo tenés: install.packages("ggpointdensity")
+library(ggpointdensity)  
 
 plot_RLS <- ggplot(df_complete, aes(x = extracted_values_WUSTL_TOT, y = valor_raster_.1.XGB.CV.M1.190625.CH_merge)) +
   geom_pointdensity(adjust = 1.5) +
   scale_color_viridis_c() +
   geom_abline(slope = 1, intercept = 0, color = "black") +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
-  scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
+  scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  
+  scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  
   theme_classic()+ 
-  #theme(legend.position="none")+  theme_classic() +
+ 
   theme(
     #legend.position = "none",
-    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
-    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+    axis.text = element_text(size = 14),     
+    axis.title = element_text(size = 11)     #
   )+  labs(
-    x = " ",   # 🔹 Nombre del eje X
-    y = " "     # 🔹 Nombre del eje Y
+    x = " ",   
+    y = " "     
   ) 
 
 plot_RLS
 
 
-
+##########################################
+## Plots de dispersion Mediciones vs WUSTL
 plot_RLS <- ggplot(df_complete, aes(y = extracted_values_WUSTL_TOT, x = media_registros)) +
   geom_pointdensity(adjust = 1.5) +
   scale_color_viridis_c() +
   geom_abline(slope = 1, intercept = 0, color = "black") +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
-  scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
-  scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  # Ticks cada 10 en el eje Y
+  scale_y_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  
+  scale_x_continuous(limits = c(0, 160),breaks = seq(0, 160, by = 40)) +  
   theme_classic()+ 
-  #theme(legend.position="none")+  theme_classic() +
+  
   theme(
     #legend.position = "none",
-    axis.text = element_text(size = 14),     # 🔹 Aumenta tamaño de los valores de ambos ejes
-    axis.title = element_text(size = 11)     # 🔹 (opcional) aumenta tamaño de los títulos de ejes
+    axis.text = element_text(size = 14),    
+    axis.title = element_text(size = 11)     
   )+  labs(
-    x = " ",   # 🔹 Nombre del eje X
-    y = " "     # 🔹 Nombre del eje Y
+    x = " ",   
+    y = " "     
   ) 
 
 plot_RLS
 
 
+##########################################
+## Plots de dispersion  comparativa entre modelos
 
-library(ggplot2)
-library(tidyr)
-library(dplyr)
-
-# Supongamos que df_complete tiene estas columnas:
-# media_registros, extracted_values_WUSTL_TOT, valor_raster_.1.XGB.CV.M1.190625.CH_merge
-
-# 1️⃣ Reestructuramos el dataframe a formato largo
+# Reestructuramos el dataframe a formato largo
 df_long <- df_complete %>%
   pivot_longer(
     cols = c(extracted_values_WUSTL_TOT, valor_raster_.1.XGB.CV.M1.190625.CH_merge),
@@ -279,12 +284,12 @@ df_long <- df_complete %>%
     values_to = "valor_y"
   )
 
-# 2️⃣ Graficamos ambas relaciones
+# Graficamos ambas relaciones
 plot_RLS <- ggplot(df_long, aes(x = media_registros, y = valor_y, color = variable)) +
-  geom_point(alpha = 0.6) +  # puntos semi transparentes
-  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +  # una recta por grupo
-  geom_abline(slope = 1, intercept = 0, color = "black") +       # línea de referencia 1:1
-  scale_color_manual(values = c("blue", "red")) +                # colores personalizados
+  geom_point(alpha = 0.6) +  
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +  
+  geom_abline(slope = 1, intercept = 0, color = "black") +       
+  scale_color_manual(values = c("blue", "red")) +                
   scale_y_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
   scale_x_continuous(limits = c(0, 160), breaks = seq(0, 160, by = 40)) +
   theme_classic() +
@@ -297,8 +302,8 @@ plot_RLS <- ggplot(df_long, aes(x = media_registros, y = valor_y, color = variab
     y = "Valores",
     color = "Variable"
   )  +theme(
-    legend.position = "none"#,    # si querés, podés cambiarlo
-    #legend.title = element_blank(), # para que no aparezca el título de la leyenda
+    legend.position = "none"#,   
+    #legend.title = element_blank(), 
     # para eliminar completamente la leyenda, usar: legend.position = "none"
   )
 
@@ -307,9 +312,7 @@ plot_RLS
 #
 ###############################################
 ###############################################
-library(ggplot2)
-library(tidyr)
-library(dplyr)
+# otro plot
 
 # tructuramos el dataframe a formato largo
 df_long <- df_complete %>%
@@ -321,36 +324,33 @@ df_long <- df_complete %>%
 
 # Graficamos
 plot_RLS <- ggplot(df_long, aes(x = media_registros, y = valor_y)) +
-  # 🔹 Puntos
   geom_point(aes(color = variable), alpha = 0.8, size = 1) +
-  # 🔹 Línea 1 (azul oscuro)
   geom_smooth(
     data = subset(df_long, variable == "extracted_values_WUSTL_TOT"),
     method = "lm", se = FALSE, color = "#045a8d", linetype = "solid", size = 1.2
   ) +
-  # 🔹 Línea 2 (verde oscuro)
   geom_smooth(
     data = subset(df_long, variable == "valor_raster_.1.XGB.CV.M1.190625.CH_merge"),
     method = "lm", se = FALSE, color = "#006d2c", linetype = "solid", size = 1.2
   ) +
-  # 🔹 Línea 1:1
+  #Linea 1:
   geom_abline(slope = 1, intercept = 0, color = "black", size = 0.8) +
-  # 🔹 Colores y etiquetas personalizadas
+  # Colores y etiquetas
   scale_color_manual(
     values = c("#2b8cbe", "#2ca25f"),
     labels = c("V5GL04", "This model"),
-    name = NULL   # quita el título "Variable"
+    name = NULL   
   ) +
-  # 🔹 Ejes
+ 
   scale_y_continuous(limits = c(0, 120), breaks = seq(0, 120, by = 40)) +
   scale_x_continuous(limits = c(0, 120), breaks = seq(0, 120, by = 40)) +
-  # 🔹 Tema
+  
   theme_classic() +
   theme(
     axis.text = element_text(size = 9),
     axis.title = element_text(size = 9),
-    legend.text = element_text(size = 9),        # 🔸 tamaño texto leyenda
-    legend.position = c(0.15, 0.8),                # 🔸 posición dentro del gráfico
+    legend.text = element_text(size = 9),        
+    legend.position = c(0.15, 0.8),                
     #legend.background = element_rect(fill = "white", color = "gray80")
   ) +
   labs(

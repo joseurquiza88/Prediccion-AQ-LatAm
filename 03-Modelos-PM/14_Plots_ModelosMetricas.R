@@ -1,8 +1,8 @@
-# Librerías necesarias
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-# Fig xxx. Metricas de  desempeño de modelos de predicción PM2.5
+#######################################################################
+## OBJETIVO: Generar los plots de las comparativas del desempe�o de los
+#modelos de ML
+##
+#######################################################################
 
 # Datos en formato largo
 data <- tribble(
@@ -35,7 +35,7 @@ heatmap_data <- dcast(data, City ~ Model, value.var = "R2")
 
 # Convertir a formato largo
 heatmap_long <- melt(heatmap_data, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios (factor con niveles epecificos)
 heatmap_long$City <- factor(heatmap_long$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 
@@ -51,8 +51,8 @@ ggplot(heatmap_long, aes(x = variable, y = City, fill = value)) +
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)  
   )
 
 # Para mostrar R2
@@ -60,24 +60,24 @@ heatmap_data_rmse <- dcast(data, City ~ Model, value.var = "RMSE")
 
 # Convertir a formato largo
 heatmap_long_rmse <- melt(heatmap_data_rmse, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios 
 heatmap_long_rmse$City <- factor(heatmap_long_rmse$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
-
+#Plot
 ggplot(heatmap_long_rmse, aes(x = variable, y = City, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#d9f0d3",   # verde claro (valor bajo)
-    high = "#31a354",  # verde oscuro (valor alto)
-    limits = c(4, 9),  # valores de RMSE esperados
+    low = "#d9f0d3",   
+    high = "#31a354",  
+    limits = c(4, 9),  
     name = "RMSE"
   ) +
   labs(
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)   
   )
 
 
@@ -87,15 +87,15 @@ ggplot(heatmap_long_rmse, aes(x = variable, y = City, fill = value)) +
 # Preparar datos para el heatmap de Bias
 heatmap_data_bias <- dcast(data, City ~ Model, value.var = "Bias")
 heatmap_long_bias <- melt(heatmap_data_bias, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long_bias$City <- factor(heatmap_long_bias$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 # Graficar
 ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#08306b",   # azul oscuro (bias negativo, subestimación)
-    high = "#deebf7",  # azul claro (bias más cercano a 0 o positivo)
+    low = "#08306b",   
+    high = "#deebf7",  
     limits = c(-0.7, 0.3),
     name = "Bias"
   ) +
@@ -103,16 +103,16 @@ ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)  
   )
 
 #############################################################
 ##################################################################
-# Fig xxx. Tabla 3. Desempeño según tipo de validación cruzada cv random
+# Fig xxx. Tabla 3. Desempe�o según tipo de validacion cruzada cv random
 
 # Datos en formato largo
-# Nuevos datos de desempeño según validación cruzada aleatoria
+# Nuevos datos de desempe�o segun validacion cruzada aleatoria
 data_cv_random <- tribble(
   ~City, ~Model, ~R2, ~RMSE, ~Bias,
   "SP", "SVR", 0.69, 6.06, -0.68,
@@ -144,7 +144,7 @@ heatmap_data <- dcast(data_cv_random, City ~ Model, value.var = "R2")
 
 # Convertir a formato largo
 heatmap_long <- melt(heatmap_data, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long$City <- factor(heatmap_long$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 
@@ -160,8 +160,8 @@ ggplot(heatmap_long, aes(x = variable, y = City, fill = value)) +
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)   
   )
 
 # Para mostrar R2
@@ -169,24 +169,24 @@ heatmap_data_rmse <- dcast(data_cv_random, City ~ Model, value.var = "RMSE")
 
 # Convertir a formato largo
 heatmap_long_rmse <- melt(heatmap_data_rmse, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios 
 heatmap_long_rmse$City <- factor(heatmap_long_rmse$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 
 ggplot(heatmap_long_rmse, aes(x = variable, y = City, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#d9f0d3",   # verde claro (valor bajo)
-    high = "#31a354",  # verde oscuro (valor alto)
-    limits = c(3, 9),  # valores de RMSE esperados
+    low = "#d9f0d3",  
+    high = "#31a354",  
+    limits = c(3, 9),  
     name = "RMSE"
   ) +
   labs(
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)   
   )
 
 
@@ -196,15 +196,15 @@ ggplot(heatmap_long_rmse, aes(x = variable, y = City, fill = value)) +
 # Preparar datos para el heatmap de Bias
 heatmap_data_bias <- dcast(data_cv_random, City ~ Model, value.var = "Bias")
 heatmap_long_bias <- melt(heatmap_data_bias, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long_bias$City <- factor(heatmap_long_bias$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 # Graficar
 ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#08306b",   # azul oscuro (bias negativo, subestimación)
-    high = "#deebf7",  # azul claro (bias más cercano a 0 o positivo)
+    low = "#08306b",   
+    high = "#deebf7",  
     limits = c(-0.7, 0.7),
     name = "Bias"
   ) +
@@ -212,16 +212,15 @@ ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)   
   )
 
 #############################################################
 ##################################################################
-# Fig xxx. Tabla 3. Desempeño según tipo de validación cruzada cv espacial
+# Fig xxx. Tabla 3. Desempe�o segun tipo de validacion cruzada cv espacial
 
-# Datos en formato largo
-# Nuevos datos de desempeño según validación cruzada aleatoria
+# Nuevos datos de desempeño segun validacion cruzada aleatoria
 data_cv_espacial <- tribble(
   ~City, ~Model, ~R2, ~RMSE, ~Bias,
   "SP", "SVR", 0.70, 6.04, -0.67,
@@ -257,7 +256,7 @@ heatmap_data <- dcast(data_cv_espacial, City ~ Model, value.var = "R2")
 
 # Convertir a formato largo
 heatmap_long <- melt(heatmap_data, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long$City <- factor(heatmap_long$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 
@@ -273,8 +272,8 @@ ggplot(heatmap_long, aes(x = variable, y = City, fill = value)) +
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)  
   )
 
 # Para mostrar R2
@@ -282,24 +281,24 @@ heatmap_data_rmse <- dcast(data_cv_espacial, City ~ Model, value.var = "RMSE")
 
 # Convertir a formato largo
 heatmap_long_rmse <- melt(heatmap_data_rmse, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long_rmse$City <- factor(heatmap_long_rmse$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 
 ggplot(heatmap_long_rmse, aes(x = variable, y = City, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#d9f0d3",   # verde claro (valor bajo)
-    high = "#31a354",  # verde oscuro (valor alto)
-    limits = c(3, 10),  # valores de RMSE esperados
+    low = "#d9f0d3",   
+    high = "#31a354",  
+    limits = c(3, 10),  
     name = "RMSE"
   ) +
   labs(
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)  
   )
 
 
@@ -309,15 +308,15 @@ ggplot(heatmap_long_rmse, aes(x = variable, y = City, fill = value)) +
 # Preparar datos para el heatmap de Bias
 heatmap_data_bias <- dcast(data_cv_espacial, City ~ Model, value.var = "Bias")
 heatmap_long_bias <- melt(heatmap_data_bias, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long_bias$City <- factor(heatmap_long_bias$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 # Graficar
 ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#08306b",   # azul oscuro (bias negativo, subestimación)
-    high = "#deebf7",  # azul claro (bias más cercano a 0 o positivo)
+    low = "#08306b",   
+    high = "#deebf7",  
     limits = c(-0.9, 0.9),
     name = "Bias"
   ) +
@@ -325,8 +324,8 @@ ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)   
   )
 
 
@@ -334,11 +333,9 @@ ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
 
 #############################################################
 ##################################################################
-# Fig xxx. Tabla 3. Desempeño según tipo de validación cruzada cv temporal
+# Fig xxx. Tabla 3. Desempeo según tipo de validacion cruzada cv temporal
 
-# Datos en formato largo
-# Nuevos datos de desempeño según validación cruzada aleatoria
-# Datos de desempeño con validación cruzada temporal
+# Datos de desempe�o con validacion cruzada temporal
 data_cv_temporal <- tribble(
   ~City, ~Model, ~R2, ~RMSE, ~Bias,
   "SP", "SVR", 0.65, 6.46, -0.75,
@@ -374,7 +371,7 @@ heatmap_data <- dcast(data_cv_temporal, City ~ Model, value.var = "R2")
 
 # Convertir a formato largo
 heatmap_long <- melt(heatmap_data, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long$City <- factor(heatmap_long$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 
@@ -384,14 +381,14 @@ ggplot(heatmap_long, aes(x = variable, y = City, fill = value)) +
   scale_fill_gradient(
     low = "#fcbba1", high = "#e31a1c", 
     limits = c(0, 1), 
-    name = "R²"
+    name = "R�"
   ) +
   labs(
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),
+    axis.text.y = element_text(size = 14)   
   )
 
 # Para mostrar R2
@@ -399,7 +396,7 @@ heatmap_data_rmse <- dcast(data_cv_temporal, City ~ Model, value.var = "RMSE")
 
 # Convertir a formato largo
 heatmap_long_rmse <- melt(heatmap_data_rmse, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long_rmse$City <- factor(heatmap_long_rmse$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 
@@ -415,8 +412,8 @@ ggplot(heatmap_long_rmse, aes(x = variable, y = City, fill = value)) +
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14),  
+    axis.text.y = element_text(size = 14)   
   )
 
 
@@ -426,15 +423,15 @@ ggplot(heatmap_long_rmse, aes(x = variable, y = City, fill = value)) +
 # Preparar datos para el heatmap de Bias
 heatmap_data_bias <- dcast(data_cv_temporal, City ~ Model, value.var = "Bias")
 heatmap_long_bias <- melt(heatmap_data_bias, id.vars = "City")
-#Reordenar los sitios (factor con niveles específicos)
+#Reordenar los sitios  (factor con niveles epecificos)
 heatmap_long_bias$City <- factor(heatmap_long_bias$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
 # Graficar
 ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#08306b",   # azul oscuro (bias negativo, subestimación)
-    high = "#deebf7",  # azul claro (bias más cercano a 0 o positivo)
+    low = "#08306b",   # azul oscuro (bias negativo, subestimacion)
+    high = "#deebf7",  # azul claro (bias mas cercano a 0 o positivo)
     limits = c(-1, 1),
     name = "Bias"
   ) +
@@ -442,8 +439,8 @@ ggplot(heatmap_long_bias, aes(x = variable, y = City, fill = value)) +
     x = " ", 
     y = " "
   ) +  theme_classic() +theme(
-    axis.text.x = element_text(size = 14),  # tamaño mayor para eje x
-    axis.text.y = element_text(size = 14)   # tamaño mayor para eje y
+    axis.text.x = element_text(size = 14), 
+    axis.text.y = element_text(size = 14)   
   )
 
 
@@ -475,7 +472,7 @@ ggplot(data_todo, aes(x = CV, y = R2, color = Model, group = Model)) +
   scale_x_discrete(labels = c("Random" = "R", "Espacial" = "E", "Temporal" = "T")) +
   labs(
     x = " ",
-    y = "R²",
+    y = "R�",
     color = "Modelo"
   ) +
   theme_classic() +
@@ -534,8 +531,7 @@ ggplot(data_todo, aes(x = CV, y = Bias, color = Model, group = Model)) +
 
 ##########################################################################
 ###########################################################################
-library(dplyr)
-library(ggplot2)
+### Plot para paper
 # Agregar columna CV a cada uno
 data_cv_random <- data_cv_random %>% mutate(CV = "Random")
 data_cv_espacial <- data_cv_espacial %>% mutate(CV = "Espacial")
@@ -548,7 +544,7 @@ data_todo <- bind_rows(data_cv_random, data_cv_espacial, data_cv_temporal)
 data_todo$CV <- factor(data_todo$CV, levels = c("Random", "Espacial", "Temporal"))
 data_todo$City <- factor(data_todo$City, levels = c("SP", "ST", "BA", "MD", "MX"))
 
-# 🔹 Filtrar solo la ciudad ST
+# Filtrar solo la ciudad ST
 data_st <- data_todo %>% filter(City == "ST")
 
 # Aseguramos que el orden de CV y Model siga igual
@@ -558,7 +554,7 @@ data_st$CV <- factor(
   levels = c("Random", "Espacial", "Temporal"),
   labels = c("Random", "Spatial", "Temporal")
 )
-## === 1️⃣ Plot R² ===
+## === Plot R2===
 plot_R2_st <- ggplot(data_st, aes(x = CV, y = R2, color = Model, group = Model)) +
   geom_point(size = 2) +
   geom_line(linewidth = 0.5, linetype = "dashed")+
@@ -566,7 +562,7 @@ plot_R2_st <- ggplot(data_st, aes(x = CV, y = R2, color = Model, group = Model))
   scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
   labs(
     x = "",
-    y = "R²",
+    y = "R�",
     color = "Modelo",
     #title = "Ciudad: ST"
   ) +
@@ -580,7 +576,7 @@ plot_R2_st <- ggplot(data_st, aes(x = CV, y = R2, color = Model, group = Model))
     legend.position = "none"
   )
 plot_R2_st
-## === 2️⃣ Plot RMSE ===
+## === Plot RMSE ===
 plot_RMSE_st <- ggplot(data_st, aes(x = CV, y = RMSE, color = Model, group = Model)) +
   geom_point(size = 3) +
   geom_line(linewidth = 1) +
@@ -603,7 +599,7 @@ plot_RMSE_st <- ggplot(data_st, aes(x = CV, y = RMSE, color = Model, group = Mod
     legend.position = "none"
   )
 plot_RMSE_st
-## === 3️⃣ Plot Bias ===
+## === Plot Bias ===
 plot_Bias_st <- ggplot(data_st, aes(x = CV, y = Bias, color = Model, group = Model)) +
   geom_point(size = 3) +
   geom_line(linewidth = 1) +
@@ -611,7 +607,7 @@ plot_Bias_st <- ggplot(data_st, aes(x = CV, y = Bias, color = Model, group = Mod
   scale_y_continuous(limits = c(-1, 1)) +
   scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
   labs(
-    x = "",#"Tipo de validación cruzada",
+    x = "",
     y = "Bias",
     color = "Modelo",
     #title = "Ciudad: ST"
@@ -634,7 +630,7 @@ plot_Bias_st
 
 ####################
 #barras
-## === 1️⃣ Plot R² ===
+## === Plot R� ===
 plot_R2_st <- ggplot(data_st, aes(x = CV, y = R2, color = Model, group = Model)) +
   geom_bar(size = 3) +
   # geom_line(linewidth = 1) +
@@ -656,7 +652,7 @@ plot_R2_st <- ggplot(data_st, aes(x = CV, y = R2, color = Model, group = Model))
     legend.position = "none"
   )
 plot_R2_st
-## === 2️⃣ Plot RMSE ===
+## === Plot RMSE ===
 plot_RMSE_st <- ggplot(data_st, aes(x = CV, y = RMSE, color = Model, group = Model)) +
   geom_point(size = 3) +
   geom_line(linewidth = 1) +
@@ -679,7 +675,7 @@ plot_RMSE_st <- ggplot(data_st, aes(x = CV, y = RMSE, color = Model, group = Mod
     legend.position = "none"
   )
 plot_RMSE_st
-## === 3️⃣ Plot Bias ===
+## === Plot Bias ===
 plot_Bias_st <- ggplot(data_st, aes(x = CV, y = Bias, color = Model, group = Model)) +
   geom_point(size = 3) +
   geom_line(linewidth = 1) +
@@ -687,7 +683,7 @@ plot_Bias_st <- ggplot(data_st, aes(x = CV, y = Bias, color = Model, group = Mod
   scale_y_continuous(limits = c(-1, 1)) +
   scale_x_discrete(labels = c("Random" = "Random", "Spatial" = "Spatial", "Temporal" = "Temporal")) +
   labs(
-    x = "",#"Tipo de validación cruzada",
+    x = "",
     y = "Bias",
     color = "Modelo",
     #title = "Ciudad: ST"
@@ -706,19 +702,15 @@ plot_Bias_st
 
 ########################
 
-library(dplyr)
-library(ggplot2)
-library(tidyr)
-
 # Reorganizamos los datos al formato largo
 data_long <- data_st %>%
   pivot_longer(cols = c(R2, RMSE, Bias),
                names_to = "Metric",
                values_to = "Value")
 
-# Para que las métricas se muestren en orden lógico
+# Para que las metricas se muestren en orden logico
 data_long$Metric <- factor(data_long$Metric, levels = c("R2", "RMSE", "Bias"))
-# Gráfico de barras agrupadas
+# Plot de barras agrupadas
 ggplot(data_long, aes(x = CV, y = Value, fill = Model)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
   facet_wrap(~ Metric, scales = "free_y", nrow = 1) +
@@ -726,7 +718,7 @@ ggplot(data_long, aes(x = CV, y = Value, fill = Model)) +
     x = " ",
     y = " ",
     fill = " ",
-    #title = "Comparación del desempeño de los modelos según el tipo de validación"
+    
   ) +
   theme_classic(base_size = 13) +
   theme(
@@ -742,12 +734,12 @@ library(ggplot2)
 library(dplyr)
 library(patchwork)  # para combinar los plots
 
-# --- Filtramos cada métrica ---
+# --- Filtramos cada metrica ---
 data_R2 <- data_long %>% filter(Metric == "R2")
 data_RMSE <- data_long %>% filter(Metric == "RMSE")
 data_BIAS <- data_long %>% filter(Metric == "Bias")
 
-# --- Gráfico 1: R2 ---
+# ---  R2 ---
 plot_R2 <- ggplot(data_R2, aes(x = CV, y = Value, fill = Model)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
   ylim(0, 1) +
@@ -759,7 +751,7 @@ theme(
   legend.position = "none"
 
 )
-# --- Gráfico 2: RMSE ---
+# ---  RMSE ---
 plot_RMSE <- ggplot(data_RMSE, aes(x = CV, y = Value, fill = Model)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
   ylim(0, 10) +
@@ -771,7 +763,7 @@ plot_RMSE <- ggplot(data_RMSE, aes(x = CV, y = Value, fill = Model)) +
     legend.position = "none"
   )
 
-# --- Gráfico 3: BIAS ---
+# ---  BIAS ---
 plot_BIAS <- ggplot(data_BIAS, aes(x = CV, y = Value, fill = Model)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black", linewidth = 0.3) +

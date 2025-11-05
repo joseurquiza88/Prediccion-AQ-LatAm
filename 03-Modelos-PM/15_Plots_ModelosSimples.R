@@ -1,8 +1,10 @@
-library(ggplot2)
-# Plots modelos simples
-##############################################################
-###############################################################
-#Rdge y lasso
+#######################################################################
+## OBJETIVO: Generar los plots de las comparativas del desempe�o de los
+#modelos simples
+##
+#######################################################################
+
+### ----- Modelo predictivo Ridge y LASSO   -----
 # Datos
 datos <- data.frame(
   Sitio = c("SP", "ST", "BA", "MD", "MX"),
@@ -17,7 +19,7 @@ colores <- c("SP" = "#00441b",
              "MD" = "#023858",
              "MX" = "#3f007d")
 datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
-# Gráfico sin etiquetas de texto
+# Plot sin etiquetas de texto
 ggplot(datos, aes(x = Ridge_R2, y = Lasso_R2, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
@@ -28,9 +30,9 @@ ggplot(datos, aes(x = Ridge_R2, y = Lasso_R2, color = Sitio)) +
        y = expression(R^2~"Lasso"),
        color = "Sitio") +
   theme(
-         legend.position = "none"#,    # si querés, podés cambiarlo
-         #legend.title = element_blank(), # para que no aparezca el título de la leyenda
-         # para eliminar completamente la leyenda, usar: legend.position = "none"
+         legend.position = "none"#,    
+         #legend.title = element_blank(),
+         
        )+
   theme_classic(base_size = 14)
 
@@ -38,7 +40,7 @@ ggplot(datos, aes(x = Ridge_R2, y = Lasso_R2, color = Sitio)) +
 
 ##########################################
 ###########################################
-
+### ----- Modelo predictivo Ridge y LASSO   -----
 
 # Datos
 datos <- data.frame(
@@ -54,7 +56,7 @@ colores <- c("SP" = "#00441b",
              "MD" = "#023858",
              "MX" = "#3f007d")
 datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
-# Gráfico sin etiquetas de texto
+# Plot sin etiquetas de texto
 ggplot(datos, aes(x = Ridge_RMSE, y = Lasso_RMSE, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
@@ -66,9 +68,7 @@ ggplot(datos, aes(x = Ridge_RMSE, y = Lasso_RMSE, color = Sitio)) +
        y = expression(RMSE~"Lasso"),
        color = "Sitio") +
   theme(
-    legend.position = "none"#,    # si querés, podés cambiarlo
-    #legend.title = element_blank(), # para que no aparezca el título de la leyenda
-    # para eliminar completamente la leyenda, usar: legend.position = "none"
+    legend.position = "none"#,    
   )+
   theme_classic(base_size = 14)
 
@@ -76,7 +76,7 @@ ggplot(datos, aes(x = Ridge_RMSE, y = Lasso_RMSE, color = Sitio)) +
 
 ##############################################################
 ###############################################################
-#Rdge y GLM_sAOD
+### ----- Modelo predictivo GLM (con/sin AOD)   -----
 # Datos
 datos <- data.frame(
   Sitio = c("SP", "ST", "BA", "MD", "MX"),
@@ -91,7 +91,7 @@ colores <- c("SP" = "#00441b",
              "MD" = "#023858",
              "MX" = "#3f007d")
 datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
-# Gráfico sin etiquetas de texto
+# Plot  sin etiquetas de texto
 ggplot(datos, aes(x = GLM_AOD_R2, y = GLM_multiple_R2, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
@@ -104,15 +104,13 @@ ggplot(datos, aes(x = GLM_AOD_R2, y = GLM_multiple_R2, color = Sitio)) +
        y = expression(R^2~"GLM Multiple"),
        color = "Sitio") +
   theme(
-    legend.position = "none"#,    # si querés, podés cambiarlo
-    #legend.title = element_blank(), # para que no aparezca el título de la leyenda
-    # para eliminar completamente la leyenda, usar: legend.position = "none"
+    legend.position = "none"#,    
   )+
   theme_classic(base_size = 14)
 
 ##########################################
 ###########################################
-
+### ----- Modelo predictivo GLM (con/sin AOD)   -----
 
 # Datos
 datos <- data.frame(
@@ -128,7 +126,7 @@ colores <- c("SP" = "#00441b",
              "MD" = "#023858",
              "MX" = "#3f007d")
 datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
-# Gráfico sin etiquetas de texto
+# Plot sin etiquetas de texto
 ggplot(datos, aes(x = GLM_AOD_RMSE, y = GLM_multiple_RMSE, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
@@ -140,9 +138,7 @@ ggplot(datos, aes(x = GLM_AOD_RMSE, y = GLM_multiple_RMSE, color = Sitio)) +
        y = expression(RMSE~"GLM Multiple"),
        color = "Sitio") +
   theme(
-    legend.position = "none"#,    # si querés, podés cambiarlo
-    #legend.title = element_blank(), # para que no aparezca el título de la leyenda
-    # para eliminar completamente la leyenda, usar: legend.position = "none"
+    legend.position = "none"
   )+
   theme_classic(base_size = 14)
 
@@ -150,7 +146,7 @@ ggplot(datos, aes(x = GLM_AOD_RMSE, y = GLM_multiple_RMSE, color = Sitio)) +
 
 ##############################################################
 ###############################################################
-#Rdge y LME_sAOD
+### ----- Modelo predictivo LME (Simple/Multiple)   -----
 # Datos
 datos <- data.frame(
   Sitio = c("SP", "ST", "BA", "MD", "MX"),
@@ -165,7 +161,7 @@ colores <- c("SP" = "#00441b",
              "MD" = "#023858",
              "MX" = "#3f007d")
 datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
-# Gráfico sin etiquetas de texto
+# Plot sin etiquetas de texto
 ggplot(datos, aes(x = LME_AOD_R2, y = LME_multiple_R2, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
@@ -177,15 +173,13 @@ ggplot(datos, aes(x = LME_AOD_R2, y = LME_multiple_R2, color = Sitio)) +
        y = expression(R^2~"LME Multiple"),
        color = "Sitio") +
   theme(
-    legend.position = "none"#,    # si querés, podés cambiarlo
-    #legend.title = element_blank(), # para que no aparezca el título de la leyenda
-    # para eliminar completamente la leyenda, usar: legend.position = "none"
+    legend.position = "none"#,   
   )+
   theme_classic(base_size = 14)
 
 ##########################################
 ###########################################
-
+### ----- Modelo predictivo LME (Simple/Multiple)   -----
 
 # Datos
 datos <- data.frame(
@@ -201,7 +195,7 @@ colores <- c("SP" = "#00441b",
              "MD" = "#023858",
              "MX" = "#3f007d")
 datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
-# Gráfico sin etiquetas de texto
+# Plot sin etiquetas de texto
 ggplot(datos, aes(x = LME_AOD_RMSE, y = LME_multiple_RMSE, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
@@ -214,9 +208,7 @@ ggplot(datos, aes(x = LME_AOD_RMSE, y = LME_multiple_RMSE, color = Sitio)) +
        y = expression(RMSE~"LME Multiple"),
        color = "Sitio") +
   theme(
-    legend.position = "none"#,    # si querés, podés cambiarlo
-    #legend.title = element_blank(), # para que no aparezca el título de la leyenda
-    # para eliminar completamente la leyenda, usar: legend.position = "none"
+    legend.position = "none"#,    
   )+
   theme_classic(base_size = 14)
 
@@ -225,7 +217,7 @@ ggplot(datos, aes(x = LME_AOD_RMSE, y = LME_multiple_RMSE, color = Sitio)) +
 
 ##############################################################
 ###############################################################
-#Rdge y GAM_sAOD
+### ----- Modelo predictivo GAM (Simple/Multiple)   -----
 # Datos
 datos <- data.frame(
   Sitio = c("SP", "ST", "BA", "MD", "MX"),
@@ -240,7 +232,7 @@ colores <- c("SP" = "#00441b",
              "MD" = "#023858",
              "MX" = "#3f007d")
 datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
-# Gráfico sin etiquetas de texto
+# PLot sin etiquetas de texto
 ggplot(datos, aes(x = GAM_AOD_R2, y = GAM_multiple_R2, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
@@ -251,15 +243,13 @@ ggplot(datos, aes(x = GAM_AOD_R2, y = GAM_multiple_R2, color = Sitio)) +
        y = expression(R^2~"GAM Multiple"),
        color = "Sitio") +
   theme(
-    legend.position = "none"#,    # si querés, podés cambiarlo
-    #legend.title = element_blank(), # para que no aparezca el título de la leyenda
-    # para eliminar completamente la leyenda, usar: legend.position = "none"
+    legend.position = "none"#,    
   )+
   theme_classic(base_size = 14)
 
 ##########################################
 ###########################################
-
+### ----- Modelo predictivo GAM (Simple/Multiple)   -----
 
 # Datos
 datos <- data.frame(
@@ -275,7 +265,7 @@ colores <- c("SP" = "#00441b",
              "MD" = "#023858",
              "MX" = "#3f007d")
 datos$Sitio <- factor(datos$Sitio, levels = c("SP", "ST", "BA", "MD", "MX"))
-# Gráfico sin etiquetas de texto
+# Plot sin etiquetas de texto
 ggplot(datos, aes(x = GAM_AOD_RMSE, y = GAM_multiple_RMSE, color = Sitio)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_point(size = 6) +
@@ -286,9 +276,7 @@ ggplot(datos, aes(x = GAM_AOD_RMSE, y = GAM_multiple_RMSE, color = Sitio)) +
        y = expression(RMSE~"GAM Multiple"),
        color = "Sitio") +
   theme(
-    legend.position = "none"#,    # si querés, podés cambiarlo
-    #legend.title = element_blank(), # para que no aparezca el título de la leyenda
-    # para eliminar completamente la leyenda, usar: legend.position = "none"
+    legend.position = "none"#,    
   )+
   theme_classic(base_size = 14)
 
@@ -296,7 +284,7 @@ ggplot(datos, aes(x = GAM_AOD_RMSE, y = GAM_multiple_RMSE, color = Sitio)) +
 ####################################################################################
 ####################################################################################
 ####################################################################################
-
+### ----- Modelo predictivo RLS por bins   -----
 ##01. --- RLS
 # Cargar los datos
 estacion <- "MX"
@@ -319,26 +307,15 @@ colores <- c("SP" = "#00441b",
              "BA" = "#99000d",
              "MD" = "#023858",
              "MX" = "#3f007d")
-
-
-
-
-
-
-
-
-
-library(dplyr)
-library(ggplot2)
 modelo_lm <- lm(PM25 ~ AOD_055, data = train_data)
 test_data$pred <- predict(modelo_lm, newdata = test_data)
-# Asegurate de trabajar con una copia limpia
+
 df <- test_data
 
-# Número de bins deseado
+# Numero de bins deseado
 n_bins <- 10
 
-# Crear bin numérico
+# Crear bin numerico
 df <- df %>%
   mutate(AOD_bin = ntile(AOD_055, n_bins))
 df <- df %>%
@@ -360,10 +337,10 @@ bin_info <- df %>%
 df <- df %>%
   left_join(bin_info, by = "AOD_bin") %>%
   mutate(
-    bin_label = factor(bin_label, levels = bin_info$bin_label)  # Orden correcto
+    bin_label = factor(bin_label, levels = bin_info$bin_label)  
   )
 
-
+#revisar esto
 df2 <- df[df$bias>-50,]
 ggplot(df2, aes(x = bin_label, y = bias)) +
   geom_violin(fill = "#3f007d", alpha = 0.4, trim = FALSE) +
@@ -376,32 +353,4 @@ ggplot(df2, aes(x = bin_label, y = bias)) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-
-################################
-#Producto satelital
-df <- data.frame(sensor = c("GOME", "MODIS","MISR", "MODIS","SCIAMACHY", "OMI",
-                            "GOME-2", "VIIRS", "OLI", "MSI", "TROPOMI"),
-                 plataforma =c("ERS-2", "TERRA","TERRA", "AQUA", "ENVISAT", "AURA",
-                               "METOP-A",  "Suomi NPP", "Landsat-8", "Sentinel-2",
-                               "Sentinel-5P"),
-                 fecha_inicio = c(1995, 2000 , 2000, 2002, 2002, 2004, 2006,2011,
-                                  2013, 2015, 2017),
-                 fecha_final = c(2003, 2024 , 2024, 2024, 2012, 2024, 2024,2024,
-                                  2024, 2024, 2024))
-df$sensorPlat <- paste (df$sensor," (",df$plataforma,")",sep="")
-
-library(ggplot2)
-
-library(ggplot2)
-
-ggplot(df, aes(x = fecha_inicio, xend = fecha_final, 
-               y = factor(sensorPlat, levels = sensorPlat), 
-               yend = factor(sensorPlat, levels = sensorPlat))) +
-  geom_segment(size = 6, color = "steelblue") +
-  theme_classic() +
-  scale_x_continuous(breaks = seq(1995, 2024, by = 5)) +
-  labs(x = " ", y = "Sensor (Plataforma)")+
-   #    title = "Período de operación de sensores satelitales") +
-  theme(axis.text.y = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 

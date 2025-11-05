@@ -1,9 +1,8 @@
-#################################################################################
-#################################################################################
-#            Modelos Predictivos de PM2.5 importancia de variables
-#################################################################################
-#################################################################################
-# RF
+#######################################################################
+## OBJETIVO: Importancia de variables
+##
+#######################################################################
+
 #funcion para evaluar modelos
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test=NA) {
   predicciones <- predict(modelo, newdata = datos_test)
@@ -41,20 +40,25 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
 estacion<- "MX"
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos",sep = ""))
 
-# Paso 1: Cargar el modelo
-load("01-RF-CV-M1-200525-SP.RData") # SP
+### ----- Modelo predictivo RF   -----
+#Cargar el modelo
+load("01-RF-CV-M1-200525-SP.RData")
 load("01-RF-CV-M1-260525-MD.RData") 
 load ("01-RF-CV-M1-170625-CH.RData")
 load ("01-RF-CV-M1-170625-BA.RData")
 load ("01-RF-CV-M1-290525-MX.RData")
+
 ## Importancia de las variables
 importancia <- varImp(modelo_RF_cv, scale = TRUE)
 print(importancia)
-plot(importancia, main = "Importancia de Variables M1")
+# Plot simple para visualizacion
+plot(importancia, main = "Importancia de Variables")
 
-# Gráfico personalizado con ggplot2
+# Plot personalizado con ggplot2
 importancia_df <- as.data.frame(importancia$importance)
 importancia_df$Variable <- rownames(importancia_df)
+# Setear el nombre de cada una de las variables
+#Revisar en cada sitio,  porque hay valores que se descartan
 importancia_df$Variable2 <- recode(importancia_df$Variable,
                                    "tp_mean" = "tp",
                                    "blh_mean" = "blh",
@@ -72,42 +76,43 @@ importancia_df$Variable2 <- recode(importancia_df$Variable,
                                    "sp_mean" = "SP",
                                    "DEM" = "DEM",
                                    "dayWeek" =  "dayWeek",
-                                   # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                                   
                                    .default = importancia_df$Variable
 )
-# scale_fill_manual(values = c("#005a32", "#fd8d3c","#99000d","#023858","#ce1256","#6a51a3")) +
-  
+
+# Otro plot de importancia pero odenando segun la importancia
+# Color segun el sitio
 ggplot(importancia_df, aes(x = reorder(Variable2, Overall), y = Overall)) +
   geom_bar(stat = "identity", fill = "#6a51a3") +
-  #geom_hline(yintercept = 50, linetype = "dashed", color = "red") +
   coord_flip() +
   theme_classic() +
-  labs(#title = "Importancia de Variables 02-RF_cv_M1-090125_MX", 
+  labs(
     x = " ", 
-    y = " ") +#"Importancia Modelo RF") +
+    y = " ") +
   theme(axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12))  # Ajusta
-
+        axis.text.x = element_text(size = 12)) 
 #######################################################
+#######################################################
+#Prueba: que pasa/ como es el desempe�o si vamos descartando 
+# las variables de menor imporancia
 # Corremos el modelo eliminando variables de a 1
-### ----- RF   -----
+### ----- Modelo predictivo RF   -----
 estacion <-"MX"
 modelo <- "1"
-
+#data
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
 train_control <- trainControl(
-  method = "cv",          # Método de validación cruzada
-  number = 10,            # Número de pliegues para la validación cruzada
+  method = "cv",          # Metodo de validacion cruzada
+  number = 10,            # Numero de pliegues para la cv
   verboseIter = TRUE,     # Mostrar progreso de entrenamiento
   allowParallel = TRUE    # Permitir procesamiento paralelo
 )
 
-#Dayweek, sp, ssmass, aod, so4mass
-
+# Modelo
 modelo_RF_cv <- train(  PM25 ~  AOD_055 +ndvi + BCSMASS_dia +
                           DUSMASS_dia +
                           SO4SMASS_dia + v10_mean +
@@ -118,10 +123,12 @@ modelo_RF_cv <- train(  PM25 ~  AOD_055 +ndvi + BCSMASS_dia +
                           #DEM, # 
                         data = train_data, method = "rf",
                         trControl = train_control,importance = TRUE)
-
+# Evaluacion del desempe�o
 resultados_RF_cv <- evaluar_modelo(modelo=modelo_RF_cv, datos_test=test_data,
                                    variable_real = "PM25",tipoModelo="RF",y_test=NA)
+
 print(resultados_RF_cv)
+# Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 
@@ -131,8 +138,15 @@ save(modelo_RF_cv, file=paste("02-RF-CV-M",modelo,"-240625-sAOD",estacion,".RDat
 
 ##############################################################################
 ##############################################################################
-#XGB Importancia
-# scale_fill_manual(values = c("#005a32", "#fd8d3c","#99000d","#023858","#ce1256","#6a51a3")) +
+#### ----- Modelo predictivo XGB   -----
+#Escala de colores por sitio:
+# SP: "#005a32"
+# ST: "#fd8d3c"
+# BA: "#99000d"
+# MD: "#023858"
+# LP: "#ce1256"
+# MX: "#6a51a3"
+#   
 
 # cargar el modelo y aplicalo a otro set de datos
 estacion<- "MD"
@@ -146,14 +160,14 @@ load("01-XGB-CV-M1-190625-BA.RData")
 load("01-XGB-CV-M1-290525-MX.RData")
 # Importancia XGB
 importance_matrix <- xgb.importance(model = xgb_cv_model)
+# Plot simple con la misma libreria del xgb
 xgb.plot.importance(importance_matrix = importance_matrix)
-#importance_matrix
-
 
 # Asumimos que 'importance_matrix' es el resultado de xgb.importance
 importancia_df <- as.data.frame(importance_matrix)
 importancia_df$Variable <- rownames(importancia_df)
-
+# Setear el nombre de las variables
+# Revisar para cada sitio en particular
 importancia_df$Variable2 <- recode(importancia_df$Feature,
                                    "tp_mean" = "tp",
                                    "blh_mean" = "blh",
@@ -171,52 +185,44 @@ importancia_df$Variable2 <- recode(importancia_df$Feature,
                                    "sp_mean" = "SP",
                                    "DEM" = "DEM",
                                    "dayWeek" =  "dayWeek",
-                                   # Dejá las que no cambian fuera o ponelas igual a sí mismas
+                                   # Deja las que no cambian fuera o ponelas igual a sí mismas
                                    .default = importancia_df$Feature
 )
 
-
-
-#nameModel<- "02-XGB-cv-TunGrid_M1-280224_MX"
-# Crear el gráfico con ggplot
-# scale_fill_manual(values = c("#005a32", "#fd8d3c","#99000d","#023858","#ce1256","#6a51a3")) +
-
+#Plot de importancia cada color es una ciudad
 ggplot(importancia_df, aes(x = reorder(Variable2,Gain) , y = (Gain*100))) +
   geom_bar(stat = "identity", fill = "#023858") +
-  #geom_hline(yintercept = 50, linetype = "dashed", color = "red") +  # Línea horizontal de referencia
-  coord_flip() +  # Cambia el eje x e y
+  coord_flip() +  
   ylim(0, 50) +
-  theme_classic() +  # Estilo limpio
-  labs(#title = "Importancia de Variables 02-RF_cv_M1-090125_MX", 
+  theme_classic() + 
+  labs( 
     x = " ", 
-    y = " ") +#"Importancia Modelo RF") +
+    y = " ") +
   theme(axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12))  # Ajusta
+        axis.text.x = element_text(size = 12))  
 
 #######################################################
+#######################################################
+#Prueba: que pasa/ como es el desempe�o si vamos descartando 
+# las variables de menor imporancia
 # Corremos el modelo eliminando variables de a 1
-
-### ----- XGB   -----
+### ----- Modelo predictivo XGB   -----
 
 estacion <-"MD"
 modelo <- "1"
-
+# Data de entrada
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
 setwd(dir)
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
-# PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + OCSSMASS_dia
-#   SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
-#   d2m_mean  +t2m_mean +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
-
+#Matriz
 X <- train_data[ , c("AOD_055",
                      "ndvi", "BCSMASS_dia",#"DUSMASS_dia", #"DUSMASS25_dia"
                       "SO4SMASS_dia", "SSSMASS_dia",# "blh_mean", "SO2SMASS_dia",
                      "sp_mean", "d2m_mean", #"t2m_mean",#"v10_mean",
                      "u10_mean", "tp_mean", "DEM"
                      )]#"dayWeek"
-
 
 y <- train_data$PM25
 
@@ -229,45 +235,43 @@ y_test<- test_data$PM25
 # Convertir a matrices xgboost
 dtrain <- xgb.DMatrix(data = as.matrix(X), label = y)
 
-# Especificar los parámetros del modelo
-# Configurar los parámetros del modelo
+# Especificar los parametros del modelo
 params <- list(
   booster = "gbtree",
-  objective = "reg:squarederror",  # Tarea de regresión
-  eval_metric = "rmse",             # Métrica para evaluación
+  objective = "reg:squarederror",  # Tarea de regresion
+  eval_metric = "rmse",             # Metrica para evaluacion
   eta = 0.3,                       # Tasa de aprendizaje
-  max_depth = 6,                   # Profundidad máxima de los árboles
-  gamma = 0,                       # Regularización L2
-  subsample = 0.8,                 # Proporción de datos para entrenamiento
-  colsample_bytree = 1,            # Proporción de características para entrenamiento
+  max_depth = 6,                   # Profundidad maxima de los arboles
+  gamma = 0,                       # Regularizacion L2
+  subsample = 0.8,                 # Proporcion de datos para entrenamiento
+  colsample_bytree = 1,            # Proporcion de caracterasticas para entrenamiento
   min_child_weight = 1
 )
 
-# Realizar validación cruzada
-#Esto es lo que mas tarda!! igual en comparacion con rf tarda mucho menos
+# Realizar validacion cruzada
+#Comentario: Esto es lo que mas tarda!! igual en comparacion con rf tarda mucho menos
 # porque?
 cv_results  <- xgb.cv(
   params = params,
   data = dtrain,
-  nrounds = 2000,                   # Número de rondas de boosting
-  nfold = 10,                        # Número de pliegues para la validación cruzada
+  nrounds = 2000,                   # Numero de rondas de boosting
+  nfold = 10,                        # Numero de pliegues para la validacion cruzada
   early_stopping_rounds = 20,       # Detener si no mejora
   verbose = TRUE                    # Mostrar progreso
 )
 
 
-# Obtener el número óptimo de rondas
+# Obtener el numero optimo de rondas
 best_nrounds <- cv_results$best_iteration
 
-# Ajustar el modelo con el número óptimo de rondas
+# Ajustar el modelo con el numero optimo de rondas
 xgb_cv_model <- xgb.train(
   params = params,
   data = dtrain,
   nrounds = best_nrounds
 )
 
-
-
+#Matriz de xgb
 dtest <- xgb.DMatrix(data = as.matrix(X_test), label = y_test)
 resultados_XGB <- evaluar_modelo(modelo=xgb_cv_model, datos_test=dtest, variable_real = "PM25",tipoModelo="XGB",y_test=y_test)
 print(resultados_XGB)
@@ -275,7 +279,8 @@ print(resultados_XGB)
 
 ############################################################################
 ###########################################################################
-## ploots
+## ploots para mostrar como cambia el desempe�o a medida que se descartan 
+#variables
 ##########################################
 
 data_metricas<- read.csv("D:/Josefina/Proyectos/Tesis/TOT/resultados/modelos_variables_metricas.csv")
@@ -285,7 +290,7 @@ data_metricas <- data_metricas[data_metricas$numModelo != "Naod",]
 data_metricas_tot <- data_metricas[data_metricas$numModelo != 0,]
 data_metricas_comp <- data_metricas[data_metricas$numModelo == 0,]
 data_metricas_tot$numModelo <- as.numeric(data_metricas_tot$numModelo)
-# Escalar RMSE para que esté en la misma escala que R2 (0 a 1)
+# Escalar RMSE para que esten la misma escala que R2 (0 a 1)
 max_rmse <- max(data_metricas_tot$rmse)
 min_rmse <- min(data_metricas_tot$rmse)
 
@@ -300,25 +305,26 @@ rmse_all <-  data_metricas_comp$rmse
 r_all <- data_metricas_comp$r2
 
 
-# Escalar también rmse_all para que se muestre correctamente
+# Escalar tambia rmse_all para que se muestre correctamente
 rmse_all_escalado <- (rmse_all - min_rmse) / (max_rmse - min_rmse)
 
-# Gráfico
+# Plot de lineas para ver como mejora/empeora las metricas
+# con la info de referncia
 ggplot(data_metricas_tot, aes(x = numModelo)) +
-  geom_line(aes(y = r2, color = "R²"), size = 1) +
-  geom_point(aes(y = r2, color = "R²"), size = 2) +
+  geom_line(aes(y = r2, color = "R2"), size = 1) +
+  geom_point(aes(y = r2, color = "R2"), size = 2) +
   geom_line(aes(y = rmse_escalado, color = "RMSE"), size = 0.5) +
   geom_point(aes(y = rmse_escalado, color = "RMSE"), size = 2) +
   scale_y_continuous(
-    name = "R²",
+    name = "R2",
     sec.axis = sec_axis(~ . * (max_rmse - min_rmse) + min_rmse, name = "RMSE")
   ) +
-  geom_line(aes(y = r_all, color = "R² Todas las variables"), size = 0.5, linetype = "dashed") +
+  geom_line(aes(y = r_all, color = "R2 Todas las variables"), size = 0.5, linetype = "dashed") +
   geom_line(aes(y = rmse_all_escalado, color = "RMSE Todas las variables"), size = 0.5, linetype = "dashed") +
   scale_x_continuous(breaks = 1:5) + 
   scale_color_manual(values = c(
-    "R²" = "#2c7fb8",  
-    "R² Todas las variables" = "black",
+    "R2" = "#2c7fb8",  
+    "R2 Todas las variables" = "black",
     "RMSE" = "#cb181d", 
     "RMSE Todas las variables" = "#fb6a4a"
   )) +
@@ -449,7 +455,7 @@ ggplot() +
   #scale_y_continuous(limits = c(0.4, 0.9)) +
   labs(
     x = "ST",
-     #y = "R²",
+     
     y = "RMSE",
     color = NULL
   ) +

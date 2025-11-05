@@ -485,6 +485,44 @@ car::vif(modelo)
 summary(modelo)
 
 
+################################################################################
+# Plot del VIF
+# Crear dataframe con valores de VIF antes y despues�s
+vif_data <- data.frame(
+  Centro = c("SP", "ST", "BA", "MD", "MX"),
+  VIF_Antes = c(9.78, 14.74, 11.44, 22.46, 7.83),
+  VIF_Despues = c(3.25, 7.34, 3.12, 9.92, 3.70)
+)
+
+# Convertir a formato largo para ggplot
+vif_long <- vif_data %>%
+  pivot_longer(cols = c("VIF_Antes", "VIF_Despues"),
+               names_to = "Estado",
+               values_to = "VIF")
+
+# Definir el orden deseado de los centros
+vif_long$Centro <- factor(vif_long$Centro, levels = c("SP", "ST", "BA", "MD", "MX"))
+
+# Renombrar para presentacion
+vif_long$Estado <- recode(vif_long$Estado,
+                          "VIF_Antes" = "Antes de depuración",
+                          "VIF_Despues" = "Después de depuración")
+
+ggplot() +
+  geom_bar(data = vif_long, aes(x = Centro, y = VIF, fill = Estado), stat = "identity", position = "dodge") +
+  geom_hline(yintercept = 10, color = "black", linetype = "dashed") +
+  labs(
+    #title = "Reduccion del VIF por centro urbano",
+    x = "Sitio",
+    y = "Valor maximo de VIF",
+    fill = "Estado"
+  ) +
+  scale_y_continuous(limits = c(0, 25)) +
+  theme_classic() +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("Antes de depuracion" = "#225ea8",
+                               "Despues de depuracion" = "#e7298a"))
+
 
 ######################################################
 #########################################################
