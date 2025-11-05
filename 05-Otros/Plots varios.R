@@ -1,8 +1,11 @@
-# Cargar librería
+#######################################################################
+## OBJETIVO: Plots usados para la tesis
+##
+#######################################################################
 library(ggplot2)
 
-# Datos
-categorias <- c("Publican información", 
+# Plot que muestra el % de paises que tienen o no info de monitoreo superficial
+categorias <- c("Publican informacion", 
                 "Sin redes de monitoreo", 
                 "Miden pero no publican")
 valores <- c(41, 35, 23)
@@ -13,7 +16,7 @@ df <- data.frame(
   valores = valores
 )
 
-# Crear gráfico de torta con ggplot2
+# Plot de torta con ggplot2
 ggplot(df, aes(x = "", y = valores, fill = categorias)) +
   geom_bar(stat = "identity", width = 1, color = "white") +
   coord_polar(theta = "y") +
@@ -21,7 +24,7 @@ ggplot(df, aes(x = "", y = valores, fill = categorias)) +
             position = position_stack(vjust = 0.5)) +
   scale_fill_manual(values = c("#74c476", "#ef3b2c","#ffeda0")) +
   theme_void() #+
-  ggtitle("Disponibilidad de información sobre calidad del aire")
+  # ggtitle("Disponibilidad de información sobre calidad del aire")
 
   
   
@@ -134,4 +137,36 @@ ggplot(df, aes(x = "", y = valores, fill = categorias)) +
         scale_color_manual(values = colores_11) +
         scale_x_continuous(breaks = seq(2000, 2020, by = 2))
       # ticks para todos los años entre 2000 y 2020
+      
+      
+      
+      
+      ################################
+      #Producto satelital
+      df <- data.frame(sensor = c("GOME", "MODIS","MISR", "MODIS","SCIAMACHY", "OMI",
+                                  "GOME-2", "VIIRS", "OLI", "MSI", "TROPOMI"),
+                       plataforma =c("ERS-2", "TERRA","TERRA", "AQUA", "ENVISAT", "AURA",
+                                     "METOP-A",  "Suomi NPP", "Landsat-8", "Sentinel-2",
+                                     "Sentinel-5P"),
+                       fecha_inicio = c(1995, 2000 , 2000, 2002, 2002, 2004, 2006,2011,
+                                        2013, 2015, 2017),
+                       fecha_final = c(2003, 2024 , 2024, 2024, 2012, 2024, 2024,2024,
+                                       2024, 2024, 2024))
+      df$sensorPlat <- paste (df$sensor," (",df$plataforma,")",sep="")
+      
+      library(ggplot2)
+      
+      library(ggplot2)
+      
+      ggplot(df, aes(x = fecha_inicio, xend = fecha_final, 
+                     y = factor(sensorPlat, levels = sensorPlat), 
+                     yend = factor(sensorPlat, levels = sensorPlat))) +
+        geom_segment(size = 6, color = "steelblue") +
+        theme_classic() +
+        scale_x_continuous(breaks = seq(1995, 2024, by = 5)) +
+        labs(x = " ", y = "Sensor (Plataforma)")+
+        #    title = "Período de operación de sensores satelitales") +
+        theme(axis.text.y = element_text(size = 10),
+              axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+      
       

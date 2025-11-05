@@ -1,5 +1,10 @@
+#######################################################################
+## OBJETIVO: Estimar la poblacion en el dominio de estudio
+## esta hecho para ST pero se puede hacer para los otros sitios
+#######################################################################
 
-# Poblacion AMS recortada en QGIS
+
+#Poblacion AMS recortada en QGIS
 # Gridded Population of the World, Version 4 (GPWv4): Population Density, Revision 11 (2020)
 
 poblacion_AMS <- raster("D:/Josefina/Proyectos/ProyectoChile/CH/shapes/Comunas_AreaMetropolitanaSantiago/Poblacion_30sec_AMS_recortada.tif")

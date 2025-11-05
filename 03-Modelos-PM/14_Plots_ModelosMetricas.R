@@ -1,6 +1,5 @@
 #######################################################################
-## OBJETIVO: Generar los plots de las comparativas del desempeño de los
-#modelos de ML
+## OBJETIVO: Hacer plots con las metricas de las predicciones de ML
 ##
 #######################################################################
 

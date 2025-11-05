@@ -1,0 +1,131 @@
+# https://medium.com/@xhl272703370/tutorial-on-how-to-download-multiple-earthdata-urls-78c96df4c1c7
+# wget --load-cookies ./.urs_cookies --save-cookies ./.urs_cookies --keep-session-cookies --user=josefina88 --ask-password --content-disposition -i subset_M2T1NXAER_5.12.4_20240820_105646_.txt
+
+
+#######################################################################
+## OBJETIVO: Procesamiento de variable de MERRA-2
+## Composicion de los aerosoles
+#######################################################################
+
+rm(list=ls())#
+year <- 2024
+numRaster<- "01"
+estacion<- "CH"
+for (j in 1:1){
+  #dataset con la informacion de las estaciones de monitoreo
+  data_estacciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
+  data_estacciones <- data_estacciones[data_estacciones$Considerado == "SI",]
+  puntos <- data_estacciones[data_estacciones$tipo == "referencia",]
+  crs_project <- "+proj=longlat +datum=WGS84"
+  
+  #Variables: DMSSMASS,DMSSMASS, DUSMASS, OCSMASS, SO2SMASS, SO4SMASS, y SSSMASS
+  
+  dire <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/04_MERRA-2_Dia/",year, sep="")
+  
+  setwd(dire)
+  id <- list.files(path = getwd(),
+                   pattern = "*.nc",
+                   full.names = FALSE)
+  #Raster template de MAIAC (1km)
+  raster_template <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/rasterTemplate/",numRaster,"_raster_template.tif",sep=""))
+  
+  for (p in 1:1){
+    # Todas las variables de MERRA-2
+    nameVar <- c("BCSMASS", "DUSMASS","DUSMASS25", "OCSMASS", "SO2SMASS", "SO4SMASS", "SSSMASS","SSSMASS25")
+    
+    df_rbind_2 <- data.frame()
+    for (i in 1:length(id)){
+      print(i)
+      archivo_nc = id[i]
+      df_rbind <- data.frame()
+      #Recorremos la lista de los nombres de las variables
+      for (num_sds in 1:length(nameVar)){
+        name_sds<- nameVar[num_sds] 
+        # Abrimos archivo raster con el nombre de la variable de la lista
+        MIRRAraster <- raster(archivo_nc,varname=name_sds)
+        #Uniaddes de cada variable
+        unit<- MIRRAraster@data@unit
+        date <- substr(archivo_nc,28,35)
+        crs_project <- "+proj=longlat +datum=WGS84"
+        #Reproyectado y resampleado al raster de MAIAC
+        MIRRAraster2 <- projectRaster(MIRRAraster,
+                                      crs = crs_project,
+                                      method = "bilinear")
+        rst_resampling <- raster::resample(MIRRAraster2, raster_template)
+        #Extraer valores de las estaciones de monitoreo
+        valores_raster <- extract(rst_resampling, puntos[, c("long", "lat")])
+        
+        # Unir los valores del raster al dataframe original
+        puntos_con_valores <- puntos %>%
+          mutate(valor_raster = valores_raster)
+  
+        df <- data.frame (date= date,variable = name_sds, unidad=unit, value=puntos_con_valores$valor_raster,estacion=puntos_con_valores$estacion, ID = puntos_con_valores$ID)
+        
+        df_rbind <- rbind(df_rbind,df)
+      }
+      df_rbind_2<- rbind(df_rbind_2,df_rbind)
+    }
+  }
+  #View(df_rbind_2)
+  
+  # Generamos dataframe por separado y arreglamos los nombres
+  for (i in 1:1){
+    BCSMASS <- df_rbind_2 [df_rbind_2$variable == "BCSMASS",]
+    BCSMASS <- data.frame(date=BCSMASS$date,unidad_BCSMASS=BCSMASS$unidad,estacion = BCSMASS$estacion, ID = BCSMASS$ID,BCSMASS=BCSMASS$value)
+    
+    
+    # DMSSMASS <- df_rbind_2 [df_rbind_2$variable == "DMSSMASS",]
+    # DMSSMASS <- data.frame(date=DMSSMASS$date,unidad_DMSSMASS=DMSSMASS$unidad,
+    #                        DMSSMASS=DMSSMASS$value)
+    
+    DUSMASS <- df_rbind_2 [df_rbind_2$variable == "DUSMASS",]
+    DUSMASS <- data.frame(date=DUSMASS$date,unidad_DUSMASS=DUSMASS$unidad,
+                          estacion  = DUSMASS$estacion,  ID= DUSMASS$ID, 
+                          DUSMASS=DUSMASS$value)
+    
+    DUSMASS25 <- df_rbind_2 [df_rbind_2$variable == "DUSMASS25",]
+    DUSMASS25 <- data.frame(date=DUSMASS25$date,unidad_DUSMASS25=DUSMASS25$unidad,
+                            estacion = DUSMASS25$estacion, ID = DUSMASS25$ID,
+                            DUSMASS25=DUSMASS25$value)
+    
+    OCSMASS <- df_rbind_2 [df_rbind_2$variable == "OCSMASS",]
+    OCSMASS <- data.frame(date=OCSMASS$date,unidad_OCSMASS=OCSMASS$unidad,
+                          estacion = OCSMASS$estacion, ID = OCSMASS$ID,
+                          OCSMASS=OCSMASS$value)
+    
+    SO2SMASS <- df_rbind_2 [df_rbind_2$variable == "SO2SMASS",]
+    SO2SMASS <- data.frame(date=SO2SMASS$date,unidad_SO2SMASS=SO2SMASS$unidad,
+                           estacion = SO2SMASS$estacion, ID = SO2SMASS$ID,
+                           SO2SMASS=SO2SMASS$value)
+    
+    SO4SMASS <- df_rbind_2 [df_rbind_2$variable == "SO4SMASS",]
+    SO4SMASS <- data.frame(date=SO4SMASS$date,unidad_SO4SMASS=SO4SMASS$unidad,
+                           estacion = SO4SMASS$estacion, ID = SO4SMASS$ID,
+                           SO4SMASS=SO4SMASS$value)
+    
+    SSSMASS <- df_rbind_2 [df_rbind_2$variable == "SSSMASS",]
+    SSSMASS <- data.frame(date=SSSMASS$date,unidad_SSSMASS=SSSMASS$unidad,
+                          estacion = SSSMASS$estacion, ID = SSSMASS$ID,
+                          SSSMASS=SSSMASS$value)
+    
+    SSSMASS25 <- df_rbind_2 [df_rbind_2$variable == "SSSMASS25",]
+    SSSMASS25 <- data.frame(date=SSSMASS25$date,unidad_SSSMASS25=SSSMASS25$unidad,
+                            estacion = SSSMASS25$estacion, ID = SSSMASS25$ID,
+                            SSSMASS25=SSSMASS25$value)
+    
+    # Lista de dataframes
+    dataframes <- list(BCSMASS,DUSMASS,DUSMASS25,OCSMASS,
+                       SO2SMASS,SO4SMASS,SSSMASS,SSSMASS25) #DMSSMASS
+    
+    # Merge de todos los dataframes en la lista usando la columna 'date'
+    merged_df <- Reduce(function(x, y) merge(x, y, by = c("ID","date"), all = TRUE), dataframes)
+    
+    
+    
+  }
+  
+
+  write.csv(merged_df,paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/04_MERRA-2_Dia/MERRA-2_Dia_11-12_",year,".csv",sep=""))
+}
+View(merged_df)
+
