@@ -1,4 +1,7 @@
-
+#######################################################################
+## OBJETIVO: Analisis de las variables predictivas
+## series temporales
+#######################################################################
 estacion<- "SP"
 
 data<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/merge_tot/",estacion,"_merge_comp.csv",sep=""))

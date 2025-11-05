@@ -1,3 +1,7 @@
+#######################################################################
+## OBJETIVO: Regresiones lineales a partir de los mapas diarios predichos c
+## con /sin AOD vs las mediciones en cada centro urbano
+#######################################################################
 
 estacion <- "SP"
 data_SP <- read.csv(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/resultados/merge_Prediccion_Real/",estacion,"_merge_01-XGB-CV-M1-200525-",estacion,".csv",sep=""))
@@ -32,6 +36,7 @@ promedio_diario_SP <- data_SP
 promedio_diario_SP_sAOD <- data_SP_sAOD
 nrow(promedio_diario_SP)
 nrow(promedio_diario_SP_sAOD)
+#Merge por estacion y dia
 # data_merged <- left_join(promedio_diario_SP, promedio_diario_SP_sAOD, by = "date")
 data_merged <- left_join(promedio_diario_SP, promedio_diario_SP_sAOD, by = c("date","estacion.x"))
 unique(year(data_merged$date))
@@ -43,7 +48,7 @@ data_merged$pm25_observado_sAOD <- data_merged$mean.y
 names (data_merged)
 nrow(data_merged)
 
-## Metricas
+## Metricas 
 r2_sAOD <- cor(data_merged$pm25_predicho_sAOD, data_merged$pm25_observado_sAOD)^2
 pearson_sAOD <- cor(data_merged$pm25_observado_sAOD, data_merged$pm25_predicho_sAOD, method = "pearson")
 rmse_sAOD <- sqrt(mean((data_merged$pm25_predicho_sAOD - data_merged$pm25_observado_sAOD)^2))

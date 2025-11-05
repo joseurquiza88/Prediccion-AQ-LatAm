@@ -1,29 +1,43 @@
+
+#######################################################################
+## OBJETIVO: Analisis de las predicciones mensuales obtenidas de los mapas diarios
+## Version 02
+# Hacemos los sitios por separados por el modelo
+# Aunque se podria hacer un paste solo con el nombre.
+# Por ahora lo dejamos asi
+#######################################################################
+
+
+
 library(dplyr)
 library(lubridate)
 library(tidyr)
 library(ggplot2)
 library(scales)
 
-# Parámetros y rutas
+# path
 estacion <- "SP"
 base_path <- "D:/Josefina/Proyectos/Tesis/"
 
-# Carga y preparación de datos
+# Carga y preparacion de datos
+#Datos con AOD
 data_SP <- read.csv(paste0(base_path, estacion, "/resultados/merge_Prediccion_Real/", estacion, "_merge_01-XGB-CV-M1-200525-", estacion, ".csv"))
 data_SP$date <- as.Date(as.POSIXct(data_SP$date, format = "%Y-%m-%d"))
 data_SP$month <- month(data_SP$date)
 data_SP <- data_SP[year(data_SP$date) == 2024, ]
-
+#Datos sin AOD
 data_SP_sAOD <- read.csv(paste0(base_path, estacion, "/resultados/merge_Prediccion_Real/", estacion, "_merge_02-XGB-CV-1-210525-sAOD-", estacion, ".csv"))
 data_SP_sAOD$date <- as.Date(as.POSIXct(data_SP_sAOD$date, format = "%Y-%m-%d"))
 data_SP_sAOD$month <- month(data_SP_sAOD$date)
 data_SP_sAOD <- data_SP_sAOD[year(data_SP_sAOD$date) == 2024, ]
 
+#Verificamos que no haya datos negativos
 data_SP_sAOD<-data_SP_sAOD[data_SP_sAOD$valor_raster>0,]
 data_SP<-data_SP[data_SP$valor_raster>0,]
 
 
 # Promedios mensuales
+#Con AOD
 data_AOD_mensual_SP <- data_SP %>%
   group_by(month) %>%
   summarise(
@@ -31,7 +45,7 @@ data_AOD_mensual_SP <- data_SP %>%
     mean_valor_raster_AOD = mean(valor_raster, na.rm = TRUE),
     .groups = "drop"
   )
-
+#Sin AOD
 data_sAOD_mensual_SP <- data_SP_sAOD %>%
   group_by(month) %>%
   summarise(
@@ -40,7 +54,7 @@ data_sAOD_mensual_SP <- data_SP_sAOD %>%
     .groups = "drop"
   )
 
-# Calcular media y desviación estándar para mean_pm25_sAOD
+# Calcular media y SD para mean_pm25_sAOD
 stats_pm25_sAOD <- data_SP_sAOD %>%
   group_by(month) %>%
   summarise(
@@ -58,14 +72,14 @@ stats_pm25_sAOD <- data_SP_sAOD %>%
 
 # Merge de datos para graficar
 data_merged <- left_join(data_sAOD_mensual_SP, data_AOD_mensual_SP, by = "month")
-
+# dataset
 data_long_SP <- data_merged %>%
   pivot_longer(
     cols = c(mean_pm25_sAOD, mean_valor_raster_AOD, mean_valor_raster_sAOD),
     names_to = "variable",
     values_to = "valor"
   )
-
+#Configurar los meses
 data_long_SP$month <- factor(
   data_long_SP$month,
   levels = 1:12,
@@ -73,9 +87,9 @@ data_long_SP$month <- factor(
              "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")
 )
 
-# Preparar data para leyenda de banda y líneas de desviación estándar
+# Preparar data para leyenda de banda y lineas de desviacion estandar
 ribbon_df <- stats_pm25_sAOD %>%
-  mutate(variable = "±1 Desv. Estándar")
+  mutate(variable = "�1 Desv. Estándar")
 
 ggplot() +
   # Banda gris (sin leyenda)
@@ -86,7 +100,7 @@ ggplot() +
     alpha = 0.3,
     show.legend = FALSE
   ) +
-  # Línea inferior punteada (sí aparece en leyenda como referencia)
+  # Linea inferior punteada
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymin, group = 1),
@@ -94,7 +108,7 @@ ggplot() +
     size = 0.7,
     linetype = "dashed"
   ) +
-  # Línea superior punteada (solo para cerrar la banda, sin leyenda)
+  # Linea superior punteada 
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymax, group = 1),
@@ -103,7 +117,7 @@ ggplot() +
     linetype = "dashed",
     show.legend = FALSE
   ) +
-  # Líneas y puntos de las variables principales
+  # Lineas y puntos de las variables principales
   geom_line(
     data = data_long_SP,
     aes(x = month, y = valor, color = variable, group = variable),
@@ -114,7 +128,7 @@ ggplot() +
     aes(x = month, y = valor, color = variable, group = variable),
     size = 1.5
   ) +
-  # Colores para las líneas
+  # Colores para las lineas
   scale_color_manual(
     values = c(
       "mean_pm25_sAOD" = "black",  
@@ -152,18 +166,11 @@ ggplot() +
 #######################################################
 #######################################################
 
-
-library(dplyr)
-library(lubridate)
-library(tidyr)
-library(ggplot2)
-library(scales)
-
-# Parámetros y rutas
+# Parametros y rutas
 estacion <- "CH"
 base_path <- "D:/Josefina/Proyectos/Tesis/"
 
-# Carga y preparación de datos
+# Carga y preparacion de datos
 data_CH <- read.csv(paste0(base_path, estacion, "/resultados/merge_Prediccion_Real/", estacion, "_merge_01-XGB-CV-M1-190625-", estacion, ".csv"))
 
 data_CH$date <- as.Date(as.POSIXct(data_CH$date, format = "%Y-%m-%d"))
@@ -196,7 +203,7 @@ data_sAOD_mensual_CH <- data_CH_sAOD %>%
     .groups = "drop"
   )
 
-# Calcular media y desviación estándar para mean_pm25_sAOD
+# Calcular media y SD para mean_pm25_sAOD
 stats_pm25_sAOD <- data_CH_sAOD %>%
   group_by(month) %>%
   summarise(
@@ -229,7 +236,7 @@ data_long_CH$month <- factor(
              "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")
 )
 
-# Preparar data para leyenda de banda y líneas de desviación estándar
+# Preparar data para leyenda de banda y Linea de SD
 ribbon_df <- stats_pm25_sAOD %>%
   mutate(variable = "±1 Desv. Estándar")
 
@@ -242,7 +249,7 @@ ggplot() +
     alpha = 0.3,
     show.legend = FALSE
   ) +
-  # Línea inferior punteada (sí aparece en leyenda como referencia)
+  # Linea inferior punteada 
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymin, group = 1),
@@ -250,7 +257,7 @@ ggplot() +
     size = 0.7,
     linetype = "dashed"
   ) +
-  # Línea superior punteada (solo para cerrar la banda, sin leyenda)
+  # Linea superior punteada
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymax, group = 1),
@@ -259,7 +266,7 @@ ggplot() +
     linetype = "dashed",
     show.legend = FALSE
   ) +
-  # Líneas y puntos de las variables principales
+  # Linea y puntos de las variables principales
   geom_line(
     data = data_long_CH,
     aes(x = month, y = valor, color = variable, group = variable),
@@ -270,7 +277,7 @@ ggplot() +
     aes(x = month, y = valor, color = variable, group = variable),
     size = 1.5
   ) +
-  # Colores para las líneas
+  # Colores para las LineaS
 
   scale_color_manual(
     values = c(
@@ -311,17 +318,12 @@ ggplot() +
 
 ####################################################
 ######################################################
-library(dplyr)
-library(lubridate)
-library(tidyr)
-library(ggplot2)
-library(scales)
 
-# Parámetros y rutas
+# Parametros y rutas
 estacion <- "BA"
 base_path <- "D:/Josefina/Proyectos/Tesis/"
 
-# Carga y preparación de datos
+# Carga y preparacion de datos
 data_BA <- read.csv(paste0(base_path, estacion, "/resultados/merge_Prediccion_Real/", estacion, "_merge_01-ET-CV-M1-170625-", estacion, ".csv"))
 data_BA$date <- as.Date(as.POSIXct(data_BA$date, format = "%Y-%m-%d"))
 data_BA$month <- month(data_BA$date)
@@ -336,7 +338,7 @@ data_BA_sAOD<-data_BA_sAOD[data_BA_sAOD$valor_raster>0,]
 data_BA<-data_BA[data_BA$valor_raster>0,]
 
 
-# Promedios mensuales
+# Promedios mensuales con / sin AOD
 data_AOD_mensual_BA <- data_BA %>%
   group_by(month) %>%
   summarise(
@@ -353,7 +355,7 @@ data_sAOD_mensual_BA <- data_BA_sAOD %>%
     .groups = "drop"
   )
 
-# Calcular media y desviación estándar para mean_pm25_sAOD
+# Calcular media y sd para mean_pm25_sAOD
 stats_pm25_sAOD <- data_BA_sAOD %>%
   group_by(month) %>%
   summarise(
@@ -386,7 +388,7 @@ data_long_BA$month <- factor(
              "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")
 )
 
-# Preparar data para leyenda de banda y líneas de desviación estándar
+# Preparar data para leyenda de banda y Linea de sd
 ribbon_df <- stats_pm25_sAOD %>%
   mutate(variable = "±1 Desv. Estándar")
 
@@ -399,7 +401,7 @@ ggplot() +
     alpha = 0.3,
     show.legend = FALSE
   ) +
-  # Línea inferior punteada (sí aparece en leyenda como referencia)
+  # Linea inferior punteada 
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymin, group = 1),
@@ -407,7 +409,7 @@ ggplot() +
     size = 0.7,
     linetype = "dashed"
   ) +
-  # Línea superior punteada (solo para cerrar la banda, sin leyenda)
+  # Linea superior punteada 
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymax, group = 1),
@@ -416,7 +418,7 @@ ggplot() +
     linetype = "dashed",
     show.legend = FALSE
   ) +
-  # Líneas y puntos de las variables principales
+  # Linea y puntos de las variables principales
   geom_line(
     data = data_long_BA,
     aes(x = month, y = valor, color = variable, group = variable),
@@ -427,7 +429,7 @@ ggplot() +
     aes(x = month, y = valor, color = variable, group = variable),
     size = 1.5
   ) +
-  # Colores para las líneas
+  # Colores para las Linea
 
   scale_color_manual(
     values = c(
@@ -466,11 +468,11 @@ ggplot() +
 #######################################################
 #######################################################
 
-# Parámetros y rutas
+# Parametros y rutas
 estacion <- "MD"
 base_path <- "D:/Josefina/Proyectos/Tesis/"
 
-# Carga y preparación de datos
+# Carga y preparacion de datos
 data_MD <- read.csv(paste0(base_path, estacion, "/resultados/merge_Prediccion_Real/", estacion, "_merge_01-ET-CV-M1-260525-", estacion, ".csv"))
 data_MD$date <- as.Date(as.POSIXct(data_MD$date, format = "%Y-%m-%d"))
 data_MD$month <- month(data_MD$date)
@@ -503,7 +505,7 @@ data_sAOD_mensual_MD <- data_MD_sAOD %>%
     .groups = "drop"
   )
 
-# Calcular media y desviación estándar para mean_pm25_sAOD
+# Calcular media y sd para mean_pm25_sAOD
 stats_pm25_sAOD <- data_MD_sAOD %>%
   group_by(month) %>%
   summarise(
@@ -536,7 +538,7 @@ data_long_MD$month <- factor(
              "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")
 )
 
-# Preparar data para leyenda de banda y líneas de desviación estándar
+# Preparar data para leyenda de banda y Linea de desviación estándar
 ribbon_df <- stats_pm25_sAOD %>%
   mutate(variable = "±1 Desv. Estándar")
 
@@ -549,7 +551,7 @@ ggplot() +
     alpha = 0.3,
     show.legend = FALSE
   ) +
-  # Línea inferior punteada (sí aparece en leyenda como referencia)
+  # Linea inferior punteada 
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymin, group = 1),
@@ -557,7 +559,7 @@ ggplot() +
     size = 0.7,
     linetype = "dashed"
   ) +
-  # Línea superior punteada (solo para cerrar la banda, sin leyenda)
+  # Linea superior punteada 
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymax, group = 1),
@@ -566,7 +568,7 @@ ggplot() +
     linetype = "dashed",
     show.legend = FALSE
   ) +
-  # Líneas y puntos de las variables principales
+  # Linea y puntos de las variables principales
   geom_line(
     data = data_long_MD,
     aes(x = month, y = valor, color = variable, group = variable),
@@ -577,7 +579,7 @@ ggplot() +
     aes(x = month, y = valor, color = variable, group = variable),
     size = 1.5
   ) +
-  # Colores para las líneas
+  # Colores para las Linea
 
   scale_color_manual(
     values = c(
@@ -617,11 +619,11 @@ ggplot() +
 #######################################################
 
 
-# Parámetros y rutas
+# Parametros y rutas
 estacion <- "MX"
 base_path <- "D:/Josefina/Proyectos/Tesis/"
 
-# Carga y preparación de datos
+# Carga y preparacion de datos
 data_MX <- read.csv(paste0(base_path, estacion, "/resultados/merge_Prediccion_Real/", estacion, "_merge_01-XGB-CV-M1-290525-", estacion, ".csv"))
 data_MX$date <- as.Date(as.POSIXct(data_MX$date, format = "%Y-%m-%d"))
 data_MX$month <- month(data_MX$date)
@@ -654,7 +656,7 @@ data_sAOD_mensual_MX <- data_MX_sAOD %>%
     .groups = "drop"
   )
 
-# Calcular media y desviación estándar para mean_pm25_sAOD
+# Calcular media y sd para mean_pm25_sAOD
 stats_pm25_sAOD <- data_MX_sAOD %>%
   group_by(month) %>%
   summarise(
@@ -687,9 +689,9 @@ data_long_MX$month <- factor(
              "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")
 )
 
-# Preparar data para leyenda de banda y líneas de desviación estándar
+# Preparar data para leyenda de banda y Linea de SD
 ribbon_df <- stats_pm25_sAOD %>%
-  mutate(variable = "±1 Desv. Estándar")
+  mutate(variable = "�1 Desv. Estandar")
 
 ggplot() +
   # Banda gris (sin leyenda)
@@ -700,7 +702,7 @@ ggplot() +
     alpha = 0.3,
     show.legend = FALSE
   ) +
-  # Línea inferior punteada (sí aparece en leyenda como referencia)
+  # Linea inferior punteada
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymin, group = 1),
@@ -708,7 +710,7 @@ ggplot() +
     size = 0.7,
     linetype = "dashed"
   ) +
-  # Línea superior punteada (solo para cerrar la banda, sin leyenda)
+  # Linea superior punteada (solo para cerrar la banda, sin leyenda)
   geom_line(
     data = ribbon_df,
     aes(x = month, y = ymax, group = 1),
@@ -717,7 +719,7 @@ ggplot() +
     linetype = "dashed",
     show.legend = FALSE
   ) +
-  # Líneas y puntos de las variables principales
+  # Linea y puntos de las variables principales
   geom_line(
     data = data_long_MX,
     aes(x = month, y = valor, color = variable, group = variable),
@@ -728,7 +730,7 @@ ggplot() +
     aes(x = month, y = valor, color = variable, group = variable),
     size = 1.5
   ) +
-  # Colores para las líneas
+  # Colores para las Linea
   scale_color_manual(
     values = c(
       "mean_pm25_sAOD" = "black",  
