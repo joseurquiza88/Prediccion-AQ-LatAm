@@ -1,5 +1,7 @@
 #######################################################################
-## OBJETIVO: Generar datos tiff para todas las variables
+## OBJETIVO: Leer todos los archivos de las variables que estan en diferentes
+# formatos y generar datos tiff  para luego hacer los stacks diarios y poder
+# hacer las predicciones de PM2.5
 #######################################################################
     
 estacion <- "BA"
