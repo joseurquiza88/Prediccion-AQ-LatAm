@@ -1,7 +1,8 @@
 #######################################################################
-## OBJETIVO: Contruccion de modelos Predictivos de PM2.5 con CV
+## OBJETIVO: Contruccion de modelos Predictivos de PM2.5 con CV aleatorio
 ##
 #######################################################################
+
 #funcion para evaluar modelos
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test) {
   predicciones <- predict(modelo, newdata = datos_test)

@@ -4,8 +4,8 @@
 # segun el centro urbano
 ##
 #######################################################################
-estacion <- "CH"
-modelo <- "01-XGB-CV-M1-190625-CH"
+estacion <- "BA"
+modelo <- "01-ET-CV-M1-170625-BA"
 
 #Directorio donde se encuentran todas las imagenes
 #dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/Salidas/SalidasDiarias/",modelo,"/",year,"/",sep="")
@@ -18,8 +18,8 @@ id <- list.files(path = dir,
 # archivo csv generado manualmente donde se encuentra las coordenadas
 # de cada estacion de monitoreo
 puntos <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
-puntos <- data_estacciones[data_estacciones$Considerado=="SI",]
-puntos <- data_estacciones[data_estacciones$tipo=="referencia",]
+puntos <- puntos[puntos$Considerado=="SI",]
+#puntos <- puntos[puntos$tipo=="referencia",]
 # Corroramos el numero de estaciones
 nrow(puntos)
 
@@ -40,13 +40,15 @@ for (i in 1:length(id)){
   puntos_con_valores <- puntos %>%
     mutate(valor_raster = valores_raster)
   #Dia
-  # fechaInteres <- as.Date(substr(id[i],4,13), format = "%Y-%m-%d")# Mostrar el dataframe resultante
+  fechaInteres <- as.Date(substr(id[i],4,13), format = "%Y-%m-%d")# Mostrar el dataframe resultante
  #mes
-  fechaInteres <- substr(id[i],9,15)
+  #fechaInteres <- substr(id[i],9,16)
   puntos_con_valores$date <- fechaInteres
   
   df_rbind <- rbind(df_rbind,puntos_con_valores)
 }
+ 
+write.csv(df_rbind, paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,".csv",sep=""))
 ###########################################################
 # Al data set anterior lo quiero unir con las mediciones reales
 # para ver que tan bien se hicieron las predicciones
@@ -77,8 +79,15 @@ merged_df_subt <- merged_df_subt[complete.cases(merged_df_subt$valor_raster),]
 # Solo nos quedamos con los datos de l 2024 para hacer una validacion independiente
 # Ya que el modelos se entreno/testeo sin estos datos
 merged_df_subt2 <- merged_df_subt[year(merged_df_subt$date) ==2024,]
+merged_df_subt2 <- merged_df_subt[year(merged_df_subt$date) !=2024,]
+merged_df_subt2 <- merged_df_subt2[year(merged_df_subt2$date) !=2023,]
 merged_df_subt2$mean <-merged_df_subt2$Registros.completos #solo ST
 nrow(merged_df_subt2)
+
+
+
+
+
 #Evaluamos el desempeño todos los valores
 model <- lm(mean~valor_raster , data = merged_df_subt2)
 
@@ -183,7 +192,8 @@ write.csv(df_merge, paste(dir,"/1-XGB-CV-M1-190625-CH_merge.csv",sep=""))
 ##########################################################
 ##########################################################
 ##########################################################
-# Codigo relacionado con 00_xxxx relacionado a la comparativa 
+# Codigo relacionado con 03_Comparativa_ModelosGlobales 
+#relacionado a la comparativa 
 # con el modelo WUSTL
 
 # Se hace un merge entre las mediciones reales, 

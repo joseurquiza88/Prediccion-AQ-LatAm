@@ -14,12 +14,13 @@
 # https://github.com/pmbusch/PM25-Satellite-Chile/tree/main
 
 # Sitio
-estacion <- "CH"
+estacion <- "BA"
+
 #year<-2022
 # Archivo donde estan los nombres de las estciones y las coordenadas
 data_estacciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
 data_estacciones <- data_estacciones[data_estacciones$Considerado=="SI",]
-data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
+#data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
 # el csv tiene una columna que se llama long y otra lat
 monitors<- data_estacciones[, c("long", "lat")]
 
@@ -60,9 +61,9 @@ for (i in 1:length(id)){
 View(df_rbind)
 
 #Guardamos csv
-save_dir <- "D:/Josefina/Proyectos/ProyectoChile/CH/Comparativas_resultados/PM_WEI/"
+save_dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_WEI/",sep="")
 #write.csv(df_rbind,paste(save_dir,"data_PM-WUSTL-",year,".csv",sep=""))
-write.csv(df_rbind,paste(save_dir,"data_PM-WEI-",year,".csv",sep=""))
+write.csv(df_rbind,paste(save_dir,"data_PM-WEI_",estacion,".csv",sep=""))
 setwd(save_dir)
 
 
@@ -70,47 +71,58 @@ setwd(save_dir)
 ############################################################################
 ## Unimos con datos de monitoreo de los sitios
 # Se hace una validacion con los sitios de moniteoro
-
-# Datos extraido de los mapas propios generados
+estacion <- "BA"
+# Datos extraido de los mapas propios generados. Estan diarios hacer media mensual
 df_modelado <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,".csv",sep=""))
-df_WUSTL <-df_rbind
+df_modelado$date <- as.Date(df_modelado$date,format = "%Y-%m-%d")
+df_WUSTL <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_WEI/data_PM-WEI_",estacion,".csv",sep=""))
+
 # Promedios mensuales por estacion
 df_estaciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
-df_estaciones$date <- as.Date(df_estaciones$date,format = "%d/%m/%Y")
+df_estaciones$date <- as.Date(df_estaciones$date,format = "%d/%m/%Y")#"%Y-%M-%d")#
 # solo para CH
-df_estaciones$mean <- df_estaciones$Registros.completos
+#df_estaciones$mean <- df_estaciones$Registros.completos
 # Agrupamos datos por mes
 df_estaciones_mes <- df_estaciones %>%
   mutate(mes = floor_date(date, "month")) %>%  
   group_by(estacion, mes) %>%
-  summarise(media_SINCA = mean(mean, na.rm = TRUE)) %>%  # reemplazá "valor" por tu variable de interés
+  summarise(media = mean(mean, na.rm = TRUE)) %>%  # reemplazá "valor" por tu variable de interés
   ungroup()
+
+df_modelado_mes <- df_modelado %>%
+  mutate(mes = floor_date(date, "month")) %>%  
+  group_by(estacion, mes) %>%
+  summarise(media = mean(valor_raster, na.rm = TRUE)) %>%  # reemplazá "valor" por tu variable de interés
+  ungroup()
+
+
+
 #Setear formato de dataframe mensual de las mediciones
 #todos empiezan con dia 01 
 df_estaciones_mes$date <- as.Date(df_estaciones_mes$mes,format = "%Y-%m-%d")
-
+#df_estaciones_mes<- df_estaciones_mes[complete.cases(df_estaciones_mes$mes),]
 ###
 #Setear formato de dataframe mensual del modelo global
 df_WUSTL$date <- as.Date(paste0(df_WUSTL$monthYear, "01"), format = "%Y%m%d")
 # df_WEI$date <- as.Date(df_WEI$date,format = "%Y-%m-%d")
-df_modelado$date <- as.Date(df_modelado$date,format = "%Y-%m-%d")
+df_modelado_mes$date <- as.Date(df_modelado_mes$mes,format = "%Y-%m-%d")
 
 ####
 #Merge mediciones vs mi modelo
-df_merge_modelado_Estacion <- merge(df_modelado, df_estaciones_mes, by = c("date", "estacion"), all.x = TRUE)
+df_merge_modelado_Estacion <- merge(df_modelado_mes, df_estaciones_mes, by = c("date", "estacion"), all.x = TRUE)
 df_merge_modelado_Estacion$date<-as.Date(df_merge_modelado_Estacion$date,format = "%Y-%m-%d")
 
 ####
 #Merge datos anteriores vs el modelo global por dia y estaciones
 df_merge_WUSTLModEstacion <- merge(df_merge_modelado_Estacion, df_WUSTL, by = c("date", "estacion"), all.x = TRUE)
 df_merge_WUSTLModEstacion <- df_merge_WUSTLModEstacion[complete.cases(df_merge_WUSTLModEstacion$extracted_values),]
-df_merge_WUSTLModEstacion_comp <- df_merge_WUSTLModEstacion[complete.cases(df_merge_WUSTLModEstacion$media_SINCA),]
-
+df_merge_WUSTLModEstacion_comp <- df_merge_WUSTLModEstacion[complete.cases(df_merge_WUSTLModEstacion$media.x),]
+df_merge_WUSTLModEstacion_comp <- df_merge_WUSTLModEstacion_comp[complete.cases(df_merge_WUSTLModEstacion_comp$media.y),]
 # Mejoramos el dataframe
 df_merge_WUSTLModEstacion <- data.frame(date = df_merge_WUSTLModEstacion_comp$date,
                                      estacion = df_merge_WUSTLModEstacion_comp$estacion,
-                                     mediciones = df_merge_WUSTLModEstacion_comp$media_SINCA,
-                                     Model = df_merge_WUSTLModEstacion_comp$valor_raster,
+                                     mediciones = df_merge_WUSTLModEstacion_comp$media.y,
+                                     Model = df_merge_WUSTLModEstacion_comp$media.x,
                                      WUSTL = df_merge_WUSTLModEstacion_comp$extracted_values)
 #Vemos si hay datos faltantes
 df_merge_WUSTLModEstacion <- df_merge_WUSTLModEstacion [complete.cases(df_merge_WUSTLModEstacion),]
@@ -179,8 +191,8 @@ df_WUSTL <- data.frame(archivo_WUSTL = id_WUSTL, fecha_WUSTL = date_WUSTL)
 
 # ---------------------------------------------------------------
 #Modelo propio por centro urbano
-estacion <- "CH"
-modelo <- "01-XGB-CV-M1-190625-CH"
+estacion <- "BA"
+modelo <- "01-ET-CV-M1-170625-BA"
 # Directorio con los valores mensuales del modelo selccionado
 dir_modelo <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion,
                      "/modelos/salidas/SalidasMensuales/", modelo, "/")
@@ -250,7 +262,7 @@ for (i in 1:nrow(df_match)) {
 fit <- lm(modelo ~ WUSTL, data = df_rbind)
 r2 <- summary(fit)$r.squared
 rmse <- sqrt(mean((df_rbind$modelo - df_rbind$WUSTL)^2))
-
+cor(x=df_rbind$modelo, y=df_rbind$WUSTL)
 r2
 rmse
 
