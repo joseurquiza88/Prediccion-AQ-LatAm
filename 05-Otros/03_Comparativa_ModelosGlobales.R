@@ -69,6 +69,7 @@ setwd(save_dir)
 ############################################################################
 ############################################################################
 ## Unimos con datos de monitoreo de los sitios
+# Se hace una validacion con los sitios de moniteoro
 # Prueba para CH
 
 setwd("D:/Josefina/Proyectos/ProyectoChile/CH/Comparativas_resultados/")
@@ -191,6 +192,95 @@ df_merge_WEIModSinca <- data.frame(date = df_merge_WEIModSinca$date,
                                    WEI = df_merge_WEIModSinca$extracted_values)
 
 df_merge_WEIModSinca <- df_merge_WEIModSinca [complete.cases(df_merge_WEIModSinca),]
+
+
+############################################################################
+############################################################################
+#### Validacion con el raster completo pixel a pixel
+
+
+estacion <- "CH"
+year <- 2022
+
+#Modelo global
+dir_WUSTL <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_wustl/",year,"/",sep="")
+setwd(dir_WUSTL)
+# Lista de los archivos en formato .nc
+id_WUSTL <- list.files(path = dir_WUSTL,
+                       pattern = "*.nc",
+                       full.names = FALSE)
+# Deberia tener 12, son mensuales los datos
+print(length(id_WUSTL))
+
+# Modelo propio
+
+modelo <- "01-XGB-CV-M1-190625-CH"
+dir_modelo <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasMensuales/",modelo,"/",year,"/",sep="")
+setwd(dir_modelo)
+# Lista de los archivos en formato .nc
+id_modelo <- list.files(path = dir_modelo,
+                        pattern = "*.tif",
+                        full.names = FALSE)
+# Deberia tener 12, son mensuales los datos
+print(length(id_modelo))
+
+df_rbind<- data.frame()
+i<-1
+for (i in 1:length(id_modelo)){
+  print(i)
+  fecha_modelo<- substr(id_modelo[i],9,15)
+  fecha_WUSTL<-substr(id_WUSTL[i],26,31)
+  
+  date_WUSTL<-as.Date(paste0(fecha_WUSTL, "01"), format = "%Y%m%d")
+  date_modelo<-as.Date(paste0("01-", fecha_modelo), format = "%d-%m-%Y")
+  print(date_WUSTL==date_modelo)
+  
+  raster_modelo <- raster(paste(dir_modelo,id_modelo[i],sep=""))
+  raster_WUSTL<- raster(paste(dir_WUSTL,id_WUSTL[i],sep=""))
+  
+  # Recortar raster_WUSTL al extent de raster_modelo
+  raster_WUSTL_recortado <- crop(raster_WUSTL, extent(raster_modelo))
+  
+  # Revisar el resultado
+  #raster_WUSTL_recortado
+  #plot(raster_WUSTL_recortado)
+  
+  # Ajustar resolución y alineamiento
+  #method="bilinear" sirve si los valores son continuos (como PM2.5)
+  raster_WUSTL_resample <- resample(raster_WUSTL_recortado, raster_modelo, method="bilinear")
+  
+  # Revisar
+  #raster_WUSTL_resample
+  #plot(raster_WUSTL_resample)
+  
+  #dir_save <- "D:/Josefina/Proyectos/ProyectoChile/CH/Comparativas_resultados/PM_wustl/recortes_modelo"
+  # #Guardamos ambos para visualizarlos en qigs
+  # writeRaster(raster_WUSTL_recortado, 
+  #             filename = paste(dir_save,"/WUSTL_recortado.tif",sep=""), 
+  #             format = "GTiff", 
+  #             overwrite = TRUE)
+  
+  # writeRaster(raster_WUSTL_resample, 
+  #             filename = paste(dir_save,"/WUSTL_resampleado_",date_WUSTL,".tif",sep=""),
+  #             format = "GTiff", 
+  #             overwrite = TRUE)
+  # Dentro del loop, después de resample
+  df <- as.data.frame(stack(raster_modelo, raster_WUSTL_resample), xy=FALSE, na.rm=TRUE)
+  colnames(df) <- c("modelo", "WUSTL")
+  # Agregar columna con el mes
+  df$mes_modelo <- format(date_modelo, "%Y-%m")  
+  df$mes_WUSTL <- format(date_WUSTL, "%Y-%m")  
+  df_rbind <- rbind(df_rbind,df)
+  
+}
+
+fit <- lm(modelo ~ WUSTL, data=df_rbind)
+r2 <- summary(fit)$r.squared
+rmse <- sqrt(mean((df_rbind$modelo - df_rbind$WUSTL)^2))
+
+cat("Mes:", date_modelo, "R2 =", r2, "RMSE =", rmse, "\n")
+
+
 
 
 
