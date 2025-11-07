@@ -15,7 +15,7 @@
 
 # Sitio
 estacion <- "CH"
-year<-2022
+#year<-2022
 # Archivo donde estan los nombres de las estciones y las coordenadas
 data_estacciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
 data_estacciones <- data_estacciones[data_estacciones$Considerado=="SI",]
@@ -24,8 +24,8 @@ data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
 monitors<- data_estacciones[, c("long", "lat")]
 
 # directorio donde estan los archivos .nc
-dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_WEI/",year,"/",sep="")
-
+#dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_WEI/",year,"/",sep="")
+dir <- "D:/Josefina/Proyectos/ProyectoChile/ModelosGlobales/WUSTL/"
 setwd(dir)
 # Lista de los archivos en formato .nc
 id <- list.files(path = dir,
@@ -53,7 +53,7 @@ for (i in 1:length(id)){
   puntos_con_valores <- data_estacciones %>%
     mutate(extracted_values = extracted_values)
   # info extra para agregar al dataframe
-  puntos_con_valores$monthYear <- substr(file, 16,21)
+  puntos_con_valores$monthYear <- substr(file, 26,31)
   puntos_con_valores$producto <- substr(file, 1,6)
   df_rbind <- rbind(df_rbind,puntos_con_valores)
 }
@@ -70,62 +70,65 @@ setwd(save_dir)
 ############################################################################
 ## Unimos con datos de monitoreo de los sitios
 # Se hace una validacion con los sitios de moniteoro
-# Prueba para CH
 
-setwd("D:/Josefina/Proyectos/ProyectoChile/CH/Comparativas_resultados/")
-df_WUSTL <- read.csv("PM_wustl/data_PM-WUSTL-TOT.csv")
-df_WEI <- read.csv("PM_WEI/data_PM-WEI-TOT.csv")
-df_modelado <- read.csv("PM_modelado/data_PM-Modelado-TOT.csv")
+# Datos extraido de los mapas propios generados
+df_modelado <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,".csv",sep=""))
+df_WUSTL <-df_rbind
 # Promedios mensuales por estacion
-df_SINCA <- read.csv("D:/Josefina/Proyectos/ProyectoChile/CH/proceed/06_estaciones/CH_estaciones.csv")
-df_SINCA$date <- as.Date(df_SINCA$date,format = "%d/%m/%Y")
-
+df_estaciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
+df_estaciones$date <- as.Date(df_estaciones$date,format = "%d/%m/%Y")
+# solo para CH
+df_estaciones$mean <- df_estaciones$Registros.completos
 # Agrupamos datos por mes
-df_SINCA_mes <- df_SINCA %>%
+df_estaciones_mes <- df_estaciones %>%
   mutate(mes = floor_date(date, "month")) %>%  
   group_by(estacion, mes) %>%
-  summarise(media_SINCA = mean(Registros.completos, na.rm = TRUE)) %>%  # reemplazá "valor" por tu variable de interés
+  summarise(media_SINCA = mean(mean, na.rm = TRUE)) %>%  # reemplazá "valor" por tu variable de interés
   ungroup()
 #Setear formato de dataframe mensual de las mediciones
 #todos empiezan con dia 01 
-df_SINCA_mes$date <- as.Date(df_SINCA_mes$mes,format = "%Y-%m-%d")
+df_estaciones_mes$date <- as.Date(df_estaciones_mes$mes,format = "%Y-%m-%d")
 
 ###
 #Setear formato de dataframe mensual del modelo global
-df_WUSTL$date <- as.Date(df_WUSTL$date,format = "%Y-%m-%d")
-df_WEI$date <- as.Date(df_WEI$date,format = "%Y-%m-%d")
+df_WUSTL$date <- as.Date(paste0(df_WUSTL$monthYear, "01"), format = "%Y%m%d")
+# df_WEI$date <- as.Date(df_WEI$date,format = "%Y-%m-%d")
 df_modelado$date <- as.Date(df_modelado$date,format = "%Y-%m-%d")
 
 ####
 #Merge mediciones vs mi modelo
-df_merge_modeladoSinca <- merge(df_modelado, df_SINCA_mes, by = c("date", "estacion"), all.x = TRUE)
-df_merge_modeladoSinca$date<-as.Date(df_merge_modeladoSinca$date,format = "%Y-%m-%d")
+df_merge_modelado_Estacion <- merge(df_modelado, df_estaciones_mes, by = c("date", "estacion"), all.x = TRUE)
+df_merge_modelado_Estacion$date<-as.Date(df_merge_modelado_Estacion$date,format = "%Y-%m-%d")
 
 ####
 #Merge datos anteriores vs el modelo global por dia y estaciones
-df_merge_WUSTLModSinca <- merge(df_merge_modeladoSinca, df_WUSTL, by = c("date", "estacion"), all.x = TRUE)
-df_merge_WUSTLModSinca <- df_merge_WUSTLModSinca[complete.cases(df_merge_WUSTLModSinca$extracted_values),]
-df_merge_WUSTLModSinca_comp <- df_merge_WUSTLModSinca[complete.cases(df_merge_WUSTLModSinca$media_SINCA),]
+df_merge_WUSTLModEstacion <- merge(df_merge_modelado_Estacion, df_WUSTL, by = c("date", "estacion"), all.x = TRUE)
+df_merge_WUSTLModEstacion <- df_merge_WUSTLModEstacion[complete.cases(df_merge_WUSTLModEstacion$extracted_values),]
+df_merge_WUSTLModEstacion_comp <- df_merge_WUSTLModEstacion[complete.cases(df_merge_WUSTLModEstacion$media_SINCA),]
 
 # Mejoramos el dataframe
-df_merge_WUSTLModSinca <- data.frame(date = df_merge_WUSTLModSinca$date,
-                                     estacion = df_merge_WUSTLModSinca$estacion,
-                                     SINCA = df_merge_WUSTLModSinca$media_SINCA,
-                                     Model = df_merge_WUSTLModSinca$valor_raster,
-                                     WUSTL = df_merge_WUSTLModSinca$extracted_values)
+df_merge_WUSTLModEstacion <- data.frame(date = df_merge_WUSTLModEstacion_comp$date,
+                                     estacion = df_merge_WUSTLModEstacion_comp$estacion,
+                                     mediciones = df_merge_WUSTLModEstacion_comp$media_SINCA,
+                                     Model = df_merge_WUSTLModEstacion_comp$valor_raster,
+                                     WUSTL = df_merge_WUSTLModEstacion_comp$extracted_values)
 #Vemos si hay datos faltantes
-df_merge_WUSTLModSinca <- df_merge_WUSTLModSinca [complete.cases(df_merge_WUSTLModSinca),]
+df_merge_WUSTLModEstacion <- df_merge_WUSTLModEstacion [complete.cases(df_merge_WUSTLModEstacion),]
 
 # Asegurar que el data frame sea tibble
-df_merge_WUSTLModSinca <- as_tibble(df_merge_WUSTLModSinca)
+df_merge_WUSTLModEstacion <- as_tibble(df_merge_WUSTLModEstacion)
 
-# Regresiones lineales: Model ~ SINCA y WUSTL ~ SINCA
-modelo1 <- lm(Model ~ SINCA, data = df_merge_WUSTLModSinca)
-modelo2 <- lm(WUSTL ~ SINCA, data = df_merge_WUSTLModSinca)
+# Regresiones lineales: Model ~ SINCA y WUSTL ~ Mediciones
+modelo1 <- lm(Model ~ mediciones, data = df_merge_WUSTLModEstacion)
+modelo2 <- lm(WUSTL ~ mediciones, data = df_merge_WUSTLModEstacion)
+modelo3 <- lm(Model~ WUSTL, data = df_merge_WUSTLModEstacion)
+r2_modelo1 <- summary(modelo1)$r.squared
+r2_modelo2 <- summary(modelo2)$r.squared
+r2_modelo3 <- summary(modelo3)$r.squared
+r2_modelo1
+r2_modelo2
+r2_modelo3
 
-# Resumen
-resumen1 <- glance(modelo1)
-resumen2 <- glance(modelo2)
 
 # Coeficientes
 coef1 <- coef(modelo1)
@@ -134,64 +137,22 @@ coef2 <- coef(modelo2)
 # Calcular las predicciones
 pred_1 <- predict(modelo1)
 pred_2 <- predict(modelo2)
-
+pred_3 <- predict(modelo3)
 # Calcular Bias y RMSE para cada modelo
-bias_1 <- mean(pred_1 - df_merge_WUSTLModSinca$Model)
-bias_2 <- mean(pred_2 - df_merge_WUSTLModSinca$WUSTL)
+bias_1 <- mean(pred_1 - df_merge_WUSTLModEstacion$Model)
+bias_2 <- mean(pred_2 - df_merge_WUSTLModEstacion$WUSTL)
 
-rmse_1 <- sqrt(mean((pred_1 - df_merge_WUSTLModSinca$Model)^2))
-rmse_2 <- sqrt(mean((pred_2 - df_merge_WUSTLModSinca$WUSTL)^2))
+rmse_1 <- sqrt(mean((pred_1 - df_merge_WUSTLModEstacion$Model)^2))
+rmse_2 <- sqrt(mean((pred_2 - df_merge_WUSTLModEstacion$WUSTL)^2))
+rmse_3 <- sqrt(mean((pred_3 - df_merge_WUSTLModEstacion$WUSTL)^2))
 
-# Armar data frame con etiquetas para los textos
-etiquetas <- data.frame(
-  modelo = c("Model", "WUSTL"),
-  x = c(-Inf, -Inf),
-  y = c(Inf, Inf),
-  label = c(
-    paste0("y = ", round(coef1[2], 2), "x + ", round(coef1[1], 2),
-           "/nR2 = ", round(resumen1$r.squared, 2), 
-           #", p = ", signif(resumen1$p.value, 2),
-           "/nBias = ", round(bias_1, 4), "/nRMSE = ", round(rmse_1, 2)),
-    paste0("y = ", round(coef2[2], 2), "x + ", round(coef2[1], 2),
-           "/nR2 = ", round(resumen2$r.squared, 2), 
-           #", p = ", signif(resumen2$p.value, 2),
-           "/nBias = ", round(bias_2, 4), "/nRMSE = ", round(rmse_2, 2))
-  )
-)
+rmse_1
+rmse_2
+rmse_3
 
-# Transformar los datos para ggplot
-df_plot <- df_merge_WUSTLModSinca %>%
-  pivot_longer(cols = c(Model, WUSTL), names_to = "modelo", values_to = "y")
 
-# Plot con facetas, SINCA como eje X
-ggplot(df_plot, aes(x = SINCA, y = y)) +
-  geom_point(alpha = 0.6, color = "steelblue") +
-  geom_smooth(method = "lm", se = FALSE, color = "darkred") +
-  facet_wrap(~modelo, nrow = 1) +
-  geom_text(data = etiquetas, aes(x = x, y = y, label = label),
-            inherit.aes = FALSE, hjust = -0.1, vjust = 1.1, size = 3.5, color = "black") +
-  labs(
-    #title = "Regresiones lineales: Model / WUSTL vs SINCA",
-    x = "SINCA",
-    y = "Model"
-  ) +
-  theme_classic() +
-  theme(
-    strip.text = element_text(face = "bold", size = 12),
-    plot.title = element_text(hjust = 0.5)
-  )
 
-##########################################
-########################################
-df_merge_WEIModSinca <- merge(df_merge_modeladoSinca, df_WEI, by = c("date", "estacion"), all.x = TRUE)
 
-df_merge_WEIModSinca <- data.frame(date = df_merge_WEIModSinca$date,
-                                   estacion = df_merge_WEIModSinca$estacion,
-                                   SINCA = df_merge_WEIModSinca$media_SINCA,
-                                   Model = df_merge_WEIModSinca$valor_raster,
-                                   WEI = df_merge_WEIModSinca$extracted_values)
-
-df_merge_WEIModSinca <- df_merge_WEIModSinca [complete.cases(df_merge_WEIModSinca),]
 
 
 ############################################################################
