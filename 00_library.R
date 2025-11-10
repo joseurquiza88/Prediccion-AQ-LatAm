@@ -77,6 +77,9 @@ library(raster)
 library(rasterVis)
 library(ncdf4)
 library(RColorBrewer)
-
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(broom)
 
 
