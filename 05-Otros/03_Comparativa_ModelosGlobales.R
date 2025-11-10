@@ -14,13 +14,13 @@
 # https://github.com/pmbusch/PM25-Satellite-Chile/tree/main
 
 # Sitio
-estacion <- "CH"
+estacion <- "BA"
 
 #year<-2022
 # Archivo donde estan los nombres de las estciones y las coordenadas
 data_estacciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
 data_estacciones <- data_estacciones[data_estacciones$Considerado=="SI",]
-data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
+#data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
 # el csv tiene una columna que se llama long y otra lat
 monitors<- data_estacciones[, c("long", "lat")]
 
@@ -88,7 +88,7 @@ setwd(save_dir)
 ############################################################################
 ## Unimos con datos de monitoreo de los sitios
 # Se hace una validacion con los sitios de moniteoro
-estacion <- "CH"
+estacion <- "BA"
 modeloGlobal <- "WEI"# WUSTL
 # Datos extraido de los mapas propios generados. Estan diarios hacer media mensual
 df_modelado <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,".csv",sep=""))
@@ -99,7 +99,7 @@ df_modeloGlobal <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacio
 df_estaciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
 df_estaciones$date <- as.Date(df_estaciones$date,format = "%d/%m/%Y")#"%Y-%M-%d")#
 # solo para CH
-df_estaciones$mean <- df_estaciones$Registros.completos
+#df_estaciones$mean <- df_estaciones$Registros.completos
 # Agrupamos datos por mes
 df_estaciones_mes <- df_estaciones %>%
   mutate(mes = floor_date(date, "month")) %>%  
@@ -211,8 +211,8 @@ df_modeloGlobal <- data.frame(archivo_modeloGlobal = id_modeloGlobal, fecha_mode
 
 # ---------------------------------------------------------------
 #Modelo propio por centro urbano
-estacion <- "CH"
-modelo <- "01-XGB-CV-M1-190625-CH"
+estacion <- "BA"
+modelo <- "01-ET-CV-M1-170625-BA"
 # Directorio con los valores mensuales del modelo selccionado
 dir_modelo <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion,
                      "/modelos/salidas/SalidasMensuales/", modelo, "/")
@@ -292,6 +292,108 @@ dir_resultados <- "D:/Josefina/Proyectos/ProyectoChile/ModelosGlobales/resultado
 write.csv(df_rbind, paste(dir_resultados,"comparativa_pixel_",estacion,"_",modeloGlobal, ".csv",sep=""))
 
 
+
+###############################################################################
+###############################################################################
+#Comparativa entre los 2 modelos pixel a pixel
+# Periodo para ambos 2017-2022 mensual
+
+## Cofiguracion de los dos modelos
+base_dir <- "D:/Josefina/Proyectos/ProyectoChile/ModelosGlobales/"
+modelos_globales <- c("WEI", "WUSTL")
+estacion <- "BA"
+modelo_local <- "01-XGB-CV-M1-200525-SP"
+modelo_local <- "01-ET-CV-M1-260525-MD"
+modelo_local <- "01-XGB-CV-M1-290525-MX"
+modelo_local <- "01-ET-CV-M1-170625-BA"
+# Directorio del modelo local
+dir_modelo_local <- paste0("D:/Josefina/Proyectos/ProyectoChile/", estacion,
+                           "/modelos/salidas/SalidasMensuales/", modelo_local, "/")
+
+# Extension de referencia: la del modelo propio
+raster_ref <- raster(list.files(dir_modelo_local, pattern = "\\.tif$", full.names = TRUE)[1])
+plot(raster_ref)
+
+# Funcion para cargar y preparar cada modelo global
+
+preparar_modelo_global <- function(nombre_modelo, pos_ini, pos_fin) {
+  dir_modelo <- paste0(base_dir, nombre_modelo, "/")
+  archivos <- list.files(path = dir_modelo, pattern = "\\.nc$", full.names = FALSE)
+  
+  fechas <- substr(archivos, pos_ini, pos_fin)
+  fechas <- as.Date(paste0(fechas, "01"), format = "%Y%m%d")
+  
+  data.frame(archivo = archivos,
+             fecha = fechas,
+             modelo = nombre_modelo,
+             dir = dir_modelo)
+}
+
+# Cargar ambos modelos
+df_WEI   <- preparar_modelo_global("WEI", 16, 21)
+df_WUSTL <- preparar_modelo_global("WUSTL", 26, 31)
+
+
+# Setear modelo local como referencia
+archivos_local <- list.files(path = dir_modelo_local, pattern = "\\.tif$", full.names = FALSE)
+fechas_local <- substr(archivos_local, 9, 15)
+fechas_local <- as.Date(paste0("01-", fechas_local), format = "%d-%m-%Y")
+df_local <- data.frame(archivo = archivos_local, fecha = fechas_local)
+
+# Emparejar fechas de los tres modelos (2017-2022)
+
+df_WEI_join <- inner_join(df_local, df_WEI, by = "fecha")
+df_WUSTL_join <- inner_join(df_local, df_WUSTL, by = "fecha")
+
+fechas_comunes <- intersect(df_WEI_join$fecha, df_WUSTL_join$fecha)
+cat("Fechas coincidentes:", length(fechas_comunes), "\n")
+
+
+# Procesar y comparar pixel a pixel
+# ---------------------------------------------------------------
+df_list <- list()  # Usar lista para acumular resultados y luego hacer rbind
+
+for (fecha_actual in fechas_comunes) {
+  fecha_actual <- as.Date(fecha_actual)  # Asegurarse que sea Date
+  cat("Procesando mes:", format(fecha_actual, "%Y-%m"), "\n")
+  
+  # Rasters locales y globales
+  r_local <- raster(paste0(dir_modelo_local, df_local$archivo[df_local$fecha == fecha_actual]))
+  r_WEI <- raster(paste0(df_WEI$dir[1], df_WEI$archivo[df_WEI$fecha == fecha_actual]))
+  r_WUSTL <- raster(paste0(df_WUSTL$dir[1], df_WUSTL$archivo[df_WUSTL$fecha == fecha_actual]))
+  
+  # Recortar al dominio del modelo local
+  r_WEI_crop <- crop(r_WEI, extent(r_local))
+  r_WUSTL_crop <- crop(r_WUSTL, extent(r_local))
+  
+  # Ajustar resolucion
+  r_WEI_res <- resample(r_WEI_crop, r_local, method = "bilinear")
+  r_WUSTL_res <- resample(r_WUSTL_crop, r_local, method = "bilinear")
+  
+  # Stack y pasar a dataframe
+  df_temp <- as.data.frame(stack(r_local, r_WEI_res, r_WUSTL_res), xy = FALSE, na.rm = TRUE)
+  colnames(df_temp) <- c("ModeloLocal", "WEI", "WUSTL")
+  df_temp$fecha <- fecha_actual
+  
+  # Guardar en la lista
+  df_list[[as.character(fecha_actual)]] <- df_temp
+}
+
+# Unir todos los dataframes
+df_rbind <- do.call(rbind, df_list)
+df_rbind2<- df_rbind[complete.cases(df_rbind),]
+
+# Guardar resultados
+write.csv(df_rbind, "Comparacion_WEI_WUSTL_pixel_a_pixel.csv", row.names = FALSE)
+
+# Metricas
+
+fit <- lm(WEI ~ WUSTL, data = df_rbind)
+r2 <- summary(fit)$r.squared
+rmse <- sqrt(mean((df_rbind$WEI - df_rbind$WUSTL)^2))
+#cor(x=df_rbind$WEI, y=df_rbind$WEI)
+r2
+rmse
 
 
 
