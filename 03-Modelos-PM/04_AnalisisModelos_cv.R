@@ -228,7 +228,7 @@ cat("Numero maximo de nodos (maxnodes):", modelo_RF_cv$finalModel$maxnodes, "\n"
 ##############################################################################
 ### ----- Modelo predictivo XGB   ----
 
-estacion <-"MX"
+estacion <-"CH"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
@@ -237,25 +237,29 @@ setwd(dir)
 train_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
 test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 
+train_data_2022<- train_data[year(train_data$date) != 2022,]
+test_data_2022<- test_data[year(test_data$date) != 2022,]
+
 #dataset
-X <- train_data[ , c( "AOD_055",
+#15 vars
+X <- train_data_2022[ , c( "AOD_055",
                       "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia"
                       "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
-                      "sp_mean","d2m_mean", "v10_mean",#"t2m_mean",
+                      "d2m_mean", "v10_mean","t2m_mean", #"sp_mean",
                       "u10_mean", "tp_mean","DEM",
                       "dayWeek")]
 
 
-y <- train_data$PM25
+y <- train_data_2022$PM25
 
-X_test <- test_data[ ,c( "AOD_055",
-                         "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia"
-                         "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
-                         "sp_mean","d2m_mean", "v10_mean",#"t2m_mean",
-                         "u10_mean", "tp_mean","DEM",
-                         "dayWeek")]#
+X_test <- test_data_2022[ ,c( "AOD_055",
+                              "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia"
+                              "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
+                              "d2m_mean", "v10_mean","t2m_mean", #"sp_mean",
+                              "u10_mean", "tp_mean","DEM",
+                              "dayWeek")]#
 
-y_test<- test_data$PM25
+y_test<- test_data_2022$PM25
 # Convertir a matrices xgboost
 dtrain <- xgb.DMatrix(data = as.matrix(X), label = y)
 
@@ -304,7 +308,7 @@ print(resultados_XGB)
 # Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
-save(xgb_cv_model, file=paste("01-XGB-CV-M",modelo,"-190625_",estacion,".RData",sep=""))
+save(xgb_cv_model, file=paste("01-XGB-CV-M",modelo,"-190625_",estacion,"_2022.RData",sep=""))
 
 # Crgar modelo
 load("01-XGB-CV-M1-200525-SP.RData")
@@ -312,7 +316,7 @@ load("01-XGB-CV-M1-190625-CH.RData")
 load("01-XGB-CV-M1-190625-BA.RData")
 load("01-XGB-CV-M1-260525-MD.RData")
 load("02-XGB-CV-M1-230625-sAOD-MX.RData")
-
+load("01-XGB-CV-M1-190625_CH_2022.RData")
 
 cat("Hiperparametros del modelo XGB:\n")
 print(params)

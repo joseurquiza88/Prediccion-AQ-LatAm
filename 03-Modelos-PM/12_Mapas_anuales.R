@@ -6,19 +6,19 @@
 
 rm(list = setdiff(ls(), "df_rbind"))
 # Definir el directorio donde estan los datos
-year<-2024
+year<-2022
 #year <- c(2015, 2016,2017,2018,2019,2020,2021,2022,2023)
 i<-1
-modelo <- "01-RF-CV-M1-170625-CH"
+modelo <- "01-XGB-CV-M1-190625_CH_2022"
 estacion <- "CH"
-# Si queremos los datos de todos los años, recorremos todas las carpetas
+# Si queremos los datos de todos los a?os, recorremos todas las carpetas
 # Sino no es necesario
 for (i in 1:length(year)){
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",modelo,"/",year,"/",sep="")
   
   setwd(dir_salida)
   
-  # Lista de archivos raster para el año de interes
+  # Lista de archivos raster para el a?o de interes
   lista_raster <- list.files(pattern = "*.tif") 
   lista_raster_recorte <- lista_raster
   # Cuantos datos hay en la carpeta, revisar!

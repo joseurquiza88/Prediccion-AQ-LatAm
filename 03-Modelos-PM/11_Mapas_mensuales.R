@@ -11,8 +11,8 @@ month <- c("01","02","03","04","05","06","07","08","09","10","11","12")
 #month <- c("01")
 year <- "2022"
 i<-1
-modelo <- "01-ET-CV-M1-170625-BA"
-estacion <- "BA"
+modelo <- "01-XGB-CV-M1-190625_CH_2022"
+estacion <- "CH"
 for (i in 1:length(month)){
   print(i)
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",modelo,"/",year,"/",month[i],sep="")

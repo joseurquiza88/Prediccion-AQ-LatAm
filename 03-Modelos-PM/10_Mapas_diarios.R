@@ -18,7 +18,7 @@ setwd(dir)
 
 # Que modelo selccionamos?
 #Listamos todos los modelos guardados en el directorio
-list.files(pattern = "ET")
+list.files(pattern = "XGB")
 # Vemos que variables finalmente se utilizaron (y la ubicacion en el modelo)
 modelo_ET_cv[["coefnames"]]
 
@@ -29,19 +29,19 @@ rm(list = setdiff(ls(), "df_rbind"))
 for (l in 1:1){
   rm(list = setdiff(ls(), "df_rbind"))
   estacion <- "CH"
-  year<- 2024
+  year<- 2022
   numRaster <- "01"
   # Modelo con RData
-  modelo <- "01-RF-CV-M1-170625-CH.RData"
+  modelo <- "01-XGB-CV-M1-190625_CH_2022.RData"
   #Carpeta donde se guardan los mapas diarios
-  nombre_salida <- "01-RF-CV-M1-170625-CH"
+  nombre_salida <- "01-XGB-CV-M1-190625_CH_2022"
   setwd(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/dataset_ejemplo/Prediccion_",year,"/tiff/",sep=""))
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",nombre_salida,"/",sep="")
   # Fechas de interes
-  fechaInicio <- as.Date("01-01-2024", format = "%d-%m-%Y")
-  fechaFin <- as.Date("31-12-2024", format = "%d-%m-%Y")
+  fechaInicio <- as.Date("01-12-2022", format = "%d-%m-%Y")
+  fechaFin <- as.Date("31-12-2022", format = "%d-%m-%Y")
   ###
-  fechaNDVI<- as.Date("01-01-2024", format = "%d-%m-%Y")
+  fechaNDVI<- as.Date("01-12-2022", format = "%d-%m-%Y")
   lista_fecha <- data.frame(date=seq.Date(fechaInicio, fechaFin, by = "day"))
   dir_modelos <- paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep="")
   #Cargar modelo seleccionado
@@ -59,7 +59,7 @@ for (j in 1:nrow(lista_fecha)) {
   fechaInteres <- as.Date(lista_fecha$date[j], format = "%d-%m-%Y")
  
   ################# -----     00 MAIAC     -----
-  # Convertir a d?a juliano respecto al 1 de enero del mismo año
+  # Convertir a d?a juliano respecto al 1 de enero del mismo a?o
   dayJulian <- as.numeric(fechaInteres - as.Date(paste0(format(fechaInteres, "%Y"), "-01-01"))) + 1
   yearInteres <- year(fechaInteres)
   if(nchar(dayJulian)==1){
@@ -73,8 +73,8 @@ for (j in 1:nrow(lista_fecha)) {
     sep = ""
   }
   maiacDate <- paste(yearInteres,sep,dayJulian,sep = "")
-  MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster_",numRaster,".tif",sep=""))
-  #MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster.tif",sep=""))
+  #MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster_",numRaster,".tif",sep=""))
+  MAIAC_raster <- raster(paste("00_MAIAC/00_MAIAC_IDW/IDW-",maiacDate,"-MAIAC_raster.tif",sep=""))
   #MAIAC_raster <- raster(paste("00_MAIAC/",maiacDate,"-MAIAC_raster.tif",sep=""))
   #num_na_MAIAC <- sum(is.na(MAIAC_raster[]))
   #print(c("MAIAC",num_na_MAIAC))
@@ -250,13 +250,12 @@ for (j in 1:nrow(lista_fecha)) {
   r_stack_df <- as.data.frame(r_stack, na.rm = TRUE)
   #names(r_stack_df)
   #Setear los nombres correctos por las dudas. Todos los modelos salvo XGB
-  names(r_stack_df) <- c( "AOD_055" ,"ndvi","LandCover","BCSMASS",
-                          "DUSMASS","DUSMASS25",
-                          "OCSMASS","SO2SMASS",
-                          "SO4SMASS","SSSMASS",
-                          "SSSMASS25","blh_mean" ,
-                          "sp_mean","d2m_mean",
-                          "t2m_mean","v10_mean",
+  names(r_stack_df) <- c( "AOD_055" ,"ndvi","BCSMASS_dia", #"LandCover",
+                          "DUSMASS_dia","SO2SMASS_dia",# "OCSMASS","DUSMASS25",
+                          "SO4SMASS_dia","SSSMASS_dia",
+                          "blh_mean" ,#"sp_mean", "SSSMASS25",
+                          "d2m_mean","v10_mean",
+                          "t2m_mean",
                           "u10_mean" ,"tp_mean" ,
                           "DEM","dayWeek")
   
@@ -265,26 +264,25 @@ for (j in 1:nrow(lista_fecha)) {
 
   
   # Aplicar el modelo. Ojo que cada uno se aplica de forma ditinta
-  predictions <- predict(modelo_RF, newdata = r_stack_df)
+  #predictions <- predict(modelo_RF, newdata = r_stack_df)
   #predictions <- predict(modelo_ET_cv, newdata = r_stack_df)
   #predictions <- predict(modelo_ranger, newdata = r_stack_df)
   # # Para XGB
-  # X_test <- r_stack_df[ , c("AOD_055","ndvi", # ,
-  #                           "BCSMASS_dia","DUSMASS_dia",
-  #                           "SO2SMASS_dia","SO4SMASS_dia",
-  #                           "SSSMASS_dia","blh_mean" ,"sp_mean",
-  #                           "d2m_mean", "v10_mean",#"t2m_mean",
-  #                           #
-  #                           "u10_mean" ,"tp_mean" ,
-  #                           #"DEM",
-  #                           "dayWeek")]
+  X_test <- r_stack_df[ , c("AOD_055","ndvi", # ,
+                            "BCSMASS_dia","DUSMASS_dia",
+                            "SO2SMASS_dia","SO4SMASS_dia",
+                            "SSSMASS_dia","blh_mean" ,#"sp_mean",
+                            "d2m_mean", "v10_mean","t2m_mean",
+                            "u10_mean" ,"tp_mean" ,
+                            "DEM",
+                            "dayWeek")]
   # #
   # # 
   # dtest <- as.matrix(X_test)
-  # dtest <- xgb.DMatrix(data = as.matrix(X_test))
+  dtest <- xgb.DMatrix(data = as.matrix(X_test))
   #predictions <- predict(xgb_tuned, newdata = dtest)
   # predictions <- predict(xgb_model, newdata = dtest)
-  # predictions <- predict(xgb_cv_model, newdata = dtest)
+  predictions <- predict(xgb_cv_model, newdata = dtest)
 
  
    # Crear un raster vacio con la misma extension y resolucion que el stack

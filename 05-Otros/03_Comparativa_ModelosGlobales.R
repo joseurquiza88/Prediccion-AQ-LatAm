@@ -14,19 +14,19 @@
 # https://github.com/pmbusch/PM25-Satellite-Chile/tree/main
 
 # Sitio
-estacion <- "BA"
+estacion <- "CH"
 
 #year<-2022
 # Archivo donde estan los nombres de las estciones y las coordenadas
 data_estacciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
 data_estacciones <- data_estacciones[data_estacciones$Considerado=="SI",]
-#data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
+data_estacciones <- data_estacciones[data_estacciones$tipo=="referencia",]
 # el csv tiene una columna que se llama long y otra lat
 monitors<- data_estacciones[, c("long", "lat")]
 
 # directorio donde estan los archivos .nc
 #dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_WEI/",year,"/",sep="")
-modeloGlobal <- "WEI"# WUSTL
+modeloGlobal <-  "WUSTL" #"WEI"#
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/ModelosGlobales/",modeloGlobal,"/",sep="")
 
 setwd(dir)
@@ -61,14 +61,16 @@ for (i in 1:length(id)){
     mutate(extracted_values_bi = extracted_values_bi)
   # info extra para agregar al dataframe
   ##--- WUSTL
-  # puntos_con_valores$monthYear <- substr(file, 26,31)
-  # puntos_con_valores$producto <- substr(file, 1,6)
+  puntos_con_valores$monthYear <- substr(file, 26,31)
+  puntos_con_valores$producto <- substr(file, 1,6)
+  puntos_con_valores_bi$monthYear <- substr(file, 26,31)
+  puntos_con_valores_bi$producto <- substr(file, 1,6)
   
   ##--- WEI
-  puntos_con_valores$monthYear <- substr(file, 16,21)
-  puntos_con_valores$producto <- substr(file, 1,10)
-  puntos_con_valores_bi$monthYear <- substr(file, 16,21)
-  puntos_con_valores_bi$producto <- substr(file, 1,10)
+  # puntos_con_valores$monthYear <- substr(file, 16,21)
+  # puntos_con_valores$producto <- substr(file, 1,10)
+  #puntos_con_valores_bi$monthYear <- substr(file, 16,21)
+  #puntos_con_valores_bi$producto <- substr(file, 1,10)
   
   df_rbind <- rbind(df_rbind,puntos_con_valores)
   df_rbind_bi <- rbind(df_rbind_bi,puntos_con_valores_bi)
@@ -88,8 +90,8 @@ setwd(save_dir)
 ############################################################################
 ## Unimos con datos de monitoreo de los sitios
 # Se hace una validacion con los sitios de moniteoro
-estacion <- "BA"
-modeloGlobal <- "WEI"# WUSTL
+estacion <- "CH"
+modeloGlobal <- "WUSTL"
 # Datos extraido de los mapas propios generados. Estan diarios hacer media mensual
 df_modelado <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,".csv",sep=""))
 df_modelado$date <- as.Date(df_modelado$date,format = "%Y-%m-%d")
@@ -99,7 +101,7 @@ df_modeloGlobal <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacio
 df_estaciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
 df_estaciones$date <- as.Date(df_estaciones$date,format = "%d/%m/%Y")#"%Y-%M-%d")#
 # solo para CH
-#df_estaciones$mean <- df_estaciones$Registros.completos
+df_estaciones$mean <- df_estaciones$Registros.completos
 # Agrupamos datos por mes
 df_estaciones_mes <- df_estaciones %>%
   mutate(mes = floor_date(date, "month")) %>%  
@@ -171,6 +173,8 @@ pred_3 <- predict(modelo3)
 # Calcular Bias y RMSE para cada modelo
 bias_1 <- mean(pred_1 - df_merge_modeloGlobalModEstacion$Model)
 bias_2 <- mean(pred_2 - df_merge_modeloGlobalModEstacion$modeloGlobal)
+bias_1
+bias_2
 
 rmse_1 <- sqrt(mean((pred_1 - df_merge_modeloGlobalModEstacion$Model)^2))
 rmse_2 <- sqrt(mean((pred_2 - df_merge_modeloGlobalModEstacion$modeloGlobal)^2))
@@ -180,9 +184,34 @@ rmse_1
 rmse_2
 rmse_3
 
+nrow(df_merge_modeloGlobalModEstacion)
+WEI_MODEL<-df_merge_modeloGlobalModEstacion
+###
+#Plot
 
-
-
+# WUSTL #2c7fb8
+# WEI  "#2ca25f"
+#Modelo propio "#de2d26"
+ggplot(df_merge_modeloGlobalModEstacion, aes(x = mediciones)) +
+  # Primer conjunto de puntos y regresión
+  geom_point(aes(y = Model), color = "#2ca25f", size = 1.5,alpha=0.4) +  # rojo lindo
+  geom_smooth(aes(y = Model), method = "lm", color = "#2ca25f", se = FALSE) +
+  
+  # Segundo conjunto de puntos y regresión
+  geom_point(aes(y = modeloGlobal), color = "#2c7fb8", size = 1.5,alpha=0.4) + # azul lindo
+  geom_smooth(aes(y = modeloGlobal), method = "lm", color = "#2c7fb8", se = FALSE) +
+  
+  # Línea 1:1 negra punteada
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  coord_cartesian(xlim = c(0, 100), ylim = c(0, 100)) +
+  # Etiquetas y tema
+  labs(x = " ", y = "")+
+       #title = #"Comparación de Modelos vs Medidas Observadas") +
+  theme_classic() +
+  theme(text = element_text(size = 12))+theme(
+    axis.text.x = element_text(size = 12),  # tamaño de los ticks del eje X
+    axis.text.y = element_text(size = 12)   # tamaño de los ticks del eje Y
+  )
 
 
 ############################################################################
