@@ -48,5 +48,7 @@ Predicciones de las concentraciones de PM₂.₅ para cinco ciudades de América
 - 🔹 LATAM_PM2.5_1km_Mensual (2024): https://doi.org/10.5281/zenodo.17794205
 - 🔹 LATAM_PM2.5_1km_Mensual (2015-2023) 👉 Proximamente
 
+## 🗺️ Mapa de PM2.5 – Santiago
 
+<img width="350" height="350" alt="ST_Anual_2024" src="https://github.com/user-attachments/assets/628859b9-f152-44f8-8f2a-b9280a4c2b1c" />
 
