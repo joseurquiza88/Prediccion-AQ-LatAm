@@ -46,4 +46,4 @@ stack_PM25 <- stack(archivos)
 names(stack_PM25)
 
 # Plotear todas las capas juntas
-plot(stack_PM25$)
+plot(stack_PM25)

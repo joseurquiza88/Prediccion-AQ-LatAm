@@ -1,0 +1,14 @@
+#pandas
+#numpy
+scikit-learn
+#joblib
+#matplotlib
+#scipy
+#seaborn
+#GeoPandas
+#xarray
+#rioxarray
+#netCDF4
+#h5py
+#shapely
+#pyproj

@@ -6,13 +6,12 @@
 
 # Definir el directorio donde estan los archivos raster
 rm(list = ls())
-#dir_salida <- "D:/Josefina/Proyectos/ProyectoChile/modelos/dataset_ejemplo/Prediccion_01-2024/Salida/Salida_02-XGB_cv_M4-300924/"
 month <- c("01","02","03","04","05","06","07","08","09","10","11","12")
-#month <- c("01")
-year <- "2022"
+year <- "2024"
 i<-1
-modelo <- "01-XGB-CV-M1-190625_CH_2022"
-estacion <- "CH"
+tipoModelo<- "XGB"
+modelo <- "01-XGB-CV-M1-290525-MX"
+estacion <- "MX"
 for (i in 1:length(month)){
   print(i)
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",modelo,"/",year,"/",month[i],sep="")
@@ -34,8 +33,11 @@ for (i in 1:length(month)){
   #plot(promedio_mensual)
   modelo_2 <- substr(lista_raster[1],14,34)
   # Guardar el resultado en un nuevo archivo raster
- dir_salida_tiff <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasMensuales/",modelo,"/",sep="")
-  
-  writeRaster(promedio_mensual, filename = paste(dir_salida_tiff,"mensual_",month[i],"-",year,"-",modelo_2,".tif",sep=""), format = "GTiff", overwrite = TRUE)
+  dir_salida_tiff <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasMensuales/",modelo,"/",sep="")
+  nombre <- paste(dir_salida_tiff,"/base/",tipoModelo,"_PM2.5_M_",month[i],"-",year,"_",estacion,"_V1.1.tif",sep="")
+  # writeRaster(promedio_mensual, filename = paste(dir_salida_tiff,"mensual_",month[i],"-",year,"-",modelo_2,".tif",sep=""), format = "GTiff", overwrite = TRUE)
+  writeRaster(promedio_mensual, filename = nombre, format = "GTiff", overwrite = TRUE)
 }
+XGB_PM2.5_M_01-2024_ST_V1.1
+"XGB_PM2.5_M_12-2020_SP_V1.1.tif"
 
