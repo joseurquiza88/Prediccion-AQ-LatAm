@@ -62,5 +62,5 @@ Predicciones de las concentraciones de PM₂.₅ para cinco ciudades de América
 
 ## 🗺️ Mapa de PM2.5 – Santiago
 
-<img width="350" height="350" alt="ST_Anual_2024" src="https://github.com/user-attachments/assets/628859b9-f152-44f8-8f2a-b9280a4c2b1c" />
+
 
