@@ -63,4 +63,4 @@ Predicciones de las concentraciones de PM₂.₅ para cinco ciudades de América
 ## 🗺️ Mapas de concentraciones de PM₂.₅ para cinco ciudades de América Latina (2024).
 
 
-
+<img width="800" height="600" alt="Concentraciones Anuales por ciudad_2024" src="https://github.com/user-attachments/assets/fba89c68-9a08-4084-98c7-a263c9ae6fec" />
