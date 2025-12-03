@@ -46,7 +46,8 @@ Este repositorio contiene scripts, notebooks y recursos para el **análisis y pr
 Predicciones de las concentraciones de PM₂.₅ para cinco ciudades de América Latina (2015–2024).
 - 🔹 LATAM_PM2.5_1km_Anual: https://doi.org/10.5281/zenodo.17792065
 - 🔹 LATAM_PM2.5_1km_Mensual (2024): https://doi.org/10.5281/zenodo.17794205
-- 🔹 LATAM_PM2.5_1km_Mensual (2015-2023) 👉 Proximamente
+- 🔹 LATAM_PM2.5_1km_Mensual (2023): https://doi.org/10.5281/zenodo.17801932
+- 🔹 LATAM_PM2.5_1km_Mensual (2015-2022) 👉 Proximamente
 
 ## 🗺️ Mapa de PM2.5 – Santiago
 
