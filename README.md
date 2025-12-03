@@ -60,7 +60,7 @@ Predicciones de las concentraciones de PM₂.₅ para cinco ciudades de América
 
 
 
-## 🗺️ Mapa de PM2.5 – Santiago
+## 🗺️ Mapas de concentraciones de PM₂.₅ para cinco ciudades de América Latina (2024).
 
 
 
