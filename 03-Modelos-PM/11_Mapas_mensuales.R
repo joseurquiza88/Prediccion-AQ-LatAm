@@ -7,11 +7,11 @@
 # Definir el directorio donde estan los archivos raster
 rm(list = ls())
 month <- c("01","02","03","04","05","06","07","08","09","10","11","12")
-year <- "2024"
+year <- "2015"
 i<-1
 tipoModelo<- "XGB"
-modelo <- "01-XGB-CV-M1-290525-MX"
-estacion <- "MX"
+modelo <- "01-XGB-CV-M1-190625-CH"
+estacion <- "CH"
 for (i in 1:length(month)){
   print(i)
   dir_salida <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasDiarias/",modelo,"/",year,"/",month[i],sep="")
@@ -33,7 +33,7 @@ for (i in 1:length(month)){
   #plot(promedio_mensual)
   modelo_2 <- substr(lista_raster[1],14,34)
   # Guardar el resultado en un nuevo archivo raster
-  dir_salida_tiff <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasMensuales/",modelo,"/",sep="")
+  dir_salida_tiff <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/salidas/SalidasMensuales/",modelo,sep="")
   nombre <- paste(dir_salida_tiff,"/base/",tipoModelo,"_PM2.5_M_",month[i],"-",year,"_",estacion,"_V1.1.tif",sep="")
   # writeRaster(promedio_mensual, filename = paste(dir_salida_tiff,"mensual_",month[i],"-",year,"-",modelo_2,".tif",sep=""), format = "GTiff", overwrite = TRUE)
   writeRaster(promedio_mensual, filename = nombre, format = "GTiff", overwrite = TRUE)
