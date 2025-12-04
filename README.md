@@ -22,7 +22,7 @@ Este repositorio contiene scripts, notebooks y recursos para el **análisis y pr
 
 ---
 
-## 🛠 Qué incluye
+## 🛠 Este repositorio incluye
 
 - **Metodologia y variables predictivas:**
 La carpeta [`/00_Informacion_de_Base`](./00_Informacion_de_Base/) reúne la metodología aplicada en cada etapa del proyecto, junto con la descripción de las variables predictivas principales utilizadas en los modelos.
@@ -41,20 +41,13 @@ La carpeta [`/00_Informacion_de_Base`](./00_Informacion_de_Base/) reúne la meto
 
 ---
 
-## 🌎 Aplicaciones
 
-- Estudios ambientales y de contaminación urbana.  
-- Soporte para la toma de decisiones en políticas de calidad del aire.  
-- Base para investigación en **modelos predictivos y análisis espacial-temporal**.  
-
----
-
-### 📁 Ejemplos de uso
+### 🌎 Ejemplos de uso
 **🚧 En desarrollo **
 
 La carpeta [`/06_Codigos ejemplo`](./06_Codigos_ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto.
 
-## 📦 Bases de datos
+## 📦 Bases de datos disponibles
 
 Predicciones de las concentraciones de PM₂.₅ para cinco ciudades de América Latina (2015–2024).
 - 🔹 LATAM_PM2.5_1km_Anual: https://doi.org/10.5281/zenodo.17792065
@@ -74,3 +67,7 @@ Predicciones de las concentraciones de PM₂.₅ para cinco ciudades de América
 
 
 <img width="800" height="600" alt="Concentraciones Anuales por ciudad_2024" src="https://github.com/user-attachments/assets/fba89c68-9a08-4084-98c7-a263c9ae6fec" />
+
+---
+
+Esta investigación se desarrolla en el marco de una tesis de doctorado en Ingenieria Ambiental de la Universidad Tecnologica Nacional -  Facultad Regional Mendoza actualmente en proceso 🚧
