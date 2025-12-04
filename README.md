@@ -44,7 +44,7 @@ Este repositorio contiene scripts, notebooks y recursos para el **análisis y pr
 ### 📁 Ejemplos de uso
 **🔜 Próximamente**
 
-La carpeta [`/06_Codigos ejemplo`](./06_Codigos ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto.
+La carpeta [`/06_Codigos ejemplo`](./06_Codigos_ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto.
 
 ## 📦 Bases de datos
 
