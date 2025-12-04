@@ -6,21 +6,29 @@ Este repositorio contiene scripts, notebooks y recursos para el **análisis y pr
 
 ## 🎯 Objetivo
 
-- Desarrollar **modelos predictivos** para estimar concentraciones de PM2.5 a nivel **espacial y temporal**.  
+- Desarrollar **modelos predictivos** para estimar concentraciones de PM2.5 a nivel **espacial y temporal** para distintos centros ubranos de America Latina.  
 - Evaluar y comparar distintos enfoques de **machine learning y modelos estadísticos**, incluyendo:
-  - Modelos lineales y GAM  
-  - Random Forest (RF)  
+  - Regresion Lineal Simple (PM2.5-AOD)
+  - Regresion Lineal Multiple
+  - Correccion del AOD por variables atmosfericas
+  - Ridge - LASSO
+  - Modelo Lineal Generalizado (GLM)
+  - Modelo lineal mixto (LME)
+  - Modelo aditivo generalizado (GAM)
+  - Support Vector Regression (SVR) 
+  - Random Forest (RF)
+  - Extremely Randomized Trees (ET) 
   - Extreme Gradient Boosting (XGB)  
-  - Extremely Randomized Trees (ET)  
-  - Support Vector Regression (SVR)  
-- Aplicar estas técnicas en **centros urbanos de América Latina**, considerando patrones ambientales, meteorológicos y urbanos.  
 
 ---
 
 ## 🛠 Qué incluye
 
+- **Metodologia y variables predictivas:**
+La carpeta [`/00_Informacion_de_Base`](./00_Informacion_de_Base/) reúne la metodología aplicada en cada etapa del proyecto, junto con la descripción de las variables predictivas principales utilizadas en los modelos.
+
 - **Procesamiento de datos:**  
-  Limpieza, interpolación y normalización de variables satelitales y de superficie (AOD, meteorología, composición de aerosoles).  
+  Limpieza, interpolación y normalización de variables satelitales y de superficie (AOD, meteorología, composición de aerosoles, otras).  
 
 - **Modelado comparativo:**  
   Entrenamiento y evaluación de múltiples modelos predictivos para identificar cuáles capturan mejor la variabilidad espacial y temporal de PM2.5.  
@@ -42,7 +50,7 @@ Este repositorio contiene scripts, notebooks y recursos para el **análisis y pr
 ---
 
 ### 📁 Ejemplos de uso
-**🔜 Próximamente**
+**🚧 En desarrollo **
 
 La carpeta [`/06_Codigos ejemplo`](./06_Codigos_ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto.
 
