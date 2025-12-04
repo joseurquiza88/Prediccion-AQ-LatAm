@@ -37,15 +37,12 @@ La carpeta [`/00_Informacion_de_Base`](./00_Informacion_de_Base/) reúne la meto
   Cálculo de métricas como R², RMSE, Pearson y Bias, y generación de gráficos y mapas de predicción.  
 
 - **Reproducibilidad:**  
-  Scripts y notebooks organizados para permitir la replicación completa de los análisis y la generación de resultados.  
+  Scripts y notebooks organizados para permitir la replicación completa de los análisis y la generación de resultados.
+  
+- **Ejemplos de uso** (🚧 En desarrollo)
+  La carpeta [`/06_Codigos ejemplo`](./06_Codigos_ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto.
 
 ---
-
-
-### 🌎 Ejemplos de uso
-**🚧 En desarrollo **
-
-La carpeta [`/06_Codigos ejemplo`](./06_Codigos_ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto.
 
 ## 📦 Bases de datos disponibles
 
