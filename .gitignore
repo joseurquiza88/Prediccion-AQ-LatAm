@@ -1,2 +1,4 @@
 # Ignorar carpeta data con TIFFs
 app/data/
+# Ignora entorno virtual python
+.venv/
