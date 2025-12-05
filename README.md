@@ -1,9 +1,9 @@
 # 📊 Predicción de concentraciones de PM2.5 en Áreas Urbanas de América Latina
-
-Este repositorio contiene scripts, notebooks y recursos para el **análisis y prediccion de la contaminacion atmosferica (PM2.5)** en centros urbanos de América Latina, usando **diversas variables predictivas** y comparando múltiples enfoques de modelado.
-
 ---
-
+- Este repositorio contiene scripts, notebooks y recursos para el **análisis y prediccion de la contaminacion atmosferica (PM2.5)** en centros urbanos de América Latina, usando **diversas variables predictivas** y comparando múltiples enfoques de modelado.
+  
+- Esta investigación se desarrolla en el marco de una tesis de doctorado en Ingenieria Ambiental de la Universidad Tecnologica Nacional -  Facultad Regional Mendoza actualmente en proceso 🚧
+---
 ## 🎯 Objetivo
 
 - Desarrollar **modelos predictivos** para estimar concentraciones de PM2.5 a nivel **espacial y temporal** para distintos centros ubranos de America Latina.  
@@ -28,19 +28,20 @@ Este repositorio contiene scripts, notebooks y recursos para el **análisis y pr
 La carpeta [`/00_Informacion_de_Base`](./00_Informacion_de_Base/) reúne la metodología aplicada en cada etapa del proyecto, junto con la descripción de las variables predictivas principales utilizadas en los modelos.
 
 - **Procesamiento de datos:**  
-  Limpieza, interpolación y normalización de variables satelitales y de superficie (AOD, meteorología, composición de aerosoles, otras).  
+  Descarga, recolección, limpieza, interpolación y análisis de variables satelitales y de superficie (AOD, meteorología, composición de aerosoles, entre otras), con integración final en un **dataset unificado**.
 
-- **Modelado comparativo:**  
-  Entrenamiento y evaluación de múltiples modelos predictivos para identificar cuáles capturan mejor la variabilidad espacial y temporal de PM2.5.  
+- **Modelos predictivos:**  
+  Entrenamiento y testeo de múltiples modelos predictivos para identificar cuáles capturan mejor la variabilidad espacial y temporal de PM2.5.  
 
-- **Análisis de desempeño:**  
-  Cálculo de métricas como R², RMSE, Pearson y Bias, y generación de gráficos y mapas de predicción.  
-
-- **Reproducibilidad:**  
-  Scripts y notebooks organizados para permitir la replicación completa de los análisis y la generación de resultados.
+- **Evaluacion del desempeño:**  
+  Cálculo de métricas como R², RMSE y Bias, y generación de gráficos y mapas de predicción.  
   
 - **Ejemplos de uso** (🚧 En desarrollo)
   La carpeta [`/06_Codigos ejemplo`](./06_Codigos_ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto.
+
+- **Requerimientos**  
+  La carpeta [`/Requerimientos`](./Requerimientos/) incluye los **requerimientos técnicos** para ejecutar los scripts en **R y Python**, donde se incluyen las librerías necesarias y su instalación.
+
 
 ---
 
@@ -75,4 +76,4 @@ Visualiza y explora las predicciones de PM₂.₅ para distintas ciudades de Am�
 
 ---
 
-Esta investigación se desarrolla en el marco de una tesis de doctorado en Ingenieria Ambiental de la Universidad Tecnologica Nacional -  Facultad Regional Mendoza actualmente en proceso 🚧
+
