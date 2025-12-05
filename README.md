@@ -59,11 +59,19 @@ Predicciones de las concentraciones de PM₂.₅ para cinco ciudades de América
 - 🔹 LATAM_PM2.5_1km_Mensual (2016): https://doi.org/10.5281/zenodo.17804477
 - 🔹 LATAM_PM2.5_1km_Mensual (2015): https://doi.org/10.5281/zenodo.17804648
   
+---
 
 ## 🗺️ Mapas de concentraciones de PM₂.₅ para cinco ciudades de América Latina (2024).
 
 
 <img width="800" height="600" alt="Concentraciones Anuales por ciudad_2024" src="https://github.com/user-attachments/assets/fba89c68-9a08-4084-98c7-a263c9ae6fec" />
+
+--
+## 🌐 Dashboard interactivo
+
+Visualiza y explora las predicciones de PM₂.₅ para distintas ciudades de América Latina con un **dashboard interactivo en Shiny**:
+
+- 🔹 [Abrir el dashboard](https://jurquiza.shinyapps.io/pm25_LatAm_dashboard/)
 
 ---
 
