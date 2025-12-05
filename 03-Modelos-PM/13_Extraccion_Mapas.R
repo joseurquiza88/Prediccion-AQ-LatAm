@@ -4,8 +4,8 @@
 # segun el centro urbano
 ##
 #######################################################################
-estacion <- "BA"
-modelo <- "01-ET-CV-M1-170625-BA"
+estacion <- "CH"
+modelo <- "01-XGB-CV-M1-190625_CH_2022"
 
 #Directorio donde se encuentran todas las imagenes
 #dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/Salidas/SalidasDiarias/",modelo,"/",year,"/",sep="")
@@ -19,7 +19,7 @@ id <- list.files(path = dir,
 # de cada estacion de monitoreo
 puntos <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/estaciones/sitios_",estacion,".csv",sep=""))
 puntos <- puntos[puntos$Considerado=="SI",]
-#puntos <- puntos[puntos$tipo=="referencia",]
+puntos <- puntos[puntos$tipo=="referencia",]
 # Corroramos el numero de estaciones
 nrow(puntos)
 
@@ -48,7 +48,7 @@ for (i in 1:length(id)){
   df_rbind <- rbind(df_rbind,puntos_con_valores)
 }
  
-write.csv(df_rbind, paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,".csv",sep=""))
+write.csv(df_rbind, paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,"_2022.csv",sep=""))
 ###########################################################
 # Al data set anterior lo quiero unir con las mediciones reales
 # para ver que tan bien se hicieron las predicciones

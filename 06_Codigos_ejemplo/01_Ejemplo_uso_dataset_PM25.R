@@ -1,3 +1,4 @@
+#directorio = "D:/Josefina/Proyectos/ProyectoChile/CH/modelos/Salidas/SalidasAnuales/01-XGB-CV-M1-190625-CH/base"
 ###############################################################
 # Ejemplo de uso de los datos del dataset LATAM_PM2.5_1km
 # Objetivo: Mostrar cómo leer, visualizar y extraer valores
@@ -20,9 +21,6 @@ setwd(directorio)
 archivos <- list.files(pattern = "tif", full.names = TRUE)
 print(archivos)
 
-
-# -------------------------------------------------------------
-# 3. Abrir un archivo individual (ejemplo: mapa del año 2015 para Santiago)
 PM25_2015 <- raster("XGB_PM2.5_Y_2015_ST_V1.1.tif")
 
 
@@ -31,7 +29,8 @@ PM25_2015 <- raster("XGB_PM2.5_Y_2015_ST_V1.1.tif")
 
 media_dominio <- mean(values(PM25_2015), na.rm = TRUE)
 sd_dominio <- sd(values(PM25_2015), na.rm = TRUE)
-
+print(c("Media:", round(media_dominio,2)))
+print(c("Desviación estándar:", round(sd_dominio,2)))
 
 # -------------------------------------------------------------
 # 5. Visualización básica
@@ -75,7 +74,7 @@ leaflet() %>%
 
 
 # -------------------------------------------------------------
-# 8. Leer todas las imagenes del directorio como un Stack ----------
+# 8. Leer todas las imagenes del directorio como un Stack 
 stack_PM25 <- stack(archivos)
 
 # Mostrar nombres de las capas

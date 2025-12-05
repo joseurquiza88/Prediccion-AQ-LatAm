@@ -93,7 +93,7 @@ setwd(save_dir)
 estacion <- "CH"
 modeloGlobal <- "WUSTL"
 # Datos extraido de los mapas propios generados. Estan diarios hacer media mensual
-df_modelado <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,".csv",sep=""))
+df_modelado <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_modelado/data_PM-Modelado-TOT_",estacion,"_2022.csv",sep=""))
 df_modelado$date <- as.Date(df_modelado$date,format = "%Y-%m-%d")
 df_modeloGlobal <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/Comparativas_resultados/PM_",modeloGlobal,"/data_PM-",modeloGlobal,"_",estacion,".csv",sep=""))
 
