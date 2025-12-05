@@ -1,0 +1,10 @@
+name: pm25_LatAm_dashboard
+title:
+username: jurquiza
+account: jurquiza
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 16241380
+bundleId: 11278849
+url: https://jurquiza.shinyapps.io/pm25_LatAm_dashboard/
+version: 1
