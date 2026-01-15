@@ -9,3 +9,5 @@ numpy
 matplotlib
 rioxarray
 xarray
+statsmodels
+seaborn

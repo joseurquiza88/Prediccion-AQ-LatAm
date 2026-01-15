@@ -36,8 +36,8 @@ La carpeta [`/00_Informacion_de_Base`](./00_Informacion_de_Base/) reúne la meto
 - **Evaluacion del desempeño:**  
   Cálculo de métricas como R², RMSE y Bias, y generación de gráficos y mapas de predicción.  
   
-- **Ejemplos de uso** (🚧 En desarrollo)
-  La carpeta [`/06_Codigos ejemplo`](./06_Codigos_ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto.
+- **Ejemplos de uso:** 
+  La carpeta [`/06_Codigos ejemplo`](./06_Codigos_ejemplo/) contiene scripts en Python y R que sirven como guía para cargar, visualizar y procesar las imágenes raster y los archivos asociados al proyecto. (🚧 En desarrollo)
 
 - **Requerimientos**  
   La carpeta [`/Requerimientos`](./Requerimientos/) incluye los **requerimientos técnicos** para ejecutar los scripts en **R y Python**, donde se incluyen las librerías necesarias y su instalación.

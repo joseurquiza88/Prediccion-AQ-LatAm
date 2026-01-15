@@ -7,7 +7,7 @@
 #######################################################################
 
 #Abrir csv que guardamos con todas las metricas
-metricas <- read_csv("D:/Josefina/paper_git/paper_maiac/datasets/V03/metricas_V03.csv")
+metricas <- read_csv("D:/Josefina/Proyectos/MAIAC/V02/Code/02_Datasets/processed/final/metricas.csv")
 # Filtros para hacer los plots
 metricas <- metricas[metricas$collection == "C61",]
 metricas <- metricas[metricas$region == "latam",]

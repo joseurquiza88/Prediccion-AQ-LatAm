@@ -115,8 +115,8 @@ resumen_por_mes <- data %>%
 View(resumen_por_mes)
 
 # Estacion con los valores PICOS mas altos
-# Obtener los 3 valores m?ximos ?nicos (orden descendente)
-top3_vals_max <- sort(unique(resumen_por_mes$maximo), decreasing = TRUE)[1:3]
+ # Obtener los 3 valores m?ximos ?nicos (orden descendente)
+ top3_vals_max <- sort(unique(resumen_por_mes$maximo), decreasing = TRUE)[1:3]
 # Filtrar filas que tienen esos valores
 estacion_picos_max <- resumen_por_mes[resumen_por_mes$maximo %in% top3_vals_max, ]
 
@@ -253,14 +253,14 @@ ggplot(data, aes(x = estacion, y = mean)) +
 
 
 ######################################################
-#             Promedios por año
+#             Promedios por a?o
 ######################################################
 data$year <-  year(data$date)
 promedio_anuales <- data %>%
   group_by(year) %>%
   summarise(avg_pm25 = mean(mean, na.rm = TRUE),
             min = min(mean, na.rm = TRUE),
-            max = mean(mean, na.rm = TRUE),)
+            max = max(mean, na.rm = TRUE),)
 View(promedio_anuales)
 ######################################################
 #            % de cambio 2015-2024 total
@@ -277,11 +277,11 @@ porcentajeCambio
 ######################################################
 # Calcular promedio anual por estacion
 promedio_anuales <- data %>%
-  group_by(estacion, year) %>% #Se agrupa por estacion y año
+  group_by(estacion, year) %>% #Se agrupa por estacion y a?o
   summarise(avg_pm25 = mean(mean, na.rm = TRUE)) %>%
   ungroup()
 
-# Filtrar para años 2015 y 2024 para buscar la diferencia
+# Filtrar para a?os 2015 y 2024 para buscar la diferencia
 datos_2015 <- promedio_anuales %>% filter(year == 2015)
 datos_2024 <- promedio_anuales %>% filter(year == 2024)
 
@@ -304,12 +304,12 @@ View(cambios_por_estacion)
 
 
 ######################################################
-#       Serie temporal por año por estacion
+#       Serie temporal por a?o por estacion
 ######################################################
 # Asegurar que la columna fecha esta en formato Date
 data$date <- as.Date(data$date)
 
-# Crear columna de año
+# Crear columna de a?o
 data$year <- year(data$date)
 
 # Promedio anual por estacion
@@ -394,7 +394,7 @@ mensual_total <-ggplot(datos_boxplot, aes(x = mes, y = mean)) +
 
 #########
 # Otro plot
-# Crear columna con nombre del mes en español y ordenarlos
+# Crear columna con nombre del mes en espa?ol y ordenarlos
 datos_boxplot <- data %>%
   mutate(
     mes = month(date, label = TRUE, abbr = FALSE, locale = "es_ES"),
@@ -402,7 +402,7 @@ datos_boxplot <- data %>%
                                  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"))
   )
 
-# Boxplot sin outliers y con meses en español
+# Boxplot sin outliers y con meses en espa?ol
 datos_boxplot <- datos_boxplot[complete.cases(datos_boxplot$mean),]
 mensual_total <- ggplot(datos_boxplot, aes(x = mes, y = mean)) +
   geom_boxplot(
@@ -487,7 +487,7 @@ summary(modelo)
 
 ################################################################################
 # Plot del VIF
-# Crear dataframe con valores de VIF antes y despues©s
+# Crear dataframe con valores de VIF antes y despues?s
 vif_data <- data.frame(
   Centro = c("SP", "ST", "BA", "MD", "MX"),
   VIF_Antes = c(9.78, 14.74, 11.44, 22.46, 7.83),
@@ -559,14 +559,14 @@ ggplot() +
   geom_boxplot(data_tot, mapping=aes (x = sitio, y = mean,fill = "#023858")) +
   labs(title = "Distribucion de PM2.5 por sitio",
        x = "Sitio",
-       y = "Concentracion de PM2.5 (µg/m³)") +
+       y = "Concentracion de PM2.5 (?g/m?)") +
   #scale_fill_manual(values = c("#005a32", "#fd8d3c","#99000d","#023858","#ce1256"))+
   theme_classic()
 
 ######################################################
 #########################################################
 # Serie temporal anual por cada ciudad
-# Agregar columna año
+# Agregar columna a?o
 data_tot$year <- format(data_tot$date, "%Y")
 unique(data_tot$year)
 # Calcular promedio anual por ciudad
@@ -587,7 +587,7 @@ ggplot(annual_means, aes(x = as.integer(year), y = mean_PM25, color = ciudad)) +
   scale_y_continuous(limits = c(10, 35)) +
   scale_x_continuous(breaks = 2015:2024)+
   labs(
-    x = "Año",
+    x = "A?o",
     y = expression(PM[2.5]~(mu*g/m^3))
   ) +
   theme_classic() +
