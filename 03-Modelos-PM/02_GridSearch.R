@@ -5,7 +5,7 @@
 #######################################################################
 
 #########################################################################################
-### ----- Modelo SVR con búsqueda de hiperparámetros -----
+### ----- Modelo SVR con bsqueda de hiperparmetros -----
 #########################################################################################
 
 library(e1071)
@@ -22,7 +22,7 @@ setwd(dir)
 train_data <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_train_", estacion, ".csv"))
 test_data  <- read.csv(paste0(dir, "Modelo_", modelo, "/M", modelo, "_test_", estacion, ".csv"))
 
-# Definir un grid de parámetros a explorar
+# Definir un grid de par?metros a explorar
 set.seed(123)
 
 tune_result <- tune.svm(
@@ -41,7 +41,7 @@ tune_result <- tune.svm(
 # Resultado del tuning
 summary(tune_result)
 
-# Mejor combinación encontrada
+# Mejor combinaci?n encontrada
 best_params <- tune_result$best.parameters
 print(best_params)
 
@@ -72,7 +72,7 @@ save(svr_model, file = paste0("01-SVR-M", modelo, "-tuned-", estacion, ".RData")
 
 ###############################################################################
 ###############################################################################
-### ----- Modelo ET con búsqueda de hiperparametros -----
+### ----- Modelo ET con b?squeda de hiperparametros -----
 ##############################################################################
 library(caret)
 library(ranger)
@@ -103,7 +103,7 @@ control <- trainControl(
 grid_ET <- expand.grid(
   mtry = c(3, 5, 7, 9),               # numero de variables candidatas por split
   splitrule = "extratrees",           # fuerza el modo Extra Trees
-  min.node.size = c(1, 3, 5, 10)      # tamaño mínimo de nodo
+  min.node.size = c(1, 3, 5, 10)      # tama?o m?nimo de nodo
 )
 
 ###
@@ -213,7 +213,7 @@ save(modelo_RF, file = paste0("01-RF-M", modelo, "-tuned-", estacion, ".RData"))
 
 
 #########################################################################################
-### ----- Modelo XGBoost con búsqueda de hiperparámetros -----
+### ----- Modelo XGBoost con b?squeda de hiperpar?metros -----
 #########################################################################################
 
 library(caret)
@@ -250,7 +250,7 @@ grid_XGB <- expand.grid(
   max_depth = c(3, 6, 9),            # profundidad maxima de los arboles
   eta = c(0.01, 0.1, 0.3),           # learning rate
   gamma = c(0, 1, 5),                 # regularizacion
-  colsample_bytree = c(0.6, 0.8, 1), # proporción de variables por arbol
+  colsample_bytree = c(0.6, 0.8, 1), # proporci?n de variables por arbol
   min_child_weight = c(1, 3, 5),
   subsample = c(0.6, 0.8, 1)
 )
