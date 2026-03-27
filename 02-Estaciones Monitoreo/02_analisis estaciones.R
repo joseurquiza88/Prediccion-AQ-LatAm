@@ -253,7 +253,7 @@ ggplot(data, aes(x = estacion, y = mean)) +
 
 
 ######################################################
-#             Promedios por a?o
+#             Promedios por año
 ######################################################
 data$year <-  year(data$date)
 promedio_anuales <- data %>%
@@ -304,7 +304,7 @@ View(cambios_por_estacion)
 
 
 ######################################################
-#       Serie temporal por a?o por estacion
+#       Serie temporal por año por estacion
 ######################################################
 # Asegurar que la columna fecha esta en formato Date
 data$date <- as.Date(data$date)

@@ -5,12 +5,12 @@
 
 ## SP
 
-SP_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/SP/modelos/salidas/SalidasAnuales/01-XGB-CV-M1-200525-SP/Promedio_anual_2024-01-XGB-CV-M1-200525-SP_Recorte.tif")
+SP_AOD <- raster("D:/Josefina/Proyectos/ProyectoChile/SP/modelos/salidas/SalidasAnuales/01-XGB-CV-M1-200525-SP/Promedio_anual_2024-01-XGB-CV-M1-200525-SP.tif")
 SP_sAOD <- raster("D:/Josefina/Proyectos/ProyectoChile/SP/modelos/salidas/SalidasAnuales/02-XGB-CV-1-210525-sAOD-SP/Promedio_anual_2024-02-XGB-CV-1-210525-sAOD-SP_Recortado.tif")
 
 
 # Extraer los valores del raster eliminando los NA
-valores_AOD_SP <- values(SP_AOD$Promedio_anual_2024.01.XGB.CV.M1.200525.SP_Recorte)[!is.na(values(SP_AOD$Promedio_anual_2024.01.XGB.CV.M1.200525.SP_Recorte))]
+valores_AOD_SP <- values(SP_AOD$Promedio_anual_2024.01.XGB.CV.M1.200525.SP)[!is.na(values(SP_AOD$Promedio_anual_2024.01.XGB.CV.M1.200525.SP))]
 
 valores_SAOD_SP <- values(SP_sAOD$Promedio_anual_2024.02.XGB.CV.1.210525.sAOD.SP_Recortado)[!is.na(values(SP_sAOD$Promedio_anual_2024.02.XGB.CV.1.210525.sAOD.SP_Recortado))]
 # Estadisticas
