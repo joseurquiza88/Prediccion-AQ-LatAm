@@ -2,10 +2,10 @@
 
 
 #######################################################################
-## OBJETIVO: interpolar las mediciones AOD de cada estación 
+## OBJETIVO: interpolar las mediciones AOD de cada estaci?n 
 # AERONET a la longitud de onda proporcionada por MAIAC-MODIS (550).
 
-#Función para estimar el AOD550 a partir del coeficiente de Ångströment
+#Funci?n para estimar el AOD550 a partir del coeficiente de ?ngstr?ment
 ##
 #######################################################################
 
@@ -51,8 +51,8 @@ interpolate(path,path_write)
 
 ################################################################################
 
-# Función para estimar AOD550 - FUNCIÓN DE INTERPOLACIÓN CUADRÁTICA
-# Esta función realiza una interpolación tomando 3 puntos,
+# Funci?n para estimar AOD550 - FUNCI?N DE INTERPOLACI?N CUADR?TICA
+# Esta funci?n realiza una interpolaci?n tomando 3 puntos,
 # basada en los polinomios de Lagrange.
 
 interpolate_s <- function(path,path_write){
@@ -126,7 +126,7 @@ interpolate(path="D:/Josefina/Proyectos/aeronet/datos/AERONET_02112023_L02/origi
 interpolate_s (path="D:/Josefina/Proyectos/aeronet/datos/AERONET_02112023_L02/original",path_write="D:/Josefina/Proyectos/aeronet/datos/AERONET_02112023_L02/interpolate/")
 
 
-# Actualizacopn 2023-2024
+# Actualizacion 2023-2024
 
 path <- "D:/Josefina/paper_git/paper_maiac/datasets/V03/aeronet/periodoFaltante_2023-2024/data/USA/"
 path_write <- "D:/Josefina/paper_git/paper_maiac/datasets/V03/aeronet/periodoFaltante_2023-2024/proceed/USA/"
