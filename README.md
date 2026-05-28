@@ -42,6 +42,9 @@ La carpeta [`/00_Informacion_de_Base`](./00_Informacion_de_Base/) reúne la meto
 - **Requerimientos**  
   La carpeta [`/Requerimientos`](./Requerimientos/) incluye los **requerimientos técnicos** para ejecutar los scripts en **R y Python**, donde se incluyen las librerías necesarias y su instalación.
 
+- **Resumen general**  
+  La carpeta [`/00_Informacion_de_Bases`](./00_Informacion_de_Base/) incluye un **Resumen general** de la investigación.
+
 
 ---
 
