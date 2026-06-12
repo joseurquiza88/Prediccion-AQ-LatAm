@@ -1,3 +1,5 @@
+# Pruebas modelo LME
+
 estaciones <- c("SP", "CH", "BA", "MD", "MX")
 modelo <- "1"
 
