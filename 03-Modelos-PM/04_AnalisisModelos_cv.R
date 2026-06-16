@@ -39,7 +39,7 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
 ##############################################################################
 ##############################################################################
 ### ----- Modelo predictivo SVR   -----
-estacion <-"MX"
+estacion <-"BA"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
@@ -66,20 +66,21 @@ modelo_cv_svr <- train(PM25 ~  ndvi + BCSMASS_dia + DUSMASS_dia + #
                        trControl = ctrl,
                        preProcess = c("center", "scale"),
                        tuneLength = 5) 
-#Desempeño
+10:12
+#Desempe?o
 resultados_SVR_cv <- evaluar_modelo(modelo=modelo_cv_svr, datos_test=test_data, variable_real = "PM25",tipoModelo="SVR",y_test=NA)
 print(resultados_SVR_cv)
 # Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
-save(modelo_cv_svr, file=paste("01-SVR-CV-M",modelo,"-210625-sAOD",estacion,".RData",sep=""))
+save(modelo_cv_svr, file=paste("01-SVR-CV-M",modelo,"-150626-sAOD_",estacion,".RData",sep=""))
 # lo cargmamos
 load("01-SVR-CV-M1-200525-SP.RData")
 load("01-SVR-CV-M1-210625-sAODCH.RData")
 load("01-SVR-CV-M1-210625-sAOD-BA.RData")
 load("01-SVR-CV-M1-260525-MD.RData")
 load("01-SVR-CV-M1-290525_MX.RData")
-
+load("01-SVR-CV-M1-150626-sAOD_MD.RData")
 
 # Hiperparametros optimos encontrados por CV
 cat("Hiperparmetros optimos:\n")
@@ -88,7 +89,7 @@ print(modelo_cv_svr$bestTune)
 # Todas las combinaciones de hiperparÃ¡metros evaluadas y sus metricas
 cat("\nResultados de todas las combinaciones de hiperparÃ¡metros:\n")
 print(svr_model$results)
-
+print(resultados_SVR_cv$results)
 ##############################################################################
 ##############################################################################
 ##############################################################################
@@ -104,9 +105,10 @@ test_data <- read.csv(paste(dir,"Modelo_",modelo,"/M",modelo,"_test_",estacion,"
 
 # Entrenamiento con validacion cruzada de 10 pliegues
 modelo_ranger <- train(
-  PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + # + 
+  PM25 ~ ndvi + BCSMASS_dia + DUSMASS_dia + #
     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
-    d2m_mean  +t2m_mean +v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
+    d2m_mean  +t2m_mean +
+    v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
   data = train_data,
   method = "ranger",
   trControl = trainControl(method = "cv", number = 10),  
@@ -120,7 +122,7 @@ modelo_ranger <- train(
 
 modelo_ET_cv <- modelo_ranger
 
-# Evaluacion del desempeño
+# Evaluacion del desempe?o
 resultados_ET_cv <- evaluar_modelo(modelo=modelo_ET_cv, datos_test=test_data, variable_real = "PM25",tipoModelo="ET",y_test=NA)
 
 print(resultados_ET_cv)
@@ -128,7 +130,7 @@ print(resultados_ET_cv)
 # Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
-save(modelo_ET_cv, file=paste("01-ET-CV-M",modelo,"-290525",estacion,".RData",sep=""))
+save(modelo_ET_cv, file=paste("01-ET-CV-M",modelo,"-150626-sAOD_",estacion,".RData",sep=""))
 
 # Cargar modelo
 load("01-ET-CV-M1-200525-SP.RData")
@@ -169,7 +171,7 @@ print(modelo_ET_cv$finalModel$splitrule)
 ##############################################################################
 ##############################################################################
 ### ----- Modelo predictivo Random Forest   ----
-estacion <-"MX"
+estacion <-"SP"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
@@ -190,20 +192,21 @@ modelo_RF_cv <- train(  PM25 ~  AOD_055 +ndvi + BCSMASS_dia +
                           SSSMASS_dia + blh_mean + sp_mean + 
                           SO2SMASS_dia + d2m_mean +  #u10_mean + 
                           tp_mean + DEM+#dayWeek+ 
-                          t2m_mean, # 
+                          t2m_mean,    data = train_data,
                         trControl = train_control,importance = TRUE)
 # Setear cuando empieza y termina el modelo, duracion
 end_time <- Sys.time()
 print(end_time - start_time)
-# Evaluar el desempeño
+# Evaluar el desempe?o
 resultados_RF_cv <- evaluar_modelo(modelo=modelo_RF_cv, datos_test=test_data, variable_real = "PM25",tipoModelo="RF",y_test=NA)
+
 
 print(resultados_RF_cv)
 
 # Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
-save(modelo_RF_cv, file=paste("01-RF-CV-M",modelo,"-290525_",estacion,".RData",sep=""))
+save(modelo_RF_cv, file=paste("01-RF-CV-M",modelo,"-150626-sAOD_",estacion,".RData",sep=""))
 # Cagar modelo
 load("01-RF-CV-M1-200525-SP.RData")
 load("01-RF-CV-M1-170625-CH.RData")
@@ -218,7 +221,7 @@ print(modelo_RF_cv$bestTune)
 cat("\nhiperparametros del modelo final (randomForest):\n")
 cat("Numero de arboles (ntree):", modelo_RF_cv$finalModel$ntree, "\n")
 cat("Numero de variables consideradas por division (mtry):", modelo_RF_cv$finalModel$mtry, "\n")
-cat("Tamaño minimo de nodos terminales (nodesize):", modelo_RF_cv$finalModel$nodesize, "\n")
+cat("Tama?o minimo de nodos terminales (nodesize):", modelo_RF_cv$finalModel$nodesize, "\n")
 cat("Numero maximo de nodos (maxnodes):", modelo_RF_cv$finalModel$maxnodes, "\n")
 
 
