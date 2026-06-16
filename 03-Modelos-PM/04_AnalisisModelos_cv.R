@@ -187,12 +187,11 @@ train_control <- trainControl(
 )
 
 start_time <- Sys.time()
-modelo_RF_cv <- train(  PM25 ~  AOD_055 +ndvi + BCSMASS_dia +
-                          DUSMASS_dia + SO4SMASS_dia + v10_mean +
-                          SSSMASS_dia + blh_mean + sp_mean + 
-                          SO2SMASS_dia + d2m_mean +  #u10_mean + 
-                          tp_mean + DEM+#dayWeek+ 
-                          t2m_mean,    data = train_data,
+modelo_RF_cv <- train(  PM25 ~  ndvi + BCSMASS_dia + DUSMASS_dia + #
+                          SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean +
+                          d2m_mean  +t2m_mean +
+                          v10_mean + u10_mean + tp_mean + DEM+ dayWeek,
+                        data = train_data,
                         trControl = train_control,importance = TRUE)
 # Setear cuando empieza y termina el modelo, duracion
 end_time <- Sys.time()
@@ -206,7 +205,7 @@ print(resultados_RF_cv)
 # Guardar modelo
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
-save(modelo_RF_cv, file=paste("01-RF-CV-M",modelo,"-150626-sAOD_",estacion,".RData",sep=""))
+save(modelo_RF_cv, file=paste("01-RF-CV-M",modelo,"-160626-sAOD_",estacion,".RData",sep=""))
 # Cagar modelo
 load("01-RF-CV-M1-200525-SP.RData")
 load("01-RF-CV-M1-170625-CH.RData")
