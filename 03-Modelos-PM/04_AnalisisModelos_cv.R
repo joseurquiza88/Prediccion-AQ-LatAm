@@ -171,7 +171,7 @@ print(modelo_ET_cv$finalModel$splitrule)
 ##############################################################################
 ##############################################################################
 ### ----- Modelo predictivo Random Forest   ----
-estacion <-"SP"
+estacion <-"CH"
 modelo <- "1"
 
 dir <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/",sep="")
