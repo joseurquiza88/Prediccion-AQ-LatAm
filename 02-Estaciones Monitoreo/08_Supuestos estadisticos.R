@@ -3,6 +3,7 @@
 # DIAGNOSTICO DE SUPUESTOS DEL MODELO DE REGRESION MULTIPLE
 ################################################################################
 
+
 library(tidyverse)
 library(car)
 library(lmtest)
@@ -12,6 +13,10 @@ library(broom)
 ################################################################################
 # AJUSTE DEL MODELO
 ################################################################################
+estacion <- "MX"
+## Fechas comienzo y final de cada estacion
+data<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/merge_tot/",estacion,"_merge_comp.csv",sep=""))
+dataset_merge_comp$date <- as.Date(dataset_merge_comp$date)
 
 modelo <- lm(
   PM25 ~ ndvi +
@@ -117,13 +122,13 @@ fig_diag <- (p1 + p2) /
 
 fig_diag
 
-ggsave(
-  "Diagnosticos_modelo.png",
-  fig_diag,
-  width = 10,
-  height = 8,
-  dpi = 300
-)
+# ggsave(
+#   "Diagnosticos_modelo.png",
+#   fig_diag,
+#   width = 10,
+#   height = 8,
+#   dpi = 300
+# )
 
 ################################################################################
 # HISTOGRAMA DE RESIDUOS
@@ -215,40 +220,46 @@ tabla_supuestos <- data.frame(
 
 tabla_supuestos
 
-write.csv(
-  tabla_supuestos,
-  "Tabla_supuestos_modelo.csv",
-  row.names = FALSE
-)
+# write.csv(
+#   tabla_supuestos,
+#   "Tabla_supuestos_modelo.csv",
+#   row.names = FALSE
+# )
 
 
 ############################
 #Plots tsis
+c("SP" = "#005a32", 
+  "ST" = "#fd8d3c", 
+  "BA" = "#99000d", 
+  "MD" = "#023858", 
+  "MX" = "#ce1256")
 
+color= "#ce1256"
 p1 <- ggplot(diag_df,
              aes(.fitted, .resid)) +
-  geom_point(alpha = 0.6) +
+  geom_point(col=color,alpha = 0.6) +
   geom_hline(yintercept = 0,
              linetype = 2) +
-  geom_smooth(method = "loess",
+  geom_smooth(method = "loess",col="black",
               se = FALSE) +
   theme_classic() +
   labs(
     x = "Valores ajustados",
     y = "Residuos"
   )
-
+p1
 #####
 p2 <- ggplot(diag_df,
              aes(sample = .std.resid)) +
-  stat_qq() +
+  stat_qq(col=color) +
   stat_qq_line() +
   theme_classic() +
   labs(
     x = "Cuantiles teóricos",
     y = "Cuantiles observados"
   )
-
+p2
 # los unimos
 library(patchwork)
 
@@ -256,7 +267,8 @@ library(patchwork)
 
 #o
 fig_diag <- p1 | p2
-
+fig_diag
+P1
 ggsave(
   "Diagnosticos_modelo.png",
   fig_diag,

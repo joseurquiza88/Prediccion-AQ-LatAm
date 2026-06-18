@@ -1,7 +1,7 @@
 #######################################################################
 ## OBJETIVO: Contruccion de modelos Predictivos de PM2.5 de ML
 # con CV Espacial
-## Revisar codigo!!
+
 #######################################################################
 #funcion para evaluar modelos
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test) {
@@ -377,7 +377,7 @@ df_metricas <- df_metricas %>%
 r2<-ggplot(df_metricas, aes(x = estacion, y = Rsquared)) +
   geom_bar(stat = "identity", color = "#0570b0", fill = "#74a9cf") +
   scale_y_continuous(limits = c(0, 1)) +
-  labs(x = "ET Spatial", y = "R² ") +
+  labs(x = "ET Spatial", y = "R? ") +
   theme_classic() +
   theme(
     axis.title = element_text(size = 8),
@@ -641,7 +641,7 @@ for (test_station in stations) {
   ))
 }
 
-# Evaluar el desempeño
+# Evaluar el desempe?o
 # TEST
 r2_test <- cor(predicciones$obs, predicciones$pred)^2
 pearson_test <- cor(predicciones$obs, predicciones$pred, method = "pearson")
