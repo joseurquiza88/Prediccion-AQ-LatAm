@@ -1,12 +1,11 @@
 
-#######################################################################
-## OBJETIVO: Analisis de las estaciones de monitoreo de PM2.5 
+# Objetivo ----
+# Analisis de las estaciones de monitoreo de PM2.5 
 # en los centros urbanos seleccionados
-## se hacen distintos plots
-#######################################################################
+# se hacen distintos plots
 
 
-### Numero de datos entrnamiento-testeo
+#Numero de datos entrenamiento-testeo ----
 
 datos <- data.frame(
   Sitio = rep(c("SP", "ST", "BA", "MD", "MX"), each = 2),
@@ -46,8 +45,7 @@ ggplot(datos_prop, aes(x = Sitio, y = prop, fill = Tipo)) +
     legend.position = "right"
   )
 
-######################################################
-## Analisis por centro urbano
+# Analisis por centro urbano ----
 
 estacion <- "MD"
 data<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/06_estaciones/",estacion,"_estaciones.csv",sep=""))
@@ -64,14 +62,10 @@ data <- data[(year(data$date)) < 2025,]
 
 names(data)
 
-######################################################
-#             Estadisticas basicas generales
-######################################################
+#Estadisticas basicas generales ----
 summary(data$mean)
 sd(data$mean)
-######################################################
-#             Estadisticas basicas por estacion
-######################################################
+# Estadisticas basicas por estacion ----
 resumen_por_estacion <- data %>%
   group_by(estacion) %>%
   summarise(
@@ -94,9 +88,7 @@ estacion_max
 estacion_picos_max <- resumen_por_estacion[resumen_por_estacion$maximo == max(resumen_por_estacion$maximo),]
 estacion_picos_max
 
-######################################################
-#     Estadisticas basicas por estacion por mes
-######################################################
+#Estadisticas basicas por estacion por mes ----
 data_2024 <- data[year(data$date) == 2024,]
 unique(year(data_2024$date))
 resumen_por_mes <- data %>%
@@ -133,9 +125,7 @@ top3_vals_promedioMax <- sort(unique(resumen_por_mes$promedio), decreasing = TRU
 estacion_picos_maxProm <- resumen_por_mes[resumen_por_mes$promedio %in% top3_vals_promedioMax, ]
 estacion_picos_maxProm
 
-######################################################
-#       Serie temporal diaria por estacion para todo 
-######################################################
+# Serie temporal diaria por estacion para todo ----
 unique(data_plot$estacion)
 media_por_estacion <- data %>%
   group_by(estacion) %>%
@@ -224,9 +214,7 @@ ggsave(
 
 
 
-######################################################
-#             boxplot por estacion
-######################################################
+# Boxplot por estacion ----
 data$label <- "PM2.5"
 ## Colores por sitio
 # c("SP" = "#005a32", 
@@ -252,9 +240,7 @@ ggplot(data, aes(x = estacion, y = mean)) +
 
 
 
-######################################################
-#             Promedios por año
-######################################################
+# Promedios por año ----
 data$year <-  year(data$date)
 promedio_anuales <- data %>%
   group_by(year) %>%
@@ -262,9 +248,7 @@ promedio_anuales <- data %>%
             min = min(mean, na.rm = TRUE),
             max = max(mean, na.rm = TRUE),)
 View(promedio_anuales)
-######################################################
-#            % de cambio 2015-2024 total
-######################################################
+# % de cambio 2015-2024 total ----
 ### Las concentraciones diminuyeron/aumentaron entre 2015-2024?
 prom_2015 <- promedio_anuales[promedio_anuales$year==2015,]
 prom_2024 <-promedio_anuales[promedio_anuales$year==2024,]
@@ -272,9 +256,7 @@ porcentajeCambio <- round(((prom_2015$avg_pm25 - prom_2024$avg_pm25)/prom_2015$a
 #Si es negativo significa que aumentaron, si es positivo disminuyeron
 porcentajeCambio
 
-######################################################
-#            % de cambio 2015-2024 por estaciones
-######################################################
+# % de cambio 2015-2024 por estaciones ----
 # Calcular promedio anual por estacion
 promedio_anuales <- data %>%
   group_by(estacion, year) %>% #Se agrupa por estacion y a?o
@@ -303,16 +285,15 @@ View(cambios_por_estacion)
 
 
 
-######################################################
-#       Serie temporal por año por estacion
-######################################################
+# Serie temporal por año por estacion ----
+
 # Asegurar que la columna fecha esta en formato Date
 data$date <- as.Date(data$date)
 
 # Crear columna de a?o
 data$year <- year(data$date)
 
-# Promedio anual por estacion
+# Promedio anual por estacion ----
 promedios_estacion <- data %>%
   group_by(estacion, year) %>%
   summarise(avg_pm25 = mean(mean, na.rm = TRUE), .groups = "drop")
@@ -349,7 +330,7 @@ serie_temporal_anual <- ggplot() +
     strip.text = element_text(size = 12)
   )
 
-### Guardar plot
+# Guardar plot
 serie_temporal_anual
 dir <- paste("D:/Josefina/Proyectos/Tesis/",estacion,"/plots/",sep="")
 getwd()
@@ -362,7 +343,7 @@ ggsave(
   dpi = 500                 # Resolucion en puntos por pulgada (alta calidad)
 )  
 
-####
+
 # Crear columna con nombre del mes en ingles y completo
 datos_boxplot <- data %>%
   mutate(
@@ -370,7 +351,7 @@ datos_boxplot <- data %>%
     mes = factor(mes, levels = month.name)  # ordenar de enero a diciembre
   )
 
- # Boxplot con todos los valores diarios por mes
+# Boxplot con todos los valores diarios por mes
 mensual_total <-ggplot(datos_boxplot, aes(x = mes, y = mean)) +
   #geom_boxplot(fill = "lightblue", color = "black") +
   geom_boxplot(
@@ -392,7 +373,6 @@ mensual_total <-ggplot(datos_boxplot, aes(x = mes, y = mean)) +
 
 
 
-#########
 # Otro plot
 # Crear columna con nombre del mes en espa?ol y ordenarlos
 datos_boxplot <- data %>%
@@ -437,9 +417,7 @@ ggsave(
   dpi = 500                 # Resolucion en puntos por pulgada (alta calidad)
 )  
 
-#################################################################################
-#################################################################################
-#                           Preparacion de datos 
+#Preparacion de datos ----
 # Seleccion de variables con el Factor VIF
 
 # biblioteca para vif
@@ -485,8 +463,7 @@ car::vif(modelo)
 summary(modelo)
 
 
-################################################################################
-# Plot del VIF
+# VIF ----
 # Crear dataframe con valores de VIF antes y despues?s
 vif_data <- data.frame(
   Centro = c("SP", "ST", "BA", "MD", "MX"),
@@ -524,9 +501,7 @@ ggplot() +
                                "Despues de depuracion" = "#e7298a"))
 
 
-######################################################
-#########################################################
-# Boxplot por ciudad
+# Boxplot por ciudad ----
 data_tot <- read.csv("D:/Josefina/Proyectos/Tesis/TOT/proceed/estaciones/TOT_estaciones.csv")
 data_tot$date <- as.POSIXct(as.character(data_tot$date), format = "%d/%m/%Y")#"%Y-%m-%d")#
 data_tot <- data_tot[complete.cases(data_tot$mean),]
@@ -554,7 +529,7 @@ ggplot() +
   theme_classic()
 
 
-## corroboramos plot por las dudas que el factor no este bien hecho
+# corroboramos plot por las dudas que el factor no este bien hecho
 ggplot() +
   geom_boxplot(data_tot, mapping=aes (x = sitio, y = mean,fill = "#023858")) +
   labs(title = "Distribucion de PM2.5 por sitio",
@@ -563,9 +538,7 @@ ggplot() +
   #scale_fill_manual(values = c("#005a32", "#fd8d3c","#99000d","#023858","#ce1256"))+
   theme_classic()
 
-######################################################
-#########################################################
-# Serie temporal anual por cada ciudad
+# Serie temporal anual por cada ciudad ----
 # Agregar columna a?o
 data_tot$year <- format(data_tot$date, "%Y")
 unique(data_tot$year)
