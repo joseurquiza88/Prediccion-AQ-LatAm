@@ -1,7 +1,10 @@
 # Objetivo ----
 #Contruccion de modelos Predictivos de PM2.5 con CV temporal
-## Revisar modelo!!
-#funcion para evaluar el desempe?o de los modelos
+
+# Algunas librerias
+library(caret)
+library(ranger)
+#Funcion para evaluar el desempeño de los modelos
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test) {
   predicciones <- predict(modelo, newdata = datos_test)
   
@@ -34,25 +37,21 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
   
   return(resultados)
 }
-# Modelos ----
+
 ### Modelo predictivo SVR  temporal ----
 estacion <- "MD"
 modelo <- "1"
-#Data modelos
+#Data 
 test_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 train_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
-
-
-# Asegurarse de que tenga la columna 'year'
 train_data$year <- as.numeric(format(as.Date(train_data$date), "%Y"))
 
-#Extraer los a?os unicos
+#Extraer años
 years <- sort(unique(train_data$year))
 
-#Crear listas de indices de entrenamiento y prueba
 index_list <- list()
 indexOut_list <- list()
-# Recorrer todos los a?os disponibles (2015-2023)
+# Recorrer todos los años disponibles (2015-2023)
 for (i in seq_along(years)) {
   test_year <- years[i]
   train_index <- which(train_data$year != test_year)
@@ -62,7 +61,7 @@ for (i in seq_along(years)) {
   indexOut_list[[i]] <- test_index
 }
 
-#Crear control de entrenamiento para CV temporal
+#Crear control de entrenamiento
 train_control_temporal <- trainControl(
   method = "cv",
   number = length(years),
@@ -73,8 +72,7 @@ train_control_temporal <- trainControl(
   allowParallel = TRUE
 )
 
-#Entrenar el modelo SVR con validacion cruzada por a?o
-# setear la semilla
+#Entrenamiento modelo
 set.seed(123)
 modelo_cv_svr_temporal <- train(
   PM25 ~ #AOD_055 + 
@@ -93,17 +91,18 @@ setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
 save(modelo_cv_svr_temporal, file=paste("01-SVR-CV-Temp_M",modelo,"-160626-sAOD_",estacion,".RData",sep=""))
 
-# Metricas de desempe?o global
+# Metricas
 resultados_svr_cv_Temporal <- evaluar_modelo(modelo=modelo_cv_svr_temporal, datos_test=test_data, variable_real = "PM25",tipoModelo="SVR",y_test=NA)
 print(estacion)
 print(resultados_svr_cv_Temporal)
-### metricas por a?o
+# Metricas por año
 df_metricas<- data.frame(modelo_cv_svr_temporal[["resample"]])
 max_rmse <- max(df_metricas$RMSE)
 min_rmse <- min(df_metricas$RMSE)
 # Reescalar el RMSE para hacer el plot  doble eje
-df_metricas$rmse_escalado <- (df_metricas$RMSE - min_rmse) / (max_rmse - min_rmse)
-# Renombrar las muestras por los a?os
+df_metricas$rmse_escalado <- (df_metricas$RMSE - min_rmse) /
+  (max_rmse - min_rmse)
+# Renombrar las muestras por los años
 df_metricas$year <- recode(df_metricas$Resample,
                            "Resample1" = "2015",
                            "Resample2" = "2016",
@@ -118,10 +117,10 @@ df_metricas$year <- recode(df_metricas$Resample,
                            .default = df_metricas$Resample
 )
 
-#Se pone en numeric
+
 df_metricas$year <- as.numeric(as.character(df_metricas$year))
 
-# Plot de linea/punto con el R2/RMSE por a?o
+# Plot de metricas
 SVR_temporal<-ggplot(df_metricas, aes(x = year)) +
   geom_line(aes(y = Rsquared, color = "R2"), size = 1.2) +
   geom_point(aes(y = Rsquared, color = "R2"), size = 1.8) +
@@ -152,14 +151,10 @@ SVR_temporal
 
 
 ## Modelo predictivo ET  temporal ----
-# Librerias del modelo
-library(caret)
-library(ranger)
-#Sitio
 estacion <- "BA"
 modelo <- "1"
 
-# Leer datos
+#datos
 train_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/", estacion,
                              "/modelos/ParticionDataSet/Modelo_", modelo,
                              "/M", modelo, "_train_", estacion, ".csv", sep=""))
@@ -168,17 +163,17 @@ test_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/", estacion,
                             "/modelos/ParticionDataSet/Modelo_", modelo,
                             "/M", modelo, "_test_", estacion, ".csv", sep=""))
 
-# Crear columna 'year' desde la columna 'date'
+
 train_data$year <- as.numeric(format(as.Date(train_data$date), "%Y"))
 
-# A?os unicos
+# Años unicos
 years <- sort(unique(train_data$year))
 
-# Idices para generar el cv Leave-One-Year-Out
+# Indices para generar el Leave-One-Year-Out
 index_list <- list()
 indexOut_list <- list()
-# Recorre todos los a?os y crea los 
-#subconjuntos de entrnamiento/testeo por a?o
+# Recorre los años y crea los subconjuntos
+
 for (i in seq_along(years)) {
   test_year <- years[i]
   train_index <- which(train_data$year != test_year)
@@ -199,7 +194,7 @@ train_control_temporal <- trainControl(
   allowParallel = TRUE
 )
 
-# Modelo Extra Trees con CV temporal
+# Entrenamiento
 modelo_et_temporal <- train(
   PM25 ~ AOD_055 + ndvi + BCSMASS_dia + DUSMASS_dia + 
     SO2SMASS_dia + SO4SMASS_dia +SSSMASS_dia + blh_mean + sp_mean + #t2m_mean
@@ -216,26 +211,21 @@ modelo_et_temporal <- train(
   importance = "impurity"
 )
 
-#
+
 #Guardar modelo
 getwd()
 save(modelo_et_temporal, file=paste("01-ET-CV-Temp_M",modelo,"-180625-",estacion,".RData",sep=""))
 
 # Metricas globales
-#resultados_ET_cv_Temporal <- evaluar_modelo(modelo_et_temporal, test_data)
 resultados_ET_cv_Temporal <- evaluar_modelo(modelo=modelo_et_temporal, datos_test=test_data, variable_real = "PM25",tipoModelo="ET",y_test=NA)
-
 print(resultados_ET_cv_Temporal)
 
-
-### metricas por a?o
+### metricas por año
 df_metricas<- data.frame(modelo_et_temporal[["resample"]])
-# Min/Max de RMSE para hacer el reescalado
+# Reescalar RMSE para hacer el plot
 max_rmse <- max(df_metricas$RMSE)
 min_rmse <- min(df_metricas$RMSE)
-# Reescalar RMSE para hacer el plot
 df_metricas$rmse_escalado <- (df_metricas$RMSE - min_rmse) / (max_rmse - min_rmse)
-# Cambiar el nombre de la muestra por cada a?o para hacer el plot
 df_metricas$year <- recode(df_metricas$Resample,
                            "Resample1" = "2015",
                            "Resample2" = "2016",
@@ -250,10 +240,10 @@ df_metricas$year <- recode(df_metricas$Resample,
                            .default = df_metricas$Resample
 )
 
-# Setear en tipo numeric para hacer el plot
+
 df_metricas$year <- as.numeric(as.character(df_metricas$year))
 
-# Plot de linea/punto con el R2/RMSE por a?o
+# Plot metricas por año
 ET_temporal<-ggplot(df_metricas, aes(x = year)) +
   geom_line(aes(y = Rsquared, color = "R2"), size = 1.2) +
   geom_point(aes(y = Rsquared, color = "R2"), size = 1.8) +
@@ -264,7 +254,6 @@ ET_temporal<-ggplot(df_metricas, aes(x = year)) +
     sec.axis = sec_axis(~ . * (max_rmse - min_rmse) + min_rmse, name = "RMSE")
   ) +
   scale_x_continuous(breaks = 2015:2023) + 
-  #scale_x_continuous(breaks = 2015:2023) + 
   scale_color_manual(values = c("R2" = "#2c7fb8",  "RMSE" = "#cb181d")) +
   labs(
     x = "ET-Model", color = "") +
@@ -285,20 +274,18 @@ ET_temporal
 ## Modelo predictivo RF temporal ----
 estacion <- "MX"
 modelo <- "1"
-#Data modelo 
+#Data
 test_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 train_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
-#nrow(test_data)+nrow(train_data)
-# Hacer columna con el numero del a?o
 train_data$year <- as.numeric(format(as.Date(train_data$date), "%Y"))
 
-# Extraer los a?os unicos
+# Extraer los años
 years <- sort(unique(train_data$year))
 
-# Crear indices para Leave-One-Year-Out para los a?os
+# Crear indices para Leave-One-Year-Out
 index_list <- list()
 indexOut_list <- list()
-# Recorremos la lista con los a?os
+# Recorremos la lista con los años
 for (i in seq_along(years)) {
   test_year <- years[i]
   train_index <- which(train_data$year != test_year)
@@ -344,19 +331,16 @@ load(file=paste("01-RF-CV-Temp_M",modelo,"-270525-",estacion,".RData",sep=""))
 load(file=paste("01-RF-CV-Temp_M",modelo,"-290525-",estacion,".RData",sep=""))
 
 # Metricas globales
-#resultados_RF_cv_Temporal <- evaluar_modelo(rf_temporal_model, test_data)
 resultados_RF_cv_Temporal <- evaluar_modelo(modelo=rf_temporal_model, datos_test=test_data, variable_real = "PM25",tipoModelo="SVR",y_test=NA)
-
 print(resultados_RF_cv_Temporal)
 
-### metricas por a?o
+### metricas por año
 df_metricas<- data.frame(modelo_RF_temporal[["resample"]])
 #Min/Maz del RMSE para hacer plot
 max_rmse <- max(df_metricas$RMSE)
 min_rmse <- min(df_metricas$RMSE)
-# Rescalado del RMSE con el Min/Max para hacer el plot
+# Rescalado del RMSE con el Min/Max
 df_metricas$rmse_escalado <- (df_metricas$RMSE - min_rmse) / (max_rmse - min_rmse)
-# Cambiar el nombre de la muestra por el numero del a?o
 df_metricas$year <- recode(df_metricas$Resample,
                            "Resample1" = "2015",
                            "Resample2" = "2016",
@@ -371,9 +355,8 @@ df_metricas$year <- recode(df_metricas$Resample,
                            .default = df_metricas$Resample
 )
 
-# Cambiar al tipo numeric la columna "year"
 df_metricas$year <- as.numeric(as.character(df_metricas$year))
-# Plot de linea/punto con el R2/RMSE por a?o con dos ejes
+# Plot de metricas con dos ejes
 ET_temporal<-ggplot(df_metricas, aes(x = year)) +
   geom_line(aes(y = Rsquared, color = "R2"), size = 1.2) +
   geom_point(aes(y = Rsquared, color = "R2"), size = 1.8) +
@@ -407,12 +390,8 @@ modelo <- "1"
 #Data modelo
 test_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_test_",estacion,".csv",sep=""))
 train_data <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_",modelo,"/M",modelo,"_train_",estacion,".csv",sep=""))
-
-# Asegurarse que haya columna 'a?o'
 train_data$year <- as.numeric(format(as.Date(train_data$date), "%Y"))
-
-
-# Variables predictoras y variable target
+#Variable
 vars <- c("AOD_055",
           "ndvi", "BCSMASS_dia","DUSMASS_dia", #"DUSMASS25_dia" "sp_mean",
           "SO2SMASS_dia", "SO4SMASS_dia", "SSSMASS_dia", "blh_mean", 
@@ -424,15 +403,12 @@ target <- "PM25"
 # Dataframes para guardar predicciones
 predicciones <- data.frame()
 pred_entrenamiento <- data.frame()
-
-# Validacion cruzada por a?o
 anios <- sort(unique(train_data$year))
 
 # El procesamiento es diferente a los modelos anteriores
-# recorro los a?os
 for (test_year in anios) {
   cat("Procesando a?o:", test_year, "\n")
-  # Generacion del fold de entrenamiento/testep
+  # Generacion del fold de entrenamiento/testeo
   train_fold <- train_data %>% filter(year != test_year)
   test_fold <- train_data %>% filter(year == test_year)
   # Matriz necesaria par xgb a diferencia de los anteriores
@@ -474,7 +450,7 @@ eval_metrics <- function(obs, pred) {
     bias = mean(pred - obs)
   )
 }
-# Metricas por a?o
+# Metricas por año
 metricas_por_anio <- predicciones %>%
   group_by(year) %>%
   summarise(
@@ -495,7 +471,7 @@ print(round(metricas_por_anio, 2))
 d <- data.frame(metricas_por_anio)
 
 View(d)
-# Se hace otra vez con la funcion anteriore
+
 metrics_train <- eval_metrics(pred_entrenamiento$obs, pred_entrenamiento$pred)
 metrics_test <- eval_metrics(predicciones$obs, predicciones$pred)
 
@@ -541,10 +517,6 @@ resultados <- data.frame(
   RMSE = c(11.9,10.3,8.18,7.15,7.07,7.81,7.69,8.48,7.16)
 )
 
-# Pasar a formato largo para ggplot
-# resultados_largo <- df %>%#
-#   pivot_longer(cols = c(R2, RMSE), names_to = "Metrica", values_to = "Valor")
-
 resultados_largo <- resultados %>%
   pivot_longer(cols = c(R2, RMSE), names_to = "Metrica", values_to = "Valor")
 resultados$anio <- df$year
@@ -564,12 +536,9 @@ max_rmse <- max(resultados$RMSE)
 min_rmse <- min(resultados$RMSE)
 #Reescalar el plot original
 resultados$rmse_escalado <- (resultados$RMSE - min_rmse) / (max_rmse - min_rmse)
-#XGB
-# rmse_all <- (6.41 - min_rmse) / (max_rmse - min_rmse)
 #RF
 rmse_all <- (7.040815 - min_rmse) / (max_rmse - min_rmse)
 
-# lot de linea/punto con el R2/RMSE por a?o con dos ejes
 xgb_temporal<-ggplot(resultados, aes(x = anio)) +
   geom_line(aes(y = R2, color = "R2"), size = 1.2) +
   geom_point(aes(y = R2, color = "R2"), size = 1.8) +
@@ -592,17 +561,8 @@ xgb_temporal<-ggplot(resultados, aes(x = anio)) +
     axis.title.y.right = element_text(size = 16),  # Para RMSE
     axis.text.x = element_text(size = 14),
     axis.text.y = element_text(size = 14),
-    axis.text.y.right = element_text(size = 14),  # Ticks del eje derecho
+    axis.text.y.right = element_text(size = 14),
     legend.text = element_text(size = 14),
-    legend.position = "none"  # opcional: ubica la leyenda arriba
+    legend.position = "none"  
   )
 
-#Guardar plot
-# theme_minimal(base_size = 16)
-# 
-# 
-# ggsave(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/plots/XGB_temporal.png",sep=""),xgb_temporal,
-#        width = 16,
-#        height = 8,
-#        units = "cm",
-#        dpi = 500)

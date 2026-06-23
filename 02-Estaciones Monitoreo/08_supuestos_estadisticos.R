@@ -1,9 +1,8 @@
 
-################################################################################
-# DIAGNOSTICO DE SUPUESTOS DEL MODELO DE REGRESION MULTIPLE
-################################################################################
+# Objetivo: ----
+# Diagnostico de supuestos del modelo de regresion multiple
 
-
+# Librerias
 library(tidyverse)
 library(car)
 library(lmtest)
