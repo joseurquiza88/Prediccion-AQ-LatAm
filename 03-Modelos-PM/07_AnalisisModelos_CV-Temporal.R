@@ -1,8 +1,6 @@
-#######################################################################
-## OBJETIVO: Contruccion de modelos Predictivos de PM2.5 con CV temporal
+# Objetivo ----
+#Contruccion de modelos Predictivos de PM2.5 con CV temporal
 ## Revisar modelo!!
-#######################################################################
-
 #funcion para evaluar el desempe?o de los modelos
 evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo,y_test) {
   predicciones <- predict(modelo, newdata = datos_test)
@@ -36,11 +34,8 @@ evaluar_modelo <- function(modelo, datos_test, variable_real = "PM25",tipoModelo
   
   return(resultados)
 }
-##############################################################################
-##############################################################################
-##############################################################################
-# Modelos
-### ----- Modelo predictivo SVR  temporal -----
+# Modelos ----
+### Modelo predictivo SVR  temporal ----
 estacion <- "MD"
 modelo <- "1"
 #Data modelos
@@ -156,11 +151,7 @@ SVR_temporal<-ggplot(df_metricas, aes(x = year)) +
 SVR_temporal
 
 
-##############################################################################
-##############################################################################
-##############################################################################
-
-### ----- Modelo predictivo ET  temporal
+## Modelo predictivo ET  temporal ----
 # Librerias del modelo
 library(caret)
 library(ranger)
@@ -225,7 +216,7 @@ modelo_et_temporal <- train(
   importance = "impurity"
 )
 
-#######
+#
 #Guardar modelo
 getwd()
 save(modelo_et_temporal, file=paste("01-ET-CV-Temp_M",modelo,"-180625-",estacion,".RData",sep=""))
@@ -291,11 +282,7 @@ ET_temporal<-ggplot(df_metricas, aes(x = year)) +
 ET_temporal
 
 
-##############################################################################
-##############################################################################
-##############################################################################
-
-### ----- Modelo predictivo RF  temporal -----
+## Modelo predictivo RF temporal ----
 estacion <- "MX"
 modelo <- "1"
 #Data modelo 
@@ -346,7 +333,7 @@ rf_temporal_model <- train(
   importance = TRUE
 )
 
-######
+
 #Guardar
 setwd(paste("D:/Josefina/Proyectos/Tesis/",estacion,"/modelos/",sep=""))
 getwd()
@@ -414,11 +401,7 @@ ET_temporal<-ggplot(df_metricas, aes(x = year)) +
 ET_temporal
 
 
-##############################################################################
-##############################################################################
-##############################################################################
-
-### ----- Modelo predictivo XGB  temporal -----
+## Modelo predictivo XGB  temporal ----
 estacion <- "CH"
 modelo <- "1"
 #Data modelo
