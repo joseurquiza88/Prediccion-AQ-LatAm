@@ -1,18 +1,11 @@
-
-
-#######################################################################
-#######################################################################
-## OBJETIVO: Caracteristicas de los sitios de estudio (SP, ST, BA, MD, MX)
-
-#######################################################################
+# Objetiv# Explorar las Caracteristicas de los sitios de estudio (SP, ST, BA, MD, MX)
 estacion <- "SP"
 numRaster <- "01"
 
-### Tamaño del Dominio y ubicacion
+# TamaÃ±o del Dominio y ubicacion ----
 grilla <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/rasterTemplate/",numRaster,"_raster_template.tif",sep=""))
 
-
-## Numero de estaciones consideradas
+# Numero de estaciones consideradas ----
 estaciones_test<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_1/M1_test_",estacion,".csv",sep=""))
 estaciones_train<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/ParticionDataSet/Modelo_1/M1_train_",estacion,".csv",sep=""))
 
@@ -22,12 +15,8 @@ length(unique(estaciones_test$estacion))
 unique(estaciones_train$estacion)
 length(unique(estaciones_train$estacion))
 
-## Fechas comienzo y final de cada estacion
-dataset_merge_comp<- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/proceed/merge_tot/",estacion,"_merge_comp.csv",sep=""))
+dataset_merge_comp <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/", estacion, "/proceed/merge_tot/", estacion, "merge_comp.csv", sep = ""))
 dataset_merge_comp$date <- as.Date(dataset_merge_comp$date)
-
-
-# Dataframe con el nombre de la estacion con fecha inicio-fin del periodo
 fechas_por_estacion <- dataset_merge_comp %>%
   group_by(estacion) %>%
   summarise(
@@ -35,5 +24,4 @@ fechas_por_estacion <- dataset_merge_comp %>%
     fecha_final = max(date, na.rm = TRUE)
   )
 
-print(fechas_por_estacion)
-
+fechas_por_estacion
