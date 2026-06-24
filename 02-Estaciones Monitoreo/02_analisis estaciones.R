@@ -79,89 +79,86 @@ resumen_por_estacion <- data %>%
   )
 View(resumen_por_estacion)
 # Estacion con los valores promedios mas bajos
-estacion_min <- resumen_por_estacion [resumen_por_estacion$promedio
-== min[resumen_por_estacion$promedio,]
+estacion_min <- resumen_por_estacion [resumen_por_estacion$promedio ==
+                                        min(resumen_por_estacion$promedio),]
 estacion_min
 # Estacion con los valores promedios mas altos
-estacion_max <- resumen_por_estacion
-[resumen_por_estacion$promedio == max(resumen_por_estacion$promedio),]
+estacion_max <- resumen_por_estacion [resumen_por_estacion$promedio ==
+                                        max(resumen_por_estacion$promedio),]
 estacion_max
 
 # Estacion con los valores  mas altos
-estacion_picos_max <- resumen_por_estacion
-[resumen_por_estacion$maximo == max(resumen_por_estacion$maximo),]
+estacion_picos_max <- resumen_por_estacion[resumen_por_estacion$maximo == 
+                                             max(resumen_por_estacion$maximo),]
 estacion_picos_max
 
 #Estadisticas basicas por estacion por mes ----
 data_2024 <- data[year(data$date) == 2024,]
 unique(year(data_2024$date))
 resumen_por_mes <- data %>%
-mutate(mes = month(date, label = TRUE, abbr = FALSE, locale = "es_ES")) %>%
-group_by(mes) %>% summarise(
-minimo = round(min(mean, na.rm = TRUE),2),
-maximo = round(max(mean, na.rm = TRUE),2),
-promedio = round(mean(mean, na.rm = TRUE),2),
-sd = round(sd(mean, na.rm = TRUE),2),
-.groups = "drop") %>%
-arrange(match(mes, month.name))
-
+  mutate(mes = month(date, label = TRUE, abbr = FALSE, locale = "es_ES")) %>%
+  group_by(mes) %>% summarise(
+                              minimo = round(min(mean, na.rm = TRUE), 2),
+                              maximo = round(max(mean, na.rm = TRUE), 2),
+                              promedio = round(mean(mean, na.rm = TRUE), 2),
+                              sd = round(sd(mean, na.rm = TRUE), 2),
+                              .groups = "drop") %>%
+  arrange(match(mes, month.name))
 View(resumen_por_mes)
 
-# Estacion con los valores PICOS mas altos
+# Estacion con los valores PICOS mas altos0
 top3_vals_max <- sort(unique(resumen_por_mes$maximo), decreasing = TRUE)[1:3]
 # Filtrar filas que tienen esos valores
-estacion_picos_max <- resumen_por_mes
-[resumen_por_mes$maximo %in% top3_vals_max, ]
+estacion_picos_max <- resumen_por_mes [resumen_por_mes$maximo %in% 
+                                         top3_vals_max, ]
 
 # Estacion con los valores  promedios mas bajos
 top3_vals_promedioMin <- sort(unique(resumen_por_mes$promedio),
-decreasing = FALSE)[1:3]
+                              decreasing = FALSE)[1:3]
 # Filtrar filas que tienen esos valores
-estacion_picos_min <- resumen_por_mes
-[resumen_por_mes$promedio %in% top3_vals_promedioMin, ]
+estacion_picos_min <- resumen_por_mes[
+                resumen_por_mes$promedio %in% top3_vals_promedioMin, ]
 estacion_picos_min
 
 top3_vals_promedioMax <- sort(unique(resumen_por_mes$promedio), 
 decreasing = TRUE)[1:3]
 
 # Filtrar filas que tienen esos valores
-estacion_picos_maxProm <- resumen_por_mes
-[resumen_por_mes$promedio %in% top3_vals_promedioMax,]
-estacion_picos_maxProm
+estacion_picos_maxProm <- resumen_por_mes [resumen_por_mes$promedio %in% top3_vals_promedioMax,]
+estacion_picos_maxProm  
 
 # Serie temporal diaria por estacion para todo ----
 unique(data_plot$estacion)
 media_por_estacion <- data %>%
-group_by(estacion) %>%
-summarise(media_estacion = mean(mean, na.rm = TRUE))
+  group_by(estacion) %>%
+  summarise(media_estacion = mean(mean, na.rm = TRUE))
 View(media_por_estacion)
 data$date <- as.Date(data$date)
+
 # Unir la media por estacion al dataframe original
 data_plot <- left_join(data, media_por_estacion, by = "estacion")
 nombre_estaciones <- read.csv(paste("D:/Josefina/Proyectos/ProyectoChile/",
-estacion,"/dataset/estaciones/sitios_", estacion, ".csv", sep = ""))
+                                    estacion,"/dataset/estaciones/sitios_",
+                                    estacion, ".csv", sep = ""))
 
 data_combinada <- data_plot %>%
-left_join(nombre_estaciones, by = "estacion")
+  left_join(nombre_estaciones, by = "estacion")
 # Graficar ----
-data_plot<-data_combinada
+data_plot <- data_combinada
 data_plot$estacion <- data_plot$estacion2
 stats_por_estacion <- data_plot %>%
-group_by(estacion) %>%
-summarise(
-media = round(mean(mean, na.rm = TRUE), 2),
-max = round(max(mean, na.rm = TRUE), 2),
-sd = round(sd(mean, na.rm = TRUE), 2),
-.groups = "drop") %>%
-mutate(
-label = paste0("Media: ", media, "\nSD: ", sd, "\nMax: ", max)
-x = as.Date("2015-01-01"),  # izquierda del gr?fico
-y = 120)
+  group_by(estacion) %>%
+  summarise(media = round(mean(mean, na.rm = TRUE), 2),
+            max = round(max(mean, na.rm = TRUE), 2),
+            sd = round(sd(mean, na.rm = TRUE), 2),
+            .groups = "drop") %>% 
+  mutate(label = paste0("Media: ", media, "\nSD: ", sd, "\nMax: ", max),
+         x = as.Date("2015-01-01"), y = 120)
 
 # Linea horizontal
 lineas_extra <- data.frame(
-estacion = unique(data_plot$estacion),
-total_mean = 18.56
+  estacion = unique(data_plot$estacion),
+  total_mean = 18.56
 )
 # Medias por estacion, corroborar!!
 # SP 16.43
@@ -172,39 +169,33 @@ total_mean = 18.56
 
 ## Plot ----
 serie_temporal <- ggplot() +
-geom_line(data = data_plot, aes(x = date, y = mean, color = "Media estacion")) +
-geom_hline(data = lineas_extra, aes(yintercept = total_mean,
-color = "Media SP"), size = 0.9) +
-geom_label(data = stats_por_estacion,
-aes(x = x, y = y, label = label),
-hjust = 0, vjust = 0,
-fill = "white", alpha = 1, size = 1.9) +
-facet_wrap(~ estacion, scales = "fixed") +
-scale_x_date(limits = as.Date(c("2015-01-01", "2024-12-31"))) +
-# scale_y_continuous(limits = c(0, 350)) +
-scale_y_continuous(limits = c(0, 200)) +
-scale_color_manual(
-name = NULL, values = c("Media estacion" = "#2ca25f", "Media SP" = "red")) +
-labs(x = NULL, y = NULL) + theme_classic() +
-theme(
-legend.position = "none",
-axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-axis.text.y = element_text(size =8),
-strip.text = element_text(size = 8)
-facetas (subplots))
+  geom_line(data = data_plot, 
+            aes(x = date, y = mean, color = "Media estacion")) +
+  geom_hline(data = lineas_extra, 
+             aes(yintercept = total_mean, color = "Media SP"),
+             size = 0.9) +
+  geom_label(data = stats_por_estacion, 
+             aes(x = x, y = y, label = label), hjust = 0, vjust = 0,
+             fill = "white", alpha = 1, size = 1.9) +
+  facet_wrap(~ estacion, scales = "fixed") +
+  scale_x_date(limits = as.Date(c("2015-01-01", "2024-12-31"))) +
+  scale_y_continuous(limits = c(0, 200)) +
+  scale_color_manual(name = NULL, 
+                     values = c("Media estacion" = "#2ca25f",
+                                "Media SP" = "red")) +
+  labs(x = NULL, y = NULL) + theme_classic() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        axis.text.y = element_text(size = 8),
+        strip.text = element_text(size = 8))
 
 # Guadar plot ----
-serie_temporal
-dir <- paste("D:/Josefina/Proyectos/Tesis/",estacion,"/plots/",sep="")
+serie_tempora
+dir <- paste("D:/Josefina/Proyectos/Tesis/", estacion,"/plots/", sep = "")
 getwd()
 setwd(dir)
-ggsave(
-filename = paste(dir,"03_Serie-Temporal.png",sep=""),
-plot = serie_temporal,
-width = 10,               # Ancho en pulgadas
-height = 6,               # Alto en pulgadas
-dpi = 500                 # Resolucion en puntos por pulgada (alta calidad)
-)
+ggsave(filename = paste(dir, "03_Serie-Temporal.png", sep = ""),
+       plot = serie_temporal, width = 10, height = 6, dpi = 500)
 
 # Boxplot por estacion ----
 data$label <- "PM2.5"
