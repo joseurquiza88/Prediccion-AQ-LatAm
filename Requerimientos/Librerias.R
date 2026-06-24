@@ -1,6 +1,5 @@
 
-################          Librerias usadas         ################
-
+# Librerias usadas ----
 
 library(car)
 library(googlePolylines)#!
