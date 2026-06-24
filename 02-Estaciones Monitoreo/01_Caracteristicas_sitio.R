@@ -1,4 +1,5 @@
-# Objetiv# Explorar las Caracteristicas de los sitios de estudio (SP, ST, BA, MD, MX)
+# Objetivo ----
+# Explorar las Caracteristicas de los sitios de estudio (SP, ST, BA, MD, MX)
 estacion <- "SP"
 numRaster <- "01"
 
