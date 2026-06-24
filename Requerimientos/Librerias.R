@@ -1,6 +1,7 @@
 
 ################          Librerias usadas         ################
-# Fijarse version de R dependiendo el codigo
+
+
 library(car)
 library(googlePolylines)#!
 library(paletteer)

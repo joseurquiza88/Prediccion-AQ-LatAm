@@ -1,15 +1,7 @@
+# Objetivo ----
+# Interpolar AOD de AERONET a la longitud de onda de MAIAC-MODIS (550).
 
-
-
-#######################################################################
-## OBJETIVO: interpolar las mediciones AOD de cada estaci?n 
-# AERONET a la longitud de onda proporcionada por MAIAC-MODIS (550).
-
-#Funci?n para estimar el AOD550 a partir del coeficiente de ?ngstr?ment
-##
-#######################################################################
-
-
+# Funcion para estimar el AOD550 a partir con coef. de angstroment
 
 path <- "D:/Josefina/paper_git/paper_maiac/datasets/V02/aeronet/datasets_interp_s_L02/original/"
 path_write="D:/Josefina/paper_git/paper_maiac/datasets/V02/aeronet/datasets_interp_s_L02/Latam/"
