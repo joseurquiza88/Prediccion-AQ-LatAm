@@ -2,3 +2,4 @@
 app/data/
 # Ignora entorno virtual python
 .venv/
+.Rproj.user

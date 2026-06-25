@@ -254,7 +254,7 @@ avg_pm25_2024 - avg_pm25_2015) / avg_pm25_2015) * 100, 2)
 )
 
 # Si es positivo significa que aumento, si el valor
-es negativo es porque disminuyeron los valores entre 2015 y 2024
+# es negativo es porque disminuyeron los valores entre 2015 y 2024
 View(cambios_por_estacion)
 
 # Serie temporal por año por estacion ----
@@ -286,19 +286,19 @@ aes(x = year, y = avg_pm25, color = estacion, group = estacion),
 size = 0.7) +
 
 geom_line(data = filter(serie_completa, estacion == "Media BA"),
-aes(x = year, y = avg_pm25, group = estacion),
-color = "black", size = 1.3, linetype = "solid") +
-labs(
-x = NULL,
-y = NULL,
-color = "Estacion"
-) + scale_x_continuous(breaks = 2015:2024) +
-theme_classic() +
-theme(
-axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
-axis.text.y = element_text(size = 13),
-strip.text = element_text(size = 12)
-)
+    aes(x = year, y = avg_pm25, group = estacion),
+    color = "black", size = 1.3, linetype = "solid") +
+    labs(
+    x = NULL,
+    y = NULL,
+    color = "Estacion"
+    ) + scale_x_continuous(breaks = 2015:2024) +
+    theme_classic() +
+    theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 13),
+    strip.text = element_text(size = 12)
+    )
 
 # Guardar plot
 serie_temporal_anual

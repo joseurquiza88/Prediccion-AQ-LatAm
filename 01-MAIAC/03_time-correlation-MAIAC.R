@@ -1,12 +1,10 @@
 
-#######################################################################
-## OBJETIVO: Realizar el promedio de las mediciones de AERONET
-# para un intervalo de tiempo determinado centrado en el paso del satélite,
-# con el fin de compararlo con el promedio de las recuperaciones de MAIAC.
-##
-#######################################################################
+# Objetivo: ---- 
+# Realizar el promedio de las mediciones de AERONET
+# para un intervalo de tiempo determinado centrado en el paso del sat?lite,
+# con el fin de compararlo con el promedio de MAIAC.
 
-time_correlation <- function(path_aeronet,path_maiac,time_buffer,formato_fecha){
+time_correlation <- function(path_aeronet, path_maiac,time_buffer,formato_fecha){
 
   #De acuerdo a la literatura, ventanas: 15min, 30min, 60min, 90min, 120min
   # Datos AERONET, previamente procesados
@@ -28,7 +26,7 @@ time_correlation <- function(path_aeronet,path_maiac,time_buffer,formato_fecha){
     if (i %% 50 == 0) {
       print (i)
     }
-    #Se busca la correspondencia día-mes-año entre AERONET y MAIAC.
+    #Se busca la correspondencia d?a-mes-a?o entre AERONET y MAIAC.
     table_aeronet<- data_aeronet 
     eq_year <- which(year(table_aeronet$date) == year(data_maiac[i,]$date))
     
