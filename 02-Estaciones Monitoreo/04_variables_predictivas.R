@@ -139,4 +139,4 @@ ggplot(monthly_data, aes(x = ym, y = AOD_monthly)) +
   geom_line(color = "#99d8c9") +
   labs(x = " ",
        y = "NDVI") +
-  theme_classic()
+  theme_classic() 
