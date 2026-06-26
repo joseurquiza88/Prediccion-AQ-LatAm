@@ -199,36 +199,32 @@ ggsave(filename = paste(dir, "03_Serie-Temporal.png", sep = ""),
 
 # Boxplot por estacion ----
 data$label <- "PM2.5"
-## Colores por sitio
-# c("SP" = "#005a32"
-#   "ST" = "#fd8d3c"
-#   "BA" = "#99000d"
-#   "MD" = "#023858"
-#   "MX" = "#ce1256"
 
 ### Plot
 ggplot(data, aes(x = estacion, y = mean)) +
-geom_boxplot(fill ="#ce1256", outlier.shape = NA,width = 0.3) +
-scale_y_continuous(limits = c(0, 80)) + theme_classic() +
-labs(x = " ", y = " ") +
-theme( axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-axis.title.x = element_text(size = 13),
-axis.text.y = element_text(size = 13))
-
+  geom_boxplot(fill ="#ce1256", outlier.shape = NA, cwidth = 0.3) +
+  scale_y_continuous(limits = c(0, 80)) + theme_classic() +
+  labs(x = " ", y = " ") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        axis.title.x = element_text(size = 13),
+        axis.text.y = element_text(size = 13))
 
 # Promedios por año ----
 data$year <-  year(data$date)
 promedio_anuales <- data %>%
-group_by(year) %>%
-summarise(avg_pm25 = mean(mean, na.rm = TRUE),
-min = min(mean, na.rm = TRUE),
-max = max(mean, na.rm = TRUE),)
+  group_by(year) %>%
+  summarise(avg_pm25 = mean(mean, na.rm = TRUE),
+            min = min(mean, na.rm = TRUE),
+            max = max(mean, na.rm = TRUE),)
+
 View(promedio_anuales)
 # % de cambio 2015-2024 total ----
 ### Las concentraciones diminuyeron/aumentaron entre 2015-2024?
-prom_2015 <- promedio_anuales[promedio_anuales$year == 2015,]
-prom_2024 <-promedio_anuales[promedio_anuales$year == 2024,]
-porcentajeCambio <- round(((prom_2015$avg_pm25 - prom_2024$avg_pm25)/prom_2015$avg_pm25 )*100,2)
+prom_2015 <- promedio_anuales[promedio_anuales$year == 2015, ]
+prom_2024 <- promedio_anuales[promedio_anuales$year == 2024, ]
+porcentajeCambio <- round(((prom_2015$avg_pm25 - prom_2024$avg_pm25) /
+                             prom_2015$avg_pm25) * 100, 2)
+
 #Si es negativo significa que aumentaron, si es positivo disminuyeron
 porcentajeCambio
 # % de cambio 2015-2024 por estaciones ----
@@ -249,9 +245,9 @@ dplyr::left_join(
 datos_2024 %>% dplyr::select(estacion, avg_pm25_2024 = avg_pm25),
 by = "estacion"
 ) %>%
-dplyr::mutate(porcentaje_cambio = round(((
-avg_pm25_2024 - avg_pm25_2015) / avg_pm25_2015) * 100, 2)
-)
+dplyr::mutate(porcentaje_cambio =
+              round(((avg_pm25_2024 - avg_pm25_2015) /
+              avg_pm25_2015) * 100, 2))
 
 # Si es positivo significa que aumento, si el valor
 # es negativo es porque disminuyeron los valores entre 2015 y 2024
@@ -267,69 +263,61 @@ data$year <- year(data$date)
 
 # Promedio anual por estacion ----
 promedios_estacion <- data %>%
-group_by(estacion, year) %>%
-summarise(avg_pm25 = mean(mean, na.rm = TRUE), .groups = "drop")
+  group_by(estacion, year) %>%
+  summarise(avg_pm25 = mean(mean, na.rm = TRUE), .groups = "drop")
 
 # Promedio anual general
 promedio_general <- data %>%
-group_by(year) %>%
-summarise(avg_pm25 = mean(mean, na.rm = TRUE)) %>%
-mutate(estacion = "Media BA")
+  group_by(year) %>%
+  summarise(avg_pm25 = mean(mean, na.rm = TRUE)) %>%
+  mutate(estacion = "Media BA")
 
 # Unir ambos conjuntos
 serie_completa <- bind_rows(promedios_estacion, promedio_general)
 
 ### Plot
 serie_temporal_anual <- ggplot() +
-geom_line(data = serie_completa,
-aes(x = year, y = avg_pm25, color = estacion, group = estacion),
-size = 0.7) +
-
-geom_line(data = filter(serie_completa, estacion == "Media BA"),
-    aes(x = year, y = avg_pm25, group = estacion),
-    color = "black", size = 1.3, linetype = "solid") +
-    labs(
-    x = NULL,
-    y = NULL,
-    color = "Estacion"
-    ) + scale_x_continuous(breaks = 2015:2024) +
-    theme_classic() +
-    theme(
+  geom_line(data = serie_completa,
+            aes(x = year, y = avg_pm25, color = estacion, group = estacion),
+            size = 0.7) +
+  geom_line(data = filter(serie_completa, estacion == "Media BA"),
+            aes(x = year, y = avg_pm25, group = estacion),
+            color = "black", size = 1.3, linetype = "solid") +
+  labs(x = NULL,
+       y = NULL,
+       color = "Estacion") +
+  scale_x_continuous(breaks = 2015:2024) +
+  theme_classic() +
+  theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
     axis.text.y = element_text(size = 13),
     strip.text = element_text(size = 12)
-    )
+  )
 
 # Guardar plot
 serie_temporal_anual
 dir <- paste("D:/Josefina/Proyectos/Tesis/",estacion,"/plots/",sep="")
 getwd()
 setwd(dir)
-ggsave(filename = paste(dir,"Serie_temporal_anual.png",sep=""),
-plot = serie_temporal_anual,
-width = 8,
-height = 4,
-dpi = 500
-)
+ggsave(filename = paste(dir, "Serie_temporal_anual.png", sep = ""),
+       plot = serie_temporal_anual,
+       width = 8,
+       height = 4,
+       dpi = 500 )
 
 # Crear columna con nombre del mes en ingles y completo
 datos_boxplot <- data %>%
-mutate(
-mes = month(date, label = TRUE, abbr = FALSE, locale = "es_ES"),
-mes = factor(mes, levels = month.name)
-)
+  mutate(mes = month(date, label = TRUE, abbr = FALSE, locale = "es_ES"),
+  mes = factor(mes, levels = month.name))
 
 # Boxplot con todos los valores diarios por mes
-mensual_total <-ggplot(datos_boxplot, aes(x = mes, y = mean)) +
-geom_boxplot(
-fill = "lightblue",
-color = "black",
-outlier.shape = 21,         # circulo con borde
-outlier.size = 1.5,         # m?s peque?os
-outlier.stroke = 0.3,       # grosor del borde
-outlier.fill = NA,          # sin relleno
-outlier.colour = "black"    # color del borde
-)+
+mensual_total <- ggplot(datos_boxplot, aes(x = mes, y = mean))+
+  geom_boxplot(fill = "lightblue", color = "black",
+    outlier.shape = 21,
+    outlier.size = 1.5,
+    outlier.stroke = 0.3,
+    outlier.fill = NA,
+    outlier.colour = "black") +
 labs(x = "Month", y = "Daily PM2.5") +
 theme_classic() +
 theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
