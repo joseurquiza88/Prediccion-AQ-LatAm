@@ -152,5 +152,3 @@ ggsave(filename = paste(dir,"01_Serie-Temporal_AOD-PM25_mx.png",
   width = 6,
   height = 4,
   dpi = 30)  
-
-
