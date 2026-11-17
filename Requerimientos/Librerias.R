@@ -1,9 +1,9 @@
 
 # Librerias usadas ----
 
-library(car)
+# library(car)
 library(googlePolylines)#!
-library(paletteer)
+# library(paletteer)
 library(leaflet)
 library(ecmwfr)
 library(htmltools)
@@ -36,6 +36,7 @@ library(csvread)#!!!
 library(R.utils)#!!!
 library(lattice)
 library(caret)#!!!
+# install.packages("caret", dependencies = TRUE, repos = "https://cloud.r-project.org")
 #### library(RStoolbox)#!!!
 library(RColorBrewer)
 library(openair)
@@ -81,5 +82,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(broom)
-
-
+library(ranger)
+library(randomForest)
+library(xgboost)
+install.packages("xgboost")

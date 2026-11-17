@@ -1,23 +1,23 @@
-#######################################################################
-## OBJETIVO: Leer todos los archivos de las variables que estan en diferentes
+# Objetivo: ----
+# Leer todos los archivos de las variables que estan en diferentes
 # formatos y generar datos tiff  para luego hacer los stacks diarios y poder
 # hacer las predicciones de PM2.5
-#######################################################################
-    
+
 estacion <- "BA"
 numRaster<- "03"
-ndvi_raster <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/rasterTemplate/",numRaster,"_raster_template.tif",sep=""))
-year<- 2024
+ndvi_raster <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/",
+                            estacion, "/dataset/rasterTemplate/",
+                            numRaster, "_raster_template.tif", sep = ""))
+year <- 2024
 mes <- "01-06-"
 
-    
-    ###########################################################################
-    # -----------------------   01 MAIAC  ------------------------------
-    ###########################################################################
-    
-    
-    dir_maiac <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/00_MAIAC/",year,"/",mes,year,sep="")
-    dir_maiac_guardado <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/dataset_ejemplo/Prediccion_",year,"/",sep="")
+# 01 MAIAC ----
+    dir_maiac <- paste("D:/Josefina/Proyectos/ProyectoChile/",
+                       estacion, "/dataset/00_MAIAC/", year, "/", mes, year, 
+                       sep = "")
+    dir_maiac_guardado <- paste("D:/Josefina/Proyectos/ProyectoChile/", 
+                                estacion, "/modelos/dataset_ejemplo/Prediccion_",
+                                year, "/", sep = "")
     
     setwd(dir_maiac)
     id <- list.files(path = dir_maiac,
@@ -25,128 +25,102 @@ mes <- "01-06-"
                      full.names = FALSE)
     crs_project <- "+proj=longlat +datum=WGS84"
     raster_template <- ndvi_raster
-    # 08:51
-    i<-1
+    i <- 1
     for (i in 1:length(id)){
       print(i)
       data_maiac <- id[i]
-      nombre_maiac <- substr(data_maiac,10,16)
+      nombre_maiac <- substr(data_maiac, 10, 16)
       sds <- get_subdatasets(data_maiac)
-      info <- GDALinfo(data_maiac,returnScaleOffset=FALSE)
+      info <- GDALinfo(data_maiac,returnScaleOffset = FALSE)
       subdataset_metadata <- attr(info,"mdata")
-      orbitas<-(subdataset_metadata)[59]#58 Y 59
-      
-      orbit <- gsub(pattern = 'Orbit_time_stamp=', replacement = '', x = orbitas) # Remove "Orbit_time_stamp="
-      
-      orbit <- unlist(strsplit(orbit, split = ' ')) # Seperate the string array by spaces
-      sub.idx <- which(nchar(orbit) != 0) # Remove NA strings
-      orbit <- orbit[sub.idx]
+      orbitas<-(subdataset_metadata)[59]
+      orbit <- gsub(pattern = 'Orbit_time_stamp=', replacement = '', 
+                    x = orbitas)
+      orbit <- unlist(strsplit(orbit, split = ' ')) 
+      sub.idx <- which(nchar(orbit) != 0)
+      orbit <- orbit[sub.idx] 
       
       # --- For each orbit --- #
-      
       # Lista para guardar los rasters procesados
       rasters_list <- list()
       for (nband in 1: length(orbit)) {
-        
-        #print(paste('Band:', orbit[nband]))
-        
         # --- Convert the data to raster --- #
-        
         # Optical_Depth_055
         gdal_translate(sds[2], dst_dataset = paste0('tmp055', basename(data_maiac), '.tiff'), b = nband)
-        # print(sds[2])
         r.055 <- raster(paste0('tmp055', basename(data_maiac), '.tiff'))
-        
-        
         # AOD_QA
         #gdal_translate(sds[6], dst_dataset = paste0('tmpqa', basename(data_maiac), '.tiff'), b = nband)
         # print(sds[6])
         #r.QA <- raster(paste0('tmpqa', basename(data_maiac), '.tiff'))
         SINU <- as.character(r.055@crs)
         proj4string(r.055) <- CRS(SINU)
-        #proj4string(r.QA) <- CRS(SINU)
         r.055 <- projectRaster(r.055,crs = crs_project)
-        #r.QA <- projectRaster(r.QA,crs = crs_project)
         r.055 <- r.055 * 0.001   #factor de escala
         cropped_r.055 <- crop(r.055, extent(ndvi_raster))
-        #cropped_QA <- crop(r.QA, extent(ndvi_raster))
-        
         cropped_r.055 <- raster::resample(cropped_r.055, raster_template)
         
         #cropped_QA <- raster::resample(cropped_QA , raster_template)
         # 1) Aplicar mascara de calidad (QA= 0000) a imagenes MODIS
         #cropped_QA[ cropped_QA] <- as.integer(substring(intToBin(cropped_QA[cropped_QA]), 4, 7)) #nos quedamos con los bits 8-11
         #cropped_QA[ cropped_QA != 0] <- NA
-        #Aplicar m?scara
+        #Aplicar mascara
         #r.055 <- mask(cropped_r.055, cropped_QA)
-        r.055<-cropped_r.055
+        r.055 <- cropped_r.055
         # Agregar el raster procesado a la lista
         rasters_list[[nband]] <- r.055
+        
         file.remove(dir('./', paste0('tmp055', basename(data_maiac), '*')))
         file.remove(dir('./', paste0('tmpqa', basename(data_maiac), '*')))
-        
       }
-      #Crear el mosaico
+      # Crear el mosaico
       if (length(rasters_list) > 1) {
-        #print("entro en length(rasters_list) > 1")
         # Crear el mosaico a partir de los rasters
         mosaic_r.055 <- do.call(mosaic, c(rasters_list, fun = mean, na.rm = TRUE)) 
-        # Guardar el mosaico resultante
-        
       } else {
         # Si solo hay un raster, no se necesita mosaico
         mosaic_r.055 <- rasters_list[[1]]
       }
-      #print(sum(is.na(mosaic_r.055[])))
-      ## Guardamos raster 
-      writeRaster(mosaic_r.055, filename = paste(dir_maiac_guardado,"tiff/00_MAIAC/",nombre_maiac,"-MAIAC_raster_",numRaster,sep = ""), format = "GTiff", overwrite = TRUE)
+      
+      writeRaster(mosaic_r.055, filename = paste(dir_maiac_guardado, "tiff/00_MAIAC/", nombre_maiac, "-MAIAC_raster_", numRaster, sep = ""), format = "GTiff", overwrite = TRUE)
       
     }
-1# cuantos valores NA hay
+# cuantos valores NA hay
 num_na <- sum(is.na(mosaic_r.055[]))
 
 # Mostrar la cantidad de valores NA
 print(num_na)
+# 02 NDVI ----
 
-# Codigo para interpolacion  IDW
-
-
-
-#################################################################################
-#################################################################################
-
-# -----------------------   01 NDVI  ------------------------------
-###########################################################################
 rm(list=ls())
-
 estacion <- "SP"
 numRAster<- "01"
-ndvi_raster <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/rasterTemplate/",numRAster,"_raster_template.tif",sep=""))
-year<- 2010
+ndvi_raster <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/", 
+                            estacion, "/dataset/rasterTemplate/", numRAster,
+                            "_raster_template.tif", sep=""))
 
+year <- 2010
 
-# dir_ndvi <- "D:/Josefina/Proyectos/ProyectoChile/modelos/dataset_ejemplo/Prediccion_2024/01_NDVI"
-dir_ndvi <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/01_NDVI",sep="")
-dir_ndvi_guardado <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/dataset_ejemplo/Prediccion_",year,"/",sep = "")
+dir_ndvi <- paste("D:/Josefina/Proyectos/ProyectoChile/", estacion, 
+                  "/dataset/01_NDVI", sep="")
+dir_ndvi_guardado <- paste("D:/Josefina/Proyectos/ProyectoChile/", 
+                           estacion, "/modelos/dataset_ejemplo/Prediccion_", 
+                           year, "/", sep = "")
 
-ndvi_raster_recorte<- ndvi_raster
+ndvi_raster_recorte <- ndvi_raster
 setwd(dir_ndvi)
+
 id <- list.files(path = dir_ndvi,
                  pattern = "*.hdf",
                  full.names = FALSE)
 crs_project <- "+proj=longlat +datum=WGS84"
-# 08:51
-i<-1
+
+i <- 1
 for (i in 1:length(id)){
   print(i)
   data_ndvi <- id[i]
-
-
   crs_project <- "+proj=longlat +datum=WGS84"
-  # nombre_ndvi <- substr(data_ndvi,18,24)
   nombre_ndvi <- substr(data_ndvi,10,16)
   sds <- get_subdatasets(data_ndvi)
-  # Optical_Depth_055
   gdal_translate(sds[1], dst_dataset = paste0('ndvi', basename(data_ndvi), '.tiff'))
   ndvi <- raster(paste0('ndvi', basename(data_ndvi), '.tiff'))
   SINU <- as.character(ndvi@crs)
@@ -155,44 +129,40 @@ for (i in 1:length(id)){
   ndvi <- ndvi* 	0.0001   #factor de escala 
   
   # Recortamos al area de interes
-  #cropped_ndvi <- crop(ndvi, extent(raster_template))
   cropped_ndvi <- crop(ndvi, extent(ndvi_raster_recorte))
   cropped_ndvi <- raster::resample(cropped_ndvi, ndvi_raster_recorte)
-  
   # Imagen ndvi
   ndvi_raster <- cropped_ndvi
   # Eliminar tiff generados
   file.remove(dir('./', paste0('ndvi', basename(data_ndvi), '*')))
   
   ## Guardamos raster 
-  # writeRaster(ndvi_raster, filename = "tiff/NDVI_raster", format = "GTiff", overwrite = TRUE)
-  writeRaster(ndvi_raster, filename = paste(dir_ndvi_guardado,"tiff/01_NDVI/",nombre_ndvi,"-NDVI_raster",sep = ""), format = "GTiff", overwrite = TRUE)
-
+  writeRaster(ndvi_raster, filename = paste(dir_ndvi_guardado,"tiff/01_NDVI/",
+                                            nombre_ndvi, "-NDVI_raster", 
+                                            sep = ""), 
+              format = "GTiff", overwrite = TRUE)
 }
 
-###########################################################################
-# -----------------------   05 ERA  ------------------------------
-###########################################################################
-# ndvi_raster <- raster("D:/Josefina/Proyectos/ProyectoChile/talca/dataset/01_NDVI/NDVI_raster/NDVI_raster.tif")
+# 05 ERA  ----
 for (j in 1:1){
   estacion <- "SP"
   numRaster<- "01"
   year<- "2010"
-  ndvi_raster <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/rasterTemplate/",numRaster,"_raster_template.tif",sep=""))
-  
-  #dir_era <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/meteoSatelital/TP/",year,"/",sep="")
-  dir_era <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/dataset/meteoSatelital/TP/",year,"/",sep="")
-  
-  dir_era_guardado <- paste("D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/dataset_ejemplo/Prediccion_",year,"/",sep="")
-  
-  
-  
+  ndvi_raster <- raster(paste("D:/Josefina/Proyectos/ProyectoChile/",
+                              estacion, "/dataset/rasterTemplate/", numRaster, 
+                              "_raster_template.tif", sep = ""))
+  dir_era <- paste("D:/Josefina/Proyectos/ProyectoChile/", estacion,
+                   "/dataset/meteoSatelital/TP/", 
+                   year, "/", sep="")
+  dir_era_guardado <- paste("D:/Josefina/Proyectos/ProyectoChile/", 
+                            estacion, "/modelos/dataset_ejemplo/Prediccion_",
+                            year, "/", sep = "")
   setwd(dir_era)
   id <- list.files(path = dir_era,
                    pattern = "*.nc",
                    full.names = FALSE)
   crs_project <- "+proj=longlat +datum=WGS84"
-  i<-1
+  i <- 1
   for (i in 1:length(id)){
     print(i)
     era5 <- id[i]
@@ -253,22 +223,28 @@ for (j in 1:1){
     resampled_ERA_tp <- raster::resample(data_ERA_tp_mean, ndvi_raster,method = "bilinear")
     cropped_ERA_tp  <- crop(resampled_ERA_tp, extent(ndvi_raster))
     # 
-    ## guardamos
-    
-    # writeRaster(cropped_ERA_blh, paste(dir_era_guardado,"/tiff/05_ERA5/",nombre_era,"-BLH_raster",sep=""), format="GTiff", overwrite=TRUE)
-    # writeRaster(cropped_ERA_t2m, paste(dir_era_guardado,"/tiff/05_ERA5/",nombre_era,"-T2M_raster",sep=""), format="GTiff", overwrite=TRUE)
-    # writeRaster(cropped_ERA_d2m, paste(dir_era_guardado,"/tiff/05_ERA5/",nombre_era,"-D2M_raster",sep=""), format="GTiff", overwrite=TRUE)
-    # writeRaster(cropped_ERA_sp, paste(dir_era_guardado,"/tiff/05_ERA5/",nombre_era,"-SP_raster",sep=""), format="GTiff", overwrite=TRUE)
-    writeRaster(cropped_ERA_tp, paste(dir_era_guardado,"tiff/05_ERA5/",nombre_era,"-TP_raster",sep=""), format="GTiff", overwrite=TRUE)
-    # writeRaster(cropped_ERA_v10, paste(dir_era_guardado,"/tiff/05_ERA5/",nombre_era,"-V10_raster",sep=""), format="GTiff", overwrite=TRUE)
-    # writeRaster(cropped_ERA_u10, paste(dir_era_guardado,"/tiff/05_ERA5/",nombre_era,"-U10_raster",sep=""), format="GTiff", overwrite=TRUE)
-  
+    # writeRaster(cropped_ERA_blh, paste(dir_era_guardado,"/tiff/
+    # 05_ERA5/", nombre_era,"-BLH_raster",sep=""), format="GTiff", overwrite=TRUE)
+    # writeRaster(cropped_ERA_t2m, paste(dir_era_guardado,
+    # "/tiff/05_ERA5/",nombre_era,"-T2M_raster",sep=""), 
+    # format="GTiff", overwrite=TRUE)
+    # writeRaster(cropped_ERA_d2m, paste(dir_era_guardado,
+    #"/tiff/05_ERA5/",nombre_era,"-D2M_raster",sep=""), 
+    #format="GTiff", overwrite=TRUE)
+    # writeRaster(cropped_ERA_sp, paste(dir_era_guardado,
+    #"/tiff/05_ERA5/",nombre_era,"-SP_raster",sep=""), format="GTiff", overwrite=TRUE)
+    writeRaster(cropped_ERA_tp, 
+                paste(dir_era_guardado,
+                      "tiff/05_ERA5/", nombre_era, "-TP_raster",
+                      sep=""), format="GTiff", overwrite=TRUE)
+    # writeRaster(cropped_ERA_v10, paste(dir_era_guardado,"/tiff/05_ERA5/",
+    # nombre_era,"-V10_raster",sep=""), format="GTiff", overwrite=TRUE)
+    # writeRaster(cropped_ERA_u10, paste(dir_era_guardado,"/tiff/05_ERA5/",
+    # nombre_era,"-U10_raster",sep=""), format="GTiff", overwrite=TRUE)
   }
 }
-###########################################################################
-# -----------------------   04 MERRA  ------------------------------
-###########################################################################
-#SP
+# 04 MERRA  ----
+
 rm(list = setdiff(ls(), "df_rbind"))
 year<- 2010
 for (j in 1:1){
@@ -281,8 +257,6 @@ for (j in 1:1){
   dir_merra_guardado <-paste( "D:/Josefina/Proyectos/ProyectoChile/",estacion,"/modelos/dataset_ejemplo/Prediccion_",year,"/",sep="")
   
   setwd(dir_merra)
-  
-  
   id <- list.files(path = dir_merra,
                    pattern = "*.nc",
                    full.names = FALSE)
@@ -291,16 +265,17 @@ for (j in 1:1){
   for(i in 1:length(id)){
     print(i)
     merra <- id[i]
-    
-    # nombre_merra <- substr(merra,39,46)
     nombre_merra <- substr(merra,28,35)
-    data_merra_BCSMASS <- raster(merra,varname="BCSMASS")
-    
+    data_merra_BCSMASS <- raster(merra, varname = "BCSMASS")
     SINU <- as.character(data_merra_BCSMASS@crs)
-    data_merra_BCSMASS <- projectRaster(data_merra_BCSMASS,crs = crs_project)
+    data_merra_BCSMASS <- projectRaster(data_merra_BCSMASS, 
+                                        crs = crs_project)
     # Resamplear el raster original a la nueva resoluci?n de 1km
-    resampled_merra_BCSMASS <- raster::resample(data_merra_BCSMASS, ndvi_raster,method = "bilinear")
-    cropped_merra_BCSMASS <- crop(resampled_merra_BCSMASS, extent(ndvi_raster))
+    resampled_merra_BCSMASS <- raster::resample(data_merra_BCSMASS, 
+                                                ndvi_raster,
+                                                method = "bilinear")
+    cropped_merra_BCSMASS <- crop(resampled_merra_BCSMASS, 
+                                  extent(ndvi_raster))
     
     # 02 en el modelo final, al final no la consideramos nos olvidamos :(
     #data_merra_DMSSMASS <- raster(merra,varname="DMSSMASS")
@@ -311,12 +286,16 @@ for (j in 1:1){
     #cropped_merra_DMSSMASS <- crop(resampled_merra_DMSSMASS, extent(ndvi_raster))
     
     # 03
-    data_merra_DUSMASS <- raster(merra,varname="DUSMASS")
+    data_merra_DUSMASS <- raster(merra,varname = "DUSMASS")
     SINU <- as.character(data_merra_DUSMASS@crs)
-    data_merra_DUSMASS <- projectRaster(data_merra_DUSMASS,crs = crs_project)
+    data_merra_DUSMASS <- projectRaster(data_merra_DUSMASS, 
+                                        crs = crs_project)
     # Resamplear el raster original a la nueva resoluci?n de 1km
-    resampled_merra_DUSMASS <- raster::resample(data_merra_DUSMASS, ndvi_raster,method = "bilinear")
-    cropped_merra_DUSMASS <- crop(resampled_merra_DUSMASS, extent(ndvi_raster))
+    resampled_merra_DUSMASS <- raster::resample(data_merra_DUSMASS, 
+                                                ndvi_raster, 
+                                                method = "bilinear")
+    cropped_merra_DUSMASS <- crop(resampled_merra_DUSMASS, 
+                                  extent(ndvi_raster))
     
     # 04
     # data_merra_DUSMASS25 <- raster(merra,varname="DUSMASS25")
@@ -337,31 +316,36 @@ for (j in 1:1){
     
     # 06
     #nameVar <- c("BCSMASS","DMSSMASS", "DUSMASS","DUSMASS25", "OCSMASS", "SO2SMASS", "SO4SMASS", "SSSMASS","SSSMASS25")
-    data_merra_SO2SMASS <- raster(merra,varname="SO2SMASS")
+    data_merra_SO2SMASS <- raster(merra, varname = "SO2SMASS")
     SINU <- as.character(data_merra_SO2SMASS@crs)
-    data_merra_SO2SMASS <- projectRaster(data_merra_SO2SMASS,crs = crs_project)
-    # Resamplear el raster original a la nueva resoluci?n de 1km
-    resampled_merra_SO2SMASS <- raster::resample(data_merra_SO2SMASS, ndvi_raster,method = "bilinear")
-    cropped_merra_SO2SMASS <- crop(resampled_merra_SO2SMASS, extent(ndvi_raster))
+    data_merra_SO2SMASS <- projectRaster(data_merra_SO2SMASS, 
+                                         crs = crs_project)
+
+    resampled_merra_SO2SMASS <- raster::resample(data_merra_SO2SMASS, 
+                                                 ndvi_raster, 
+                                                 method = "bilinear")
+    cropped_merra_SO2SMASS <- crop(resampled_merra_SO2SMASS, 
+                                   extent(ndvi_raster))
     
-    # 07
-    #nameVar <- c(", "OCSMASS", "SO2SMASS", "SO4SMASS", "SSSMASS","SSSMASS25")
-    
-    data_merra_SO4SMASS <- raster(merra,varname="SO4SMASS")
+    data_merra_SO4SMASS <- raster(merra, varname = "SO4SMASS")
     SINU <- as.character(data_merra_SO4SMASS@crs)
-    data_merra_SO4SMASS <- projectRaster(data_merra_SO4SMASS,crs = crs_project)
-    # Resamplear el raster original a la nueva resoluci?n de 1km
-    resampled_merra_SO4SMASS <- raster::resample(data_merra_SO4SMASS, ndvi_raster,method = "bilinear")
+    data_merra_SO4SMASS <- projectRaster(data_merra_SO4SMASS, 
+                                         crs = crs_project)
+    resampled_merra_SO4SMASS <- raster::resample(data_merra_SO4SMASS, 
+                                                 ndvi_raster, 
+                                                 method = "bilinear")
     cropped_merra_SO4SMASS <- crop(resampled_merra_SO4SMASS, extent(ndvi_raster))
     
     # 08
-    #nameVar <- c(", "OCSMASS", "SO2SMASS", "SO4SMASS", "SSSMASS","SSSMASS25")
-    data_merra_SSSMASS <- raster(merra,varname="SSSMASS")
+    data_merra_SSSMASS <- raster(merra, varname = "SSSMASS")
     SINU <- as.character(data_merra_SSSMASS@crs)
-    data_merra_SSSMASS <- projectRaster(data_merra_SSSMASS,crs = crs_project)
-    # Resamplear el raster original a la nueva resoluci?n de 1km
-    resampled_merra_SSSMASS <- raster::resample(data_merra_SSSMASS, ndvi_raster,method = "bilinear")
-    cropped_merra_SSSMASS <- crop(resampled_merra_SSSMASS, extent(ndvi_raster))
+    data_merra_SSSMASS <- projectRaster(data_merra_SSSMASS,
+                                        crs = crs_project)
+    resampled_merra_SSSMASS <- raster::resample(data_merra_SSSMASS, 
+                                                ndvi_raster,
+                                                method = "bilinear")
+    cropped_merra_SSSMASS <- crop(resampled_merra_SSSMASS, 
+                                  extent(ndvi_raster))
     
     # 09
     #nameVar <- c(", "OCSMASS", "SO2SMASS", "SO4SMASS", "SSSMASS25","SSSMASS2525")
@@ -383,21 +367,48 @@ for (j in 1:1){
     # writeRaster(cropped_merra_SSSMASS, paste(dir_merra_guardado,"/tiff/04_MERRA-2/",nombre_merra,"-SSSMASS_raster",sep=""), format="GTiff", overwrite=TRUE)
     # writeRaster(cropped_merra_SSSMASS25, paste(dir_merra_guardado,"/tiff/04_MERRA-2/",nombre_merra,"-SSSMASS25_raster",sep=""), format="GTiff", overwrite=TRUE)
     # Guardar el raster procesado
-    writeRaster(cropped_merra_BCSMASS, paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-BCSMASS_raster",sep=""), format="GTiff", overwrite=TRUE)
+    writeRaster(cropped_merra_BCSMASS, paste(dir_merra_guardado,
+                                             "/tiff/04_MERRA-2_Dia/",
+                                             nombre_merra,
+                                             "-BCSMASS_raster",
+                                             sep=""),
+                format = "GTiff", overwrite = TRUE)
     #writeRaster(cropped_merra_DMSSMASS,paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-DMSSMASS_raster",sep=""), format="GTiff", overwrite=TRUE)
-    writeRaster(cropped_merra_DUSMASS, paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-DUSMASS_raster",sep=""), format="GTiff", overwrite=TRUE)
+    writeRaster(cropped_merra_DUSMASS, paste(dir_merra_guardado,
+                                             "/tiff/04_MERRA-2_Dia/", 
+                                             nombre_merra, 
+                                             "-DUSMASS_raster",
+                                             sep = ""), 
+                format = "GTiff", overwrite = TRUE)
     #writeRaster(cropped_merra_DUSMASS25, paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-DUSMASS25_raster",sep=""), format="GTiff", overwrite=TRUE)
     #writeRaster(cropped_merra_OCSMASS, paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-OCSMASS_raster",sep=""), format="GTiff", overwrite=TRUE)
-    writeRaster(cropped_merra_SO2SMASS, paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-SO2SMASS_raster",sep=""), format="GTiff", overwrite=TRUE)
-    writeRaster(cropped_merra_SO4SMASS, paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-SO4SMASS_raster",sep=""), format="GTiff", overwrite=TRUE)
-    writeRaster(cropped_merra_SSSMASS, paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-SSSMASS_raster",sep=""), format="GTiff", overwrite=TRUE)
+    
+    writeRaster(cropped_merra_SO2SMASS, paste(dir_merra_guardado,
+                                              "/tiff/04_MERRA-2_Dia/", 
+                                              nombre_merra, 
+                                              "-SO2SMASS_raster", 
+                                              sep=""), 
+                format = "GTiff", overwrite = TRUE)
+    
+    writeRaster(cropped_merra_SO4SMASS, paste(dir_merra_guardado,
+                                              "/tiff/04_MERRA-2_Dia/",
+                                              nombre_merra,
+                                              "-SO4SMASS_raster",
+                                              sep = ""), 
+                format = "GTiff", overwrite = TRUE)
+    
+    writeRaster(cropped_merra_SSSMASS, paste(dir_merra_guardado,
+                                             "/tiff/04_MERRA-2_Dia/",
+                                             nombre_merra, 
+                                             "-SSSMASS_raster", sep = ""),
+                format = "GTiff", overwrite = TRUE)
+    
     #writeRaster(cropped_merra_SSSMASS25, paste(dir_merra_guardado,"/tiff/04_MERRA-2_Dia/",nombre_merra,"-SSSMASS25_raster",sep=""), format="GTiff", overwrite=TRUE)
     
     }
 }
 
-###########################################################################
-# -----------------------   06 MERRA-AOD  ------------------------------
+# --   06 MERRA-AOD  ------------------------------
 ###########################################################################
 ### RASTER MAPAS
 rm(list = setdiff(ls(), "df_rbind"))

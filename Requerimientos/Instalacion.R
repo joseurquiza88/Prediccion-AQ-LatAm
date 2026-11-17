@@ -7,14 +7,14 @@ install.packages("ecmwfr")
 install.packages("ncdf4")
 install.packages("maps")
 install.packages("mapdata")
-install.packages("maptools")
-install.packages("rgdal")
+install.packages("maptools")#!!!! NO se puede instalar Versop 4.6
+install.packages("rgdal")#!!!! NO se puede instalar Versop 4.6
 install.packages("gdalUtilities")
 install.packages("spatstat")
-install.packages("MODIStsp")
+install.packages("MODIStsp") #!!! No con
 install.packages("ggmap")
 install.packages("lubridate")
-install.packages("rgeos")
+install.packages("rgeos")# nO CON R4.6
 install.packages("reshape2")
 install.packages("lmtest")
 install.packages("tm")
